@@ -105,13 +105,16 @@ build() {
 
   make ZLIB_INCLUDE=-I"${MINGW_PREFIX}"/include depend all
 
-  for file in apps/*.exe *.dll engines/*.dll
-  do
-    cv2pdb "$file" || exit
-  done
+  case "${pkgname[@]}" in
+  *-pdb|*-pdb\ *)
+    for file in apps/*.exe *.dll engines/*.dll
+    do
+      cv2pdb "$file" || exit
+    done
 
-  # copy cv2pdb'ed versions of libeay32.dll and ssleay32.dll to apps/
-  cp -f *.dll *.pdb apps/
+    # copy cv2pdb'ed versions of libeay32.dll and ssleay32.dll to apps/
+    cp -f *.dll *.pdb apps/;;
+  esac
 }
 
 check() {
