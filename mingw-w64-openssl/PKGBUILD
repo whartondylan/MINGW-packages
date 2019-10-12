@@ -4,7 +4,7 @@ _realname=openssl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	"${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
-_ver=1.1.1c
+_ver=1.1.1d
 # use a pacman compatible version scheme
 pkgver=${_ver/[a-z]/.${_ver//[0-9.]/}}
 pkgrel=1
@@ -21,7 +21,7 @@ source=(https://www.openssl.org/source/${_realname}-${_ver}.tar.gz{,.asc}
         '0005-BIO_f_zlib-Properly-handle-BIO_CTRL_PENDING-and-BIO_.patch'
         '0001-tests-work-around-the-MSYS-vs-Windows-paths-problem.patch'
         '0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch')
-sha256sums=('f6fb3079ad15076154eda9413fed42877d668e7069d9b87396d0804fdb3f4c90'
+sha256sums=('1e3a91bc1f9dfce01af26026f856e064eab4c8ee0a8f457b5ae30b40b8b711f2'
             'SKIP'
             '5e1d04163a525861972f0c45ff37f2c219ebf657544bb7481faf08453b91640b'
             '18a2419f2c1bff0b48f69313f4bb0c9f401c3832a98df0d684625c8e7d9694aa'
