@@ -88,11 +88,9 @@ pkgver() {
 
 case "$CARCH" in
 i686)
-  ASCIIDOCTORDIR=/mingw32/lib/asciidoctor-extensions
   SHAREDIR=/mingw32/share/git
   ;;
 x86_64)
-  ASCIIDOCTORDIR=/mingw64/lib/asciidoctor-extensions
   SHAREDIR=/mingw64/share/git
   ;;
 esac
@@ -101,11 +99,7 @@ prepare () {
 	cd "$srcdir/git" &&
 
 	cat >config.mak <<-EOF
-	ASCIIDOC=asciidoctor
-	ASCIIDOC_HTML=html5
-	ASCIIDOC_DOCBOOK=docbook45
-	ASCIIDOC_EXTRA="-alitdd=&\#45;&\#45;"
-	ASCIIDOC_CONF=-I"$ASCIIDOCTORDIR" -rman-inline-macro
+	USE_ASCIIDOCTOR = YesPlease
 	EOF
 }
 
