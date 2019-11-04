@@ -101,6 +101,21 @@ prepare () {
 	cat >config.mak <<-EOF
 	USE_ASCIIDOCTOR = YesPlease
 	EOF
+
+	# Slightly dirty workaround for missing docbook-xsl-ns
+	grep -q http://docbook.sourceforge.net/release/xsl-ns/current /etc/xml/catalog || {
+		(cd /usr/share/xml/ &&
+		 test -d docbook-xsl-ns-1.78.1 ||
+		 curl -L https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/1.78.1/docbook-xsl-ns-1.78.1.tar.bz2/download |
+		 tar xjf -)
+		for rewrite in System URI
+		do
+			xmlcatalog --noout --add "rewrite$rewrite" \
+				http://docbook.sourceforge.net/release/xsl-ns/current \
+				/usr/share/xml/docbook-xsl-ns-1.78.1 \
+				/etc/xml/catalog
+		done
+	}
 }
 
 build() {
