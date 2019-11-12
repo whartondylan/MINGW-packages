@@ -48,6 +48,7 @@ source=("${_realname}"::"git+https://github.com/git-for-windows/git.git#tag=v$ta
 	'start-ssh-pageant.cmd'
 	'git-wrapper.c'
 	'git-bash.rc'
+	'git-bash.txt'
 	'git-cmd.rc'
 	'git-wrapper.rc'
 	'gitk.rc'
@@ -101,6 +102,8 @@ prepare () {
 	cat >config.mak <<-EOF
 	USE_ASCIIDOCTOR = YesPlease
 	EOF
+
+	cp ../git-bash.txt Documentation/
 
 	# Slightly dirty workaround for missing docbook-xsl-ns
 	grep -q http://docbook.sourceforge.net/release/xsl-ns/current /etc/xml/catalog || {
