@@ -168,8 +168,12 @@ build() {
   case "${pkgname[@]}" in *pdb*)
     make -f ../mingw-w64-git.mak STRIP=$PWD/../cv2pdb-strip STRIP_OPTS= strip-all;;
   esac &&
-  make -f ../mingw-w64-git.mak sign-executables &&
-  make -f ../mingw-w64-git.mak print-builtins | tr ' ' '\n' > builtins.txt
+  case " $targets " in
+  *" all "*)
+    make -f ../mingw-w64-git.mak sign-executables &&
+    make -f ../mingw-w64-git.mak print-builtins | tr ' ' '\n' > builtins.txt
+    ;;
+  esac
 }
 
 package_git () {
