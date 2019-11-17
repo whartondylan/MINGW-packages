@@ -130,7 +130,7 @@ build() {
   then
     git config core.autocrlf false
     rm .git/index
-    git stash
+    git reset --hard
   fi
 
   # Git wants to decide itself whether to use ANSI stdio emulation or not
