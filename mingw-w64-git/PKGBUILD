@@ -48,6 +48,7 @@ source=("${_realname}"::"git+https://github.com/git-for-windows/git.git#tag=v$ta
 	'start-ssh-pageant.cmd'
 	'git-wrapper.c'
 	'git-bash.rc'
+	'git-bash.txt'
 	'git-cmd.rc'
 	'git-wrapper.rc'
 	'gitk.rc'
@@ -101,6 +102,8 @@ prepare () {
 	cat >config.mak <<-EOF
 	USE_ASCIIDOCTOR = YesPlease
 	EOF
+
+	cp ../git-bash.txt Documentation/
 
 	# Slightly dirty workaround for missing docbook-xsl-ns
 	grep -q http://docbook.sourceforge.net/release/xsl-ns/current /etc/xml/catalog || {
@@ -168,8 +171,12 @@ build() {
   case "${pkgname[@]}" in *pdb*)
     make -f ../mingw-w64-git.mak STRIP=$PWD/../cv2pdb-strip STRIP_OPTS= strip-all;;
   esac &&
-  make -f ../mingw-w64-git.mak sign-executables &&
-  make -f ../mingw-w64-git.mak print-builtins | tr ' ' '\n' > builtins.txt
+  case " $targets " in
+  *" all "*)
+    make -f ../mingw-w64-git.mak sign-executables &&
+    make -f ../mingw-w64-git.mak print-builtins | tr ' ' '\n' > builtins.txt
+    ;;
+  esac
 }
 
 package_git () {
