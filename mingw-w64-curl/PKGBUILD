@@ -2,16 +2,14 @@
 
 _realname=curl
 pkgbase=mingw-w64-${_realname}
-pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 pkgver=7.67.0
 pkgrel=1
 pkgdesc="Command line tool and library for transferring data with URLs. (mingw-w64)"
 arch=('any')
 url="https://curl.haxx.se"
 license=("MIT")
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config"
-             "${MINGW_PACKAGE_PREFIX}-cv2pdb")
+makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
 depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
          "${MINGW_PACKAGE_PREFIX}-c-ares"
          "${MINGW_PACKAGE_PREFIX}-libidn2"
@@ -21,7 +19,7 @@ depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
          "${MINGW_PACKAGE_PREFIX}-ca-certificates"
          "${MINGW_PACKAGE_PREFIX}-openssl"
          "${MINGW_PACKAGE_PREFIX}-nghttp2")
-options=('!strip' 'staticlibs')
+options=('staticlibs')
 source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         "0001-Make-cURL-relocatable.patch"
         "0002-Hack-make-relocation-work-inside-libexec-git-core.patch"
@@ -34,6 +32,15 @@ sha256sums=('dd5f6956821a548bf4b44f067a530ce9445cc8094fd3e7e3fc7854815858586c'
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
               '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
+
+if test -z "$WITHOUT_PDBS"
+then
+	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
+	makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
+	options+=('!strip')
+else
+	options+=('strip')
+fi
 
 prepare() {
   cd "${_realname}-${pkgver}"
@@ -72,8 +79,11 @@ build() {
 # curl has to specified with the file extension.
   sed -i "s|\/curl > \$\@|\/curl\$\{EXEEXT\} > \$\@|" scripts/Makefile
   make
-  cv2pdb lib/.libs/libcurl-4.dll
-  cv2pdb src/.libs/curl.exe
+  case "${pkgname[@]}"
+  in *pdb*)
+    cv2pdb lib/.libs/libcurl-4.dll
+    cv2pdb src/.libs/curl.exe
+  esac
 }
 
 package_1() {
@@ -87,7 +97,7 @@ package_1() {
   }
 
   make DESTDIR="${pkgdir}" install
-  
+
   local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
   sed -s "s|${PREFIX_DEPS}|${MINGW_PREFIX}|g" -i ${pkgdir}${MINGW_PREFIX}/bin/curl-config
 }
