@@ -76,7 +76,7 @@ build() {
   cv2pdb src/.libs/curl.exe
 }
 
-package() {
+package_1() {
   cd "${srcdir}/build-${CARCH}"
 
   test pdb != "$1" || {
@@ -93,17 +93,17 @@ package() {
 }
 
 package_mingw-w64-i686-curl() {
-  package
+  package_1
 }
 
 package_mingw-w64-x86_64-curl() {
-  package
+  package_1
 }
 
 package_mingw-w64-i686-curl-pdb() {
-  package pdb
+  package_1 pdb
 }
 
 package_mingw-w64-x86_64-curl-pdb() {
-  package pdb
+  package_1 pdb
 }
