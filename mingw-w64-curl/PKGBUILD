@@ -24,11 +24,13 @@ depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
 options=('!strip' 'staticlibs')
 source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         "0001-Make-cURL-relocatable.patch"
-        "0002-Hack-make-relocation-work-inside-libexec-git-core.patch")
+        "0002-Hack-make-relocation-work-inside-libexec-git-core.patch"
+        "78cef06.patch")
 sha256sums=('dd5f6956821a548bf4b44f067a530ce9445cc8094fd3e7e3fc7854815858586c'
             'SKIP'
             '4cac46727e1e3951a2cec8b482bb31792424e53afadf36054645c49ecbddf23c'
-            'ee6ad0645c2c8667d34bde8c57857c8c4e9c041e386e0eaaa486b3322a1f7909')
+            'ee6ad0645c2c8667d34bde8c57857c8c4e9c041e386e0eaaa486b3322a1f7909'
+            '0a140d2331d710e7c3e82c891d5d01d363a31f3a619c79ec75579deda758cf65')
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
               '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
@@ -41,6 +43,7 @@ prepare() {
   rm -f lib/pathtools.h lib/pathtools.c >/dev/null 2>&1 || true
   patch -p1 -i "${srcdir}/0001-Make-cURL-relocatable.patch"
   patch -p1 -i "${srcdir}/0002-Hack-make-relocation-work-inside-libexec-git-core.patch"
+  patch -p1 -i "${srcdir}/78cef06.patch"
   autoreconf -vfi
 }
 
