@@ -71,6 +71,7 @@ build() {
     --enable-shared \
     --enable-sspi \
     --with-libmetalink=${MINGW_PREFIX} \
+    --with-libssh2 \
     "${extra_config[@]}"
 # there's a bug with zsh completion generation script and Windows.
 # curl has to specified with the file extension.
