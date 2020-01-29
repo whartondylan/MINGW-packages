@@ -61,7 +61,7 @@ static void find_exe_realpath(LPWSTR exepath, int count) {
 	}
 	dwlen = GetFinalPathNameByHandleW(hFile, realexe, MAX_PATH,
 					  VOLUME_NAME_DOS);
-	if (dwlen >= MAX_PATH) {
+	if (!dwlen || dwlen >= MAX_PATH) {
 		wcscpy(exepath, mdexe);
 	} else {
 		size_t offset = 0;
