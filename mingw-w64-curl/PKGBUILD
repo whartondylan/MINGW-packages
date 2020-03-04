@@ -47,7 +47,7 @@ prepare() {
   # MINGW builds typically mean that prepare is run twice: once for 64-bit and
   # once for 64-bit. These files are therefore added twice by below patches, so
   # let's force-delete them before trying to add them.
-  rm -f lib/pathtools.h lib/pathtools.c >/dev/null 2>&1 || true
+  rm -f lib/pathtools.h lib/pathtools.c docs/cmdline-opts/ssl-revoke-best-effort.d tests/data/test2070 >/dev/null 2>&1 || true
   patch -p1 -i "${srcdir}/0001-Make-cURL-relocatable.patch"
   patch -p1 -i "${srcdir}/0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
   patch -p1 -i "${srcdir}/0003-schannel-allow-best-effort-revocation-check.patch"
