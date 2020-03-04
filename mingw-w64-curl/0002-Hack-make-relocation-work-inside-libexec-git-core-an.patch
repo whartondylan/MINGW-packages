@@ -1,7 +1,8 @@
-From 691bd66adb9ef080988a97bca46fb3c0328db261 Mon Sep 17 00:00:00 2001
+From 54393f136d11e335542cd4def3ec2632ad94814c Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 31 Oct 2018 10:52:59 +0100
-Subject: [PATCH 2/2] Hack: make relocation work inside libexec/git-core/
+Subject: [PATCH 2/3] Hack: make relocation work inside libexec/git-core/ and
+ bin/
 
 In Git for Windows, there is a copy of libcurl-4.dll in
 /mingw64/libexec/git-core/ (which is where git-remote-https.exe lives,
@@ -17,16 +18,22 @@ The design of the relocation code seems to be less than conducive to a
 proper fix for this issue, so let's just be content with a quick 'n
 dirty workaround.
 
+Note: as MinGit does away with libexec/git-core/, we also explicitly
+handle the `bin/` directory. Technically, this should not be necessary,
+as the CURL_BINDIR is supposedly being handled correctly, but it seems
+not to work as advertised in practice. So let's just paper over this and
+extend the Git for Windows-specific hack with a hard-code `bin/` case.
+
 Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
 ---
- lib/url.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ lib/url.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/lib/url.c b/lib/url.c
-index f997cfe50..5d5f611d0 100644
+index 001501f87..358b2ae48 100644
 --- a/lib/url.c
 +++ b/lib/url.c
-@@ -511,10 +511,16 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -521,10 +521,19 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
  #if defined(__MINGW32__)
      const size_t path_max = PATH_MAX;
      char relocated[PATH_MAX], *relative;
@@ -39,11 +46,14 @@ index f997cfe50..5d5f611d0 100644
 +       !strcmp(relocated + len - 18, "/libexec/git-core/")) {
 +      /* Hack for Git for Windows */
 +      relative = strdup("../../ssl/certs/ca-bundle.crt");
++    } else if(len > 5 && !strcmp(relocated + len - 5, "/bin/")) {
++      /* Hack for Git for Windows */
++      relative = strdup("../ssl/certs/ca-bundle.crt");
 +    } else
 +      relative = get_relative_path(CURL_BINDIR, CURL_CA_BUNDLE);
      strncat(relocated, relative, path_max - 1);
      simplify_path(relocated);
      result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_ORIG], relocated);
 -- 
-2.21.0.windows.1.80.gdc2ae9a38264.dirty
+2.25.1.windows.1
 

@@ -1,7 +1,7 @@
-From 1c1b4af622be6502c7e11819dc346df5f64a6c78 Mon Sep 17 00:00:00 2001
+From f97d11d824d5275262e0904da9ce685c84d7e2b0 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
-Subject: [PATCH 1/2] Make cURL relocatable
+Subject: [PATCH 1/3] Make cURL relocatable
 
 This adds the ability to specify CA_BUNDLE paths that are relative to
 the MSYS2 pseudo-root directory.
@@ -34,10 +34,10 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  create mode 100644 lib/pathtools.h
 
 diff --git a/configure.ac b/configure.ac
-index 6d5ec2c0f..767fb253b 100755
+index e7ad63925..e0392f332 100755
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3618,6 +3618,7 @@ if test "xyes" = "x$longlong"; then
+@@ -3922,6 +3922,7 @@ if test "xyes" = "x$longlong"; then
    ])
  fi
  
@@ -46,12 +46,12 @@ index 6d5ec2c0f..767fb253b 100755
  # check for ssize_t
  AC_CHECK_TYPE(ssize_t, ,
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index 6c47bcda5..c464ac9c9 100644
+index 46ded90bb..ccb78cb26 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
-@@ -37,7 +37,8 @@ LIB_VTLS_HFILES = vtls/openssl.h vtls/vtls.h vtls/gtls.h                \
-   vtls/cyassl.h vtls/schannel.h vtls/sectransp.h vtls/gskit.h           \
-   vtls/mbedtls.h vtls/mesalink.h
+@@ -45,7 +45,8 @@ LIB_VSSH_CFILES = vssh/libssh2.c vssh/libssh.c vssh/wolfssh.c
+ 
+ LIB_VSSH_HFILES = vssh/ssh.h
  
 -LIB_CFILES = file.c timeval.c base64.c hostip.c progress.c formdata.c   \
 +LIB_CFILES = \
@@ -59,9 +59,9 @@ index 6c47bcda5..c464ac9c9 100644
    cookie.c http.c sendf.c ftp.c url.c dict.c if2ip.c speedcheck.c       \
    ldap.c version.c getenv.c escape.c mprintf.c telnet.c netrc.c         \
    getinfo.c transfer.c strcase.c easy.c security.c curl_fnmatch.c       \
-@@ -57,7 +58,8 @@ LIB_CFILES = file.c timeval.c base64.c hostip.c progress.c formdata.c   \
+@@ -65,7 +66,8 @@ LIB_CFILES = file.c timeval.c base64.c hostip.c progress.c formdata.c   \
    mime.c sha256.c setopt.c curl_path.c curl_ctype.c curl_range.c psl.c  \
-   doh.c urlapi.c altsvc.c
+   doh.c urlapi.c curl_get_line.c altsvc.c socketpair.c rename.c
  
 -LIB_HFILES = arpa_telnet.h netrc.h file.h timeval.h hostip.h progress.h \
 +LIB_HFILES = \
@@ -70,7 +70,7 @@ index 6c47bcda5..c464ac9c9 100644
    speedcheck.h urldata.h curl_ldap.h escape.h telnet.h getinfo.h        \
    strcase.h curl_sec.h memdebug.h http_chunks.h curl_fnmatch.h          \
 diff --git a/lib/curl_config.h.in b/lib/curl_config.h.in
-index 04ed02a56..6f2d6f251 100644
+index 8f29f51c1..a4dca24f3 100644
 --- a/lib/curl_config.h.in
 +++ b/lib/curl_config.h.in
 @@ -15,6 +15,9 @@
@@ -709,7 +709,7 @@ index 000000000..dfabfaf10
 +
 +#endif /* PATHTOOLS_H */
 diff --git a/lib/url.c b/lib/url.c
-index eb09a24be..f997cfe50 100644
+index 47fc66aed..001501f87 100644
 --- a/lib/url.c
 +++ b/lib/url.c
 @@ -121,6 +121,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
@@ -722,7 +722,7 @@ index eb09a24be..f997cfe50 100644
  
  /* The last 3 #include files should be in this order */
  #include "curl_printf.h"
-@@ -505,12 +508,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -515,12 +518,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
     */
    if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
  #if defined(CURL_CA_BUNDLE)
@@ -758,5 +758,5 @@ index eb09a24be..f997cfe50 100644
        return result;
  #endif
 -- 
-2.21.0.windows.1.80.gdc2ae9a38264.dirty
+2.25.1.windows.1
 
