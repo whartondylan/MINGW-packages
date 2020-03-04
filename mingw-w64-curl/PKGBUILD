@@ -3,8 +3,8 @@
 _realname=curl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=7.68.0
-pkgrel=2
+pkgver=7.69.0
+pkgrel=1
 pkgdesc="Command line tool and library for transferring data with URLs. (mingw-w64)"
 arch=('any')
 url="https://curl.haxx.se"
@@ -24,11 +24,11 @@ source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         "0001-Make-cURL-relocatable.patch"
         "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
         "0003-schannel-allow-best-effort-revocation-check.patch")
-sha256sums=('207f54917dd6a2dc733065ccf18d61bb5bebeaceb5df49cd9445483e8623eeb9'
+sha256sums=('668d451108a7316cff040b23c79bc766e7ed84122074e44f662b8982f2e76739'
             'SKIP'
             '2ed969121de2052b970d1d6641154446b93f23fd11804940aa1f7b426082a274'
             '4b2760a460a5d92974ff0231c9ca3e8dd7a629d6580fc56fc306db0eda757393'
-            '48d8e5f051d517501f3f070fb729e80ad8a5ea3c8cabc7e802aa3bc66d40344e')
+            '0241396e98212848d5dfd1b7832dc1b35dd153b5e02d1458fbbadbb012e37fcc')
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
               '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
