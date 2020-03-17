@@ -122,7 +122,7 @@ check() {
   make VERBOSE=1 test
 }
 
-package() {
+_package() {
   cd "${srcdir}/build-${CARCH}"
 
   test pdb != "$1" || {
@@ -154,17 +154,17 @@ package() {
 }
 
 package_mingw-w64-i686-openssl() {
-  package
+  _package
 }
 
 package_mingw-w64-x86_64-openssl() {
-  package
+  _package
 }
 
 package_mingw-w64-i686-openssl-pdb() {
-  package pdb
+  _package pdb
 }
 
 package_mingw-w64-x86_64-openssl-pdb() {
-  package pdb
+  _package pdb
 }
