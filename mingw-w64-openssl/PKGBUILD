@@ -60,7 +60,6 @@ prepare() {
 # openssl-1.0.2a-parallel-build.patch
 # openssl-1.0.1-x32.patch
 #  openssl-0.9.6-x509.patch
-# openssl-1.0.1i-relocation.patch
   apply_patch_with_msg \
      openssl-1.1.1-relocation.patch \
      0005-BIO_f_zlib-Properly-handle-BIO_CTRL_PENDING-and-BIO_.patch \
