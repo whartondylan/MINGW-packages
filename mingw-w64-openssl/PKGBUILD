@@ -4,10 +4,10 @@ _realname=openssl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	"${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
-_ver=1.1.1d
+_ver=1.1.1e
 # use a pacman compatible version scheme
 pkgver=${_ver/[a-z]/.${_ver//[0-9.]/}}
-pkgrel=1
+pkgrel=2
 arch=('any')
 pkgdesc="The Open Source toolkit for Secure Sockets Layer and Transport Layer Security (mingw-w64)"
 depends=("${MINGW_PACKAGE_PREFIX}-ca-certificates" "${MINGW_PACKAGE_PREFIX}-gcc-libs" "${MINGW_PACKAGE_PREFIX}-zlib")
@@ -20,10 +20,9 @@ source=(https://www.openssl.org/source/${_realname}-${_ver}.tar.gz{,.asc}
         'openssl-1.1.1-relocation.patch'
         '0001-tests-work-around-the-MSYS-vs-Windows-paths-problem.patch'
         '0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch')
-sha256sums=('1e3a91bc1f9dfce01af26026f856e064eab4c8ee0a8f457b5ae30b40b8b711f2'
+sha256sums=('694f61ac11cb51c9bf73f54e771ff6022b0327a43bbdfa1b2f19de1662a6dcbe'
             'SKIP'
-            '5e1d04163a525861972f0c45ff37f2c219ebf657544bb7481faf08453b91640b'
-            '18a2419f2c1bff0b48f69313f4bb0c9f401c3832a98df0d684625c8e7d9694aa'
+            '1c6bf1b9cf0f183c96349b1820df52b1c5f2bc193060d4d31a6c45230a857f5c'
             'f2871bff59d19fe60086116c0549b54814e8e0af7a9ce3b96bb21604466ad556'
             '8d370171d3fc47db8603097c56c247b1ea7a1364109ac202064c70cf1629deef')
 
