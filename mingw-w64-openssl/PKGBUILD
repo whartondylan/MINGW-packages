@@ -18,7 +18,6 @@ url="https://www.openssl.org"
 noextract=(${_realname}-${_ver}.tar.gz)
 source=(https://www.openssl.org/source/${_realname}-${_ver}.tar.gz{,.asc}
         'openssl-1.1.1-relocation.patch'
-        '0005-BIO_f_zlib-Properly-handle-BIO_CTRL_PENDING-and-BIO_.patch'
         '0001-tests-work-around-the-MSYS-vs-Windows-paths-problem.patch'
         '0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch')
 sha256sums=('1e3a91bc1f9dfce01af26026f856e064eab4c8ee0a8f457b5ae30b40b8b711f2'
@@ -60,10 +59,8 @@ prepare() {
 # openssl-1.0.2a-parallel-build.patch
 # openssl-1.0.1-x32.patch
 #  openssl-0.9.6-x509.patch
-# openssl-1.0.1i-relocation.patch
   apply_patch_with_msg \
      openssl-1.1.1-relocation.patch \
-     0005-BIO_f_zlib-Properly-handle-BIO_CTRL_PENDING-and-BIO_.patch \
      0001-tests-work-around-the-MSYS-vs-Windows-paths-problem.patch \
      0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch
 }
@@ -101,7 +98,9 @@ build() {
     -D__MINGW_USE_VC2005_COMPAT \
     -DOPENSSLBIN=\"\\\"${MINGW_PREFIX}/bin\\\"\"
 
-  sed -i -e 's/ -O3 /&-g /' Makefile
+  sed -i -e 's/ -O3 /&-g /' \
+    -e 's/TOP=\.\.\//TOP="$(pwd)"\/..\//' \
+    Makefile
 
   make ZLIB_INCLUDE=-I"${MINGW_PREFIX}"/include depend all
 
@@ -122,7 +121,7 @@ check() {
   make VERBOSE=1 test
 }
 
-package() {
+_package() {
   cd "${srcdir}/build-${CARCH}"
 
   test pdb != "$1" || {
@@ -154,17 +153,17 @@ package() {
 }
 
 package_mingw-w64-i686-openssl() {
-  package
+  _package
 }
 
 package_mingw-w64-x86_64-openssl() {
-  package
+  _package
 }
 
 package_mingw-w64-i686-openssl-pdb() {
-  package pdb
+  _package pdb
 }
 
 package_mingw-w64-x86_64-openssl-pdb() {
-  package pdb
+  _package pdb
 }
