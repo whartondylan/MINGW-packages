@@ -98,7 +98,9 @@ build() {
     -D__MINGW_USE_VC2005_COMPAT \
     -DOPENSSLBIN=\"\\\"${MINGW_PREFIX}/bin\\\"\"
 
-  sed -i -e 's/ -O3 /&-g /' Makefile
+  sed -i -e 's/ -O3 /&-g /' \
+    -e 's/TOP=\.\.\//TOP="$(pwd)"\/..\//' \
+    Makefile
 
   make ZLIB_INCLUDE=-I"${MINGW_PREFIX}"/include depend all
 
