@@ -236,7 +236,7 @@ package_git-doc-man () {
 package_git-test-artifacts () {
   cd "$srcdir"/git
 
-  make DESTDIR="$pkgdir" install-mingit-test-artifacts
+  make -f ../mingw-w64-git.mak DESTDIR="$pkgdir" install-mingit-busybox-test-artifacts
 }
 
 package_git-pdb () {
