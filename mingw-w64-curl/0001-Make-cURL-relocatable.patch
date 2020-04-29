@@ -1,7 +1,7 @@
-From f97d11d824d5275262e0904da9ce685c84d7e2b0 Mon Sep 17 00:00:00 2001
+From 36ca5bb46d6f0b874fdd7f1f3ef4164b3bbb26f6 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
-Subject: [PATCH 1/3] Make cURL relocatable
+Subject: [PATCH 1/2] Make cURL relocatable
 
 This adds the ability to specify CA_BUNDLE paths that are relative to
 the MSYS2 pseudo-root directory.
@@ -24,20 +24,20 @@ Original-patch-by: Ray Donnelly <mingw.android@gmail.com>
 Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
 ---
  configure.ac         |   1 +
- lib/Makefile.inc     |   6 +-
+ lib/Makefile.inc     |   4 +-
  lib/curl_config.h.in |   3 +
  lib/pathtools.c      | 556 +++++++++++++++++++++++++++++++++++++++++++
  lib/pathtools.h      |  57 +++++
  lib/url.c            |  26 +-
- 6 files changed, 646 insertions(+), 3 deletions(-)
+ 6 files changed, 644 insertions(+), 3 deletions(-)
  create mode 100644 lib/pathtools.c
  create mode 100644 lib/pathtools.h
 
 diff --git a/configure.ac b/configure.ac
-index e7ad63925..e0392f332 100755
+index 768f52f4c..017dcff31 100755
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3922,6 +3922,7 @@ if test "xyes" = "x$longlong"; then
+@@ -4020,6 +4020,7 @@ if test "xyes" = "x$longlong"; then
    ])
  fi
  
@@ -46,31 +46,29 @@ index e7ad63925..e0392f332 100755
  # check for ssize_t
  AC_CHECK_TYPE(ssize_t, ,
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index 46ded90bb..ccb78cb26 100644
+index e3cf41891..d9add1ba2 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
-@@ -45,7 +45,8 @@ LIB_VSSH_CFILES = vssh/libssh2.c vssh/libssh.c vssh/wolfssh.c
- 
- LIB_VSSH_HFILES = vssh/ssh.h
- 
--LIB_CFILES = file.c timeval.c base64.c hostip.c progress.c formdata.c   \
-+LIB_CFILES = \
-+  pathtools.c file.c timeval.c base64.c hostip.c progress.c formdata.c   \
-   cookie.c http.c sendf.c ftp.c url.c dict.c if2ip.c speedcheck.c       \
-   ldap.c version.c getenv.c escape.c mprintf.c telnet.c netrc.c         \
-   getinfo.c transfer.c strcase.c easy.c security.c curl_fnmatch.c       \
-@@ -65,7 +66,8 @@ LIB_CFILES = file.c timeval.c base64.c hostip.c progress.c formdata.c   \
-   mime.c sha256.c setopt.c curl_path.c curl_ctype.c curl_range.c psl.c  \
-   doh.c urlapi.c curl_get_line.c altsvc.c socketpair.c rename.c
- 
--LIB_HFILES = arpa_telnet.h netrc.h file.h timeval.h hostip.h progress.h \
-+LIB_HFILES = \
-+  pathtools.h arpa_telnet.h netrc.h file.h timeval.h hostip.h progress.h \
-   formdata.h cookie.h http.h sendf.h ftp.h url.h dict.h if2ip.h         \
-   speedcheck.h urldata.h curl_ldap.h escape.h telnet.h getinfo.h        \
-   strcase.h curl_sec.h memdebug.h http_chunks.h curl_fnmatch.h          \
+@@ -55,7 +55,7 @@ LIB_CFILES = altsvc.c amigaos.c asyn-ares.c asyn-thread.c base64.c            \
+   hostsyn.c http.c http2.c http_chunks.c http_digest.c http_negotiate.c       \
+   http_ntlm.c http_proxy.c idn_win32.c if2ip.c imap.c inet_ntop.c inet_pton.c \
+   krb5.c ldap.c llist.c md4.c md5.c memdebug.c mime.c mprintf.c mqtt.c        \
+-  multi.c netrc.c non-ascii.c nonblock.c openldap.c parsedate.c pingpong.c    \
++  multi.c netrc.c non-ascii.c nonblock.c openldap.c parsedate.c pathtools.c pingpong.c    \
+   pop3.c progress.c psl.c doh.c rand.c rename.c rtsp.c security.c select.c    \
+   sendf.c setopt.c sha256.c share.c slist.c smb.c smtp.c socketpair.c socks.c \
+   socks_gssapi.c socks_sspi.c speedcheck.c splay.c strcase.c strdup.c         \
+@@ -74,7 +74,7 @@ LIB_HFILES = altsvc.h amigaos.h arpa_telnet.h asyn.h conncache.h connect.h    \
+   http2.h http_chunks.h http_digest.h http_negotiate.h http_ntlm.h            \
+   http_proxy.h if2ip.h imap.h inet_ntop.h inet_pton.h llist.h memdebug.h      \
+   mime.h mqtt.h multihandle.h multiif.h netrc.h non-ascii.h nonblock.h        \
+-  parsedate.h pingpong.h pop3.h progress.h psl.h doh.h quic.h rand.h rename.h \
++  parsedate.h pathtools.h pingpong.h pop3.h progress.h psl.h doh.h quic.h rand.h rename.h \
+   rtsp.h select.h sendf.h setopt.h setup-vms.h share.h sigpipe.h slist.h      \
+   smb.h smtp.h sockaddr.h socketpair.h socks.h speedcheck.h splay.h strcase.h \
+   strdup.h strerror.h strtok.h strtoofft.h system_win32.h telnet.h tftp.h     \
 diff --git a/lib/curl_config.h.in b/lib/curl_config.h.in
-index 8f29f51c1..a4dca24f3 100644
+index abb6c0782..72c2ed7fa 100644
 --- a/lib/curl_config.h.in
 +++ b/lib/curl_config.h.in
 @@ -15,6 +15,9 @@
@@ -709,10 +707,10 @@ index 000000000..dfabfaf10
 +
 +#endif /* PATHTOOLS_H */
 diff --git a/lib/url.c b/lib/url.c
-index 47fc66aed..001501f87 100644
+index 03c274438..0fd707211 100644
 --- a/lib/url.c
 +++ b/lib/url.c
-@@ -121,6 +121,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
+@@ -122,6 +122,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
  #include "strdup.h"
  #include "setopt.h"
  #include "altsvc.h"
@@ -722,13 +720,13 @@ index 47fc66aed..001501f87 100644
  
  /* The last 3 #include files should be in this order */
  #include "curl_printf.h"
-@@ -515,12 +518,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -520,12 +523,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
     */
    if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
  #if defined(CURL_CA_BUNDLE)
 +#if defined(__MINGW32__)
 +    const size_t path_max = PATH_MAX;
-+    char relocated[PATH_MAX], *relative;
++    char relocated[PATH_MAX + 1], *relative;
 +    get_dll_path(relocated, path_max);
 +    strip_n_suffix_folders(relocated, 1);
 +    strncat(relocated, "/", path_max);
@@ -758,5 +756,5 @@ index 47fc66aed..001501f87 100644
        return result;
  #endif
 -- 
-2.25.1.windows.1
+2.26.1.windows.1
 

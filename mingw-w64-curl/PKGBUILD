@@ -22,13 +22,11 @@ depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
 options=('staticlibs')
 source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         "0001-Make-cURL-relocatable.patch"
-        "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
-        "0003-schannel-allow-best-effort-revocation-check.patch")
+        "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch")
 sha256sums=('2ff5e5bd507adf6aa88ff4bbafd4c7af464867ffb688be93b9930717a56c4de8'
             'SKIP'
-            '2ed969121de2052b970d1d6641154446b93f23fd11804940aa1f7b426082a274'
-            '4b2760a460a5d92974ff0231c9ca3e8dd7a629d6580fc56fc306db0eda757393'
-            '0241396e98212848d5dfd1b7832dc1b35dd153b5e02d1458fbbadbb012e37fcc')
+            'a526aae454d6142011333d505619cc75a85d0c9b482e820ad45c81e424b2d395'
+            '271dbebe8bce87ec30ad9ad706d2563de2dc150187276ea346104f59ff2dff76')
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
               '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
@@ -47,10 +45,9 @@ prepare() {
   # MINGW builds typically mean that prepare is run twice: once for 64-bit and
   # once for 64-bit. These files are therefore added twice by below patches, so
   # let's force-delete them before trying to add them.
-  rm -f lib/pathtools.h lib/pathtools.c docs/cmdline-opts/ssl-revoke-best-effort.d tests/data/test2070 >/dev/null 2>&1 || true
+  rm -f lib/pathtools.h lib/pathtools.c tests/data/test2070 >/dev/null 2>&1 || true
   patch -p1 -i "${srcdir}/0001-Make-cURL-relocatable.patch"
   patch -p1 -i "${srcdir}/0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
-  patch -p1 -i "${srcdir}/0003-schannel-allow-best-effort-revocation-check.patch"
   autoreconf -vfi
 }
 
