@@ -3,7 +3,7 @@
 _realname=curl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=7.69.1
+pkgver=7.70.0
 pkgrel=1
 pkgdesc="Command line tool and library for transferring data with URLs. (mingw-w64)"
 arch=('any')
@@ -23,10 +23,10 @@ options=('staticlibs')
 source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         "0001-Make-cURL-relocatable.patch"
         "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch")
-sha256sums=('2ff5e5bd507adf6aa88ff4bbafd4c7af464867ffb688be93b9930717a56c4de8'
+sha256sums=('a50bfe62ad67a24f8b12dd7fd655ac43a0f0299f86ec45b11354f25fbb5829d0'
             'SKIP'
-            'a526aae454d6142011333d505619cc75a85d0c9b482e820ad45c81e424b2d395'
-            '271dbebe8bce87ec30ad9ad706d2563de2dc150187276ea346104f59ff2dff76')
+            '298d16a7dfb5d958648e928a6687d587a05a0d0b6c58e624bfd0ddf0e91d809b'
+            '03bcbea48bde90982bb8a14481948426d5f9b6bf7893e71b67cff6844fa5503c')
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
               '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
