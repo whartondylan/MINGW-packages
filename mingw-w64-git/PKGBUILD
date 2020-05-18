@@ -55,7 +55,8 @@ source=("${_realname}"::"git+https://github.com/git-for-windows/git.git#tag=v$ta
 	'gitk.rc'
 	'compat-bash.rc'
 	'mingw-w64-git.mak'
-	'cv2pdb-strip')
+	'cv2pdb-strip'
+	'edit-git-bash.c')
 
 sha256sums=('SKIP'
             '62f455747f33953a723ff7b070d43f0ed03c1d8d0749d7bb06288e14d356b637'
@@ -146,7 +147,8 @@ build() {
   rm -f *.res &&
   make -f ../mingw-w64-git.mak git-wrapper.exe \
 	git-bash.exe git-cmd.exe compat-bash.exe \
-	cmd/git.exe cmd/gitk.exe cmd/git-gui.exe &&
+	cmd/git.exe cmd/gitk.exe cmd/git-gui.exe \
+	edit-git-bash.exe &&
   rm -f *.res &&
 
   # Also build git-credential-wincred.exe before the rest, so that those
@@ -202,6 +204,7 @@ package_git () {
   install -d -m755 $pkgdir$SHAREDIR
   install -m755 ../git-for-windows.ico $pkgdir$SHAREDIR
   install -m755 git-bash.exe git-cmd.exe $pkgdir
+  install -m755 edit-git-bash.exe $pkgdir$SHAREDIR
 
   # Compatibility Bash, git-wrapper.exe
   install -m755 compat-bash.exe git-wrapper.exe $pkgdir$SHAREDIR
