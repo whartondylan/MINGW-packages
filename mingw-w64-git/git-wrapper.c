@@ -607,6 +607,46 @@ static void initialize_top_level_path(LPWSTR top_level_path, LPWSTR exepath,
 	}
 }
 
+static void maybe_read_config(LPWSTR top_level_path)
+{
+	WCHAR config_path[MAX_PATH];
+	char line[1024];
+	FILE *f;
+
+	wcscpy(config_path, top_level_path);
+	wcsncat(config_path, L"\\etc\\git-bash.config", MAX_PATH - wcslen(top_level_path) - 1);
+	f = _wfopen(config_path, L"rt");
+	if (!f)
+		return;
+
+	while (fgets(line, sizeof(line), f)) {
+		int len = strlen(line);
+
+		/* trim trailing newline */
+		if (len > 0 && line[len - 1] == '\n')
+			if (--len > 0 && line[len - 1] == '\r')
+				len--;
+		line[len] = '\0';
+
+		if (!memcmp(line, "MSYS=", 5)) {
+			int len2 = GetEnvironmentVariableA("MSYS", NULL, 0);
+
+			if (!len2)
+				SetEnvironmentVariableA("MSYS", line + 5);
+			else {
+				char *combined = malloc(len - 5 + 1 + len2 + 1);
+				strcpy(combined, line + 5);
+				combined[len - 5] = ' ';
+				GetEnvironmentVariableA("MSYS", combined + len - 5 + 1, len2);
+				SetEnvironmentVariableA("MSYS", combined);
+				free(combined);
+			}
+		}
+	}
+
+	fclose(f);
+}
+
 int main(void)
 {
 	int r = 1, wait = 1, prefix_args_len = -1, needs_env_setup = 1,
@@ -711,6 +751,7 @@ int main(void)
 					msystem_bin, -4);
 
 		setup_environment(top_level_path, full_path);
+		maybe_read_config(top_level_path);
 	}
 	cmd = fixup_commandline(exepath, &exep, &wait,
 		prefix_args, prefix_args_len, is_git_command, skip_arguments,
