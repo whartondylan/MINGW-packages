@@ -24,6 +24,9 @@ cmd/git.exe cmd/gitk.exe cmd/git-gui.exe: \
 	@mkdir -p cmd
 	$(QUIET_LINK)$(CC) $(ALL_LDFLAGS) $(COMPAT_CFLAGS) -o $@ $^ -lshlwapi
 
+edit-git-bash.exe: ../edit-git-bash.c
+	$(QUIET_CC)$(CC) $(ALL_CFLAGS) -o $@ $^
+
 print-builtins:
 	@echo $(BUILT_INS)
 
