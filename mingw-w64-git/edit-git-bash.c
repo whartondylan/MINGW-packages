@@ -62,21 +62,16 @@ int edit_git_bash(LPWSTR git_bash_path, LPWSTR new_command_line)
 	return result;
 }
 
-int main(int argc, char **argv)
+int wmain(int wargc, LPWSTR *wargv)
 {
-	int wargc, result;
-	LPWSTR *wargv;
+	int result;
 
 #ifdef DEBUG
 	LPTSTR cmdLine = GetCommandLineW();
 	fwprintf(stderr, L"Command Line: %s\n", cmdLine);
 
-	wargv = CommandLineToArgvW(cmdLine, &wargc);
-
 	for (int i = 1; i < wargc; ++i)
 		fwprintf(stderr, L"Arg %d: %s\n", i, wargv[i]);
-#else
-	wargv = CommandLineToArgvW(GetCommandLineW(), &wargc);
 #endif
 
 	if (wargc != 3) {

@@ -24,8 +24,13 @@ cmd/git.exe cmd/gitk.exe cmd/git-gui.exe: \
 	@mkdir -p cmd
 	$(QUIET_LINK)$(CC) $(ALL_LDFLAGS) $(COMPAT_CFLAGS) -o $@ $^ -lshlwapi
 
-edit-git-bash.exe: ../edit-git-bash.c
-	$(QUIET_CC)$(CC) $(ALL_CFLAGS) -o $@ $^
+edit-git-bash$(X): edit-git-bash.o
+	$(QUIET_LINK)$(CC) $(ALL_LDFLAGS) $(COMPAT_CFLAGS) \
+		-fno-stack-protector -Wall -o $@ $^
+
+edit-git-bash.o: %.o: ../%.c GIT-PREFIX
+	$(QUIET_CC)$(CC) $(ALL_CFLAGS) $(COMPAT_CFLAGS) \
+		-fno-stack-protector -o $*.o -c -Wall -Wwrite-strings $<
 
 print-builtins:
 	@echo $(BUILT_INS)
