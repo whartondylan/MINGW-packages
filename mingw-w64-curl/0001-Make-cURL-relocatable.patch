@@ -1,4 +1,4 @@
-From 36ca5bb46d6f0b874fdd7f1f3ef4164b3bbb26f6 Mon Sep 17 00:00:00 2001
+From eb542a5b34ec5af5f21fe43a4c29553e423ae5ef Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
 Subject: [PATCH 1/2] Make cURL relocatable
@@ -34,10 +34,10 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  create mode 100644 lib/pathtools.h
 
 diff --git a/configure.ac b/configure.ac
-index 768f52f4c..017dcff31 100755
+index f0fbcb0af..7f36e5308 100755
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4020,6 +4020,7 @@ if test "xyes" = "x$longlong"; then
+@@ -4068,6 +4068,7 @@ if test "xyes" = "x$longlong"; then
    ])
  fi
  
@@ -46,7 +46,7 @@ index 768f52f4c..017dcff31 100755
  # check for ssize_t
  AC_CHECK_TYPE(ssize_t, ,
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index e3cf41891..d9add1ba2 100644
+index 723b826e9..f5294565d 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
 @@ -55,7 +55,7 @@ LIB_CFILES = altsvc.c amigaos.c asyn-ares.c asyn-thread.c base64.c            \
@@ -68,7 +68,7 @@ index e3cf41891..d9add1ba2 100644
    smb.h smtp.h sockaddr.h socketpair.h socks.h speedcheck.h splay.h strcase.h \
    strdup.h strerror.h strtok.h strtoofft.h system_win32.h telnet.h tftp.h     \
 diff --git a/lib/curl_config.h.in b/lib/curl_config.h.in
-index abb6c0782..72c2ed7fa 100644
+index dc792f4ca..351f22952 100644
 --- a/lib/curl_config.h.in
 +++ b/lib/curl_config.h.in
 @@ -15,6 +15,9 @@
@@ -707,20 +707,20 @@ index 000000000..dfabfaf10
 +
 +#endif /* PATHTOOLS_H */
 diff --git a/lib/url.c b/lib/url.c
-index 03c274438..0fd707211 100644
+index 8225e617a..036df5e6c 100644
 --- a/lib/url.c
 +++ b/lib/url.c
-@@ -122,6 +122,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
- #include "strdup.h"
+@@ -123,6 +123,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
  #include "setopt.h"
  #include "altsvc.h"
+ #include "dynbuf.h"
 +#if defined(__MINGW32__)
 +#include "pathtools.h"
 +#endif
  
  /* The last 3 #include files should be in this order */
  #include "curl_printf.h"
-@@ -520,12 +523,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -542,12 +545,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
     */
    if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
  #if defined(CURL_CA_BUNDLE)
@@ -756,5 +756,5 @@ index 03c274438..0fd707211 100644
        return result;
  #endif
 -- 
-2.26.1.windows.1
+2.27.0.windows.1
 
