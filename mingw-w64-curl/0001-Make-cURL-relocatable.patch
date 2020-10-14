@@ -1,4 +1,4 @@
-From eb542a5b34ec5af5f21fe43a4c29553e423ae5ef Mon Sep 17 00:00:00 2001
+From 4f28bb0833a272e796fc35b555daf6852d9dc5b1 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
 Subject: [PATCH 1/2] Make cURL relocatable
@@ -34,10 +34,10 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  create mode 100644 lib/pathtools.h
 
 diff --git a/configure.ac b/configure.ac
-index f0fbcb0af..7f36e5308 100755
+index 2304775b1..0e38e2089 100755
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4068,6 +4068,7 @@ if test "xyes" = "x$longlong"; then
+@@ -4171,6 +4171,7 @@ if test "xyes" = "x$longlong"; then
    ])
  fi
  
@@ -46,7 +46,7 @@ index f0fbcb0af..7f36e5308 100755
  # check for ssize_t
  AC_CHECK_TYPE(ssize_t, ,
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index 723b826e9..f5294565d 100644
+index a2fd57a83..0c97c592c 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
 @@ -55,7 +55,7 @@ LIB_CFILES = altsvc.c amigaos.c asyn-ares.c asyn-thread.c base64.c            \
@@ -55,10 +55,10 @@ index 723b826e9..f5294565d 100644
    krb5.c ldap.c llist.c md4.c md5.c memdebug.c mime.c mprintf.c mqtt.c        \
 -  multi.c netrc.c non-ascii.c nonblock.c openldap.c parsedate.c pingpong.c    \
 +  multi.c netrc.c non-ascii.c nonblock.c openldap.c parsedate.c pathtools.c pingpong.c    \
-   pop3.c progress.c psl.c doh.c rand.c rename.c rtsp.c security.c select.c    \
+   pop3.c progress.c psl.c doh.c rand.c rename.c rtsp.c select.c               \
    sendf.c setopt.c sha256.c share.c slist.c smb.c smtp.c socketpair.c socks.c \
    socks_gssapi.c socks_sspi.c speedcheck.c splay.c strcase.c strdup.c         \
-@@ -74,7 +74,7 @@ LIB_HFILES = altsvc.h amigaos.h arpa_telnet.h asyn.h conncache.h connect.h    \
+@@ -75,7 +75,7 @@ LIB_HFILES = altsvc.h amigaos.h arpa_telnet.h asyn.h conncache.h connect.h    \
    http2.h http_chunks.h http_digest.h http_negotiate.h http_ntlm.h            \
    http_proxy.h if2ip.h imap.h inet_ntop.h inet_pton.h llist.h memdebug.h      \
    mime.h mqtt.h multihandle.h multiif.h netrc.h non-ascii.h nonblock.h        \
@@ -68,7 +68,7 @@ index 723b826e9..f5294565d 100644
    smb.h smtp.h sockaddr.h socketpair.h socks.h speedcheck.h splay.h strcase.h \
    strdup.h strerror.h strtok.h strtoofft.h system_win32.h telnet.h tftp.h     \
 diff --git a/lib/curl_config.h.in b/lib/curl_config.h.in
-index dc792f4ca..351f22952 100644
+index ab8651a51..5fc41c7ec 100644
 --- a/lib/curl_config.h.in
 +++ b/lib/curl_config.h.in
 @@ -15,6 +15,9 @@
@@ -707,7 +707,7 @@ index 000000000..dfabfaf10
 +
 +#endif /* PATHTOOLS_H */
 diff --git a/lib/url.c b/lib/url.c
-index 8225e617a..036df5e6c 100644
+index 8af33c040..5c93b6af9 100644
 --- a/lib/url.c
 +++ b/lib/url.c
 @@ -123,6 +123,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
@@ -720,7 +720,7 @@ index 8225e617a..036df5e6c 100644
  
  /* The last 3 #include files should be in this order */
  #include "curl_printf.h"
-@@ -542,12 +545,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -556,12 +559,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
     */
    if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
  #if defined(CURL_CA_BUNDLE)
@@ -756,5 +756,5 @@ index 8225e617a..036df5e6c 100644
        return result;
  #endif
 -- 
-2.27.0.windows.1
+2.28.0.windows.1
 
