@@ -13,6 +13,7 @@
 #include <shellapi.h>
 #include <stdio.h>
 #include <wchar.h>
+#include <stdbool.h>
 
 /* Let the system deal with it if the path is too long */
 #undef MAX_PATH
@@ -113,6 +114,20 @@ static void my_path_append(LPWSTR list, LPCWSTR path, size_t alloc)
 	}
 }
 
+bool IsRunningOnARM64()
+{
+	USHORT process_machine = 0;
+	USHORT native_machine = 0;
+
+	// Note: IsWow64Process2 is only available in Windows 10 1511+
+	BOOL (WINAPI* IsWow64Process2)(HANDLE, PUSHORT, PUSHORT) =
+    GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process2");
+
+	return IsWow64Process2 &&
+		IsWow64Process2(GetCurrentProcess(), &process_machine, &native_machine) &&
+		native_machine == 0xaa64;
+}
+
 static void setup_environment(LPWSTR top_level_path, int full_path)
 {
 	WCHAR msystem[64];
@@ -120,8 +135,14 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 	int len;
 
 	/* Set MSYSTEM */
-	swprintf(msystem, sizeof(msystem),
-		L"MINGW%d", (int) sizeof(void *) * 8);
+	if (IsRunningOnARM64()) {
+		swprintf(msystem, sizeof(msystem),
+				L"ARM64");
+	} else {
+		swprintf(msystem, sizeof(msystem),
+				L"MINGW%d", (int)sizeof(void*) * 8);
+	}
+
 	SetEnvironmentVariable(L"MSYSTEM", msystem);
 
 	/* if not set, set PLINK_PROTOCOL to ssh */
@@ -164,13 +185,22 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 
 	/* extend the PATH */
 	len = GetEnvironmentVariable(L"PATH", NULL, 0);
-	len = sizeof(WCHAR) * (len + 3 * MAX_PATH);
+	len = sizeof(WCHAR) * (len + 4 * MAX_PATH);
 	path2 = (LPWSTR)malloc(len);
 	wcscpy(path2, top_level_path);
 	if (!full_path)
 		my_path_append(path2, L"cmd;", len);
 	else {
 		my_path_append(path2, msystem_bin, len);
+		if (IsRunningOnARM64()) {
+			/*
+			 * Many modules aren't available natively for ARM64 yet, but we can leverage i686 emulation.
+			 * Therefore we add /minw32/bin to the path.
+			 */
+			wcscat(path2, L";");
+			wcscat(path2, top_level_path);
+			my_path_append(path2, L"mingw32\\bin;", len);
+		}
 		if (_waccess(path2, 0) != -1) {
 			/* We are in an MSys2-based setup */
 			int len2 = GetEnvironmentVariable(L"HOME", NULL, 0);
@@ -658,8 +688,13 @@ int main(void)
 	LPWSTR working_directory = NULL;
 
 	/* Determine MSys2-based Git path. */
-	swprintf(msystem_bin, sizeof(msystem_bin),
-		L"mingw%d\\bin", (int) sizeof(void *) * 8);
+	if (IsRunningOnARM64()) {
+		swprintf(msystem_bin, sizeof(msystem_bin),
+			L"arm64\\bin");
+	} else {
+		swprintf(msystem_bin, sizeof(msystem_bin),
+			L"mingw%d\\bin", (int) sizeof(void *) * 8);
+	}
 	*top_level_path = L'\0';
 
 	/* get the installation location */
