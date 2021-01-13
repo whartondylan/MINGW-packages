@@ -155,8 +155,8 @@ build() {
   # Also build git-credential-wincred.exe before the rest, so that those
   # LDFLAGS *really* do not cause `git.exe` to be re-linked after it was
   # stripped.
-  CC=gcc make -C contrib/credential/wincred clean all &&
-  CC=gcc make -C contrib/credential/wincred &&
+  CC=$CHOST-gcc make -C contrib/credential/wincred clean &&
+  CC=$CHOST-gcc make -C contrib/credential/wincred &&
 
   targets=
   case "${pkgname[@]}" in ''|*-git|*-git\ *) targets="$targets all";; esac
