@@ -155,7 +155,7 @@ build() {
   # Also build git-credential-wincred.exe before the rest, so that those
   # LDFLAGS *really* do not cause `git.exe` to be re-linked after it was
   # stripped.
-  make -C contrib/credential/wincred clean all &&
+  CC=gcc make -C contrib/credential/wincred clean all &&
   CC=gcc make -C contrib/credential/wincred &&
 
   targets=
