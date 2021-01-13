@@ -159,12 +159,12 @@ build() {
   CC=gcc make -C contrib/credential/wincred clean &&
   CC=gcc make -C contrib/credential/wincred &&
 
-  targets=
-  case "${pkgname[@]}" in ''|*-git|*-git\ *) targets="$targets all";; esac
-  case "${pkgname[@]}" in ''|*html*) targets="$targets html";; esac
-  case "${pkgname[@]}" in ''|*man*) targets="$targets man";; esac
+  targets= &&
+  case "${pkgname[@]}" in ''|*-git|*-git\ *) targets="$targets all";; esac &&
+  case "${pkgname[@]}" in ''|*html*) targets="$targets html";; esac &&
+  case "${pkgname[@]}" in ''|*man*) targets="$targets man";; esac &&
 
-  counter=0
+  counter=0 &&
   while ! make $targets
   do
     counter=$(($counter+1))
