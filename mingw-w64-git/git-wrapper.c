@@ -113,6 +113,13 @@ static void my_path_append(LPWSTR list, LPCWSTR path, size_t alloc)
 	}
 }
 
+static int is_system32_path(LPWSTR path)
+{
+	WCHAR system32[MAX_PATH];
+
+	return GetSystemDirectoryW(system32, MAX_PATH) && !_wcsicmp(system32, path);
+}
+
 static void setup_environment(LPWSTR top_level_path, int full_path)
 {
 	WCHAR msystem[64];
@@ -142,7 +149,9 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 			drvlen = GetEnvironmentVariable(L"HOMEDRIVE", e, drvlen);
 			GetEnvironmentVariable(L"HOMEPATH", e + drvlen, len);
 			/* check if the path exists */
-			attr = GetFileAttributesW(e);
+			attr = is_system32_path(e) ?
+				/* If HOMEDRIVE/HOMEPATH points to C:/Windows/system32, ignore it */
+				INVALID_FILE_ATTRIBUTES : GetFileAttributesW(e);
 			if (attr != INVALID_FILE_ATTRIBUTES
 					&& (attr & FILE_ATTRIBUTE_DIRECTORY))
 				SetEnvironmentVariable(L"HOME", e);
