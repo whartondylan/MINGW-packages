@@ -1,4 +1,4 @@
-From 4f28bb0833a272e796fc35b555daf6852d9dc5b1 Mon Sep 17 00:00:00 2001
+From b4890b37058ea319475e5809c142d922b198c82e Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
 Subject: [PATCH 1/2] Make cURL relocatable
@@ -24,20 +24,20 @@ Original-patch-by: Ray Donnelly <mingw.android@gmail.com>
 Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
 ---
  configure.ac         |   1 +
- lib/Makefile.inc     |   4 +-
+ lib/Makefile.inc     |   2 +
  lib/curl_config.h.in |   3 +
  lib/pathtools.c      | 556 +++++++++++++++++++++++++++++++++++++++++++
  lib/pathtools.h      |  57 +++++
  lib/url.c            |  26 +-
- 6 files changed, 644 insertions(+), 3 deletions(-)
+ 6 files changed, 644 insertions(+), 1 deletion(-)
  create mode 100644 lib/pathtools.c
  create mode 100644 lib/pathtools.h
 
 diff --git a/configure.ac b/configure.ac
-index 2304775b1..0e38e2089 100755
+index e72aca604..f25ef508d 100755
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4171,6 +4171,7 @@ if test "xyes" = "x$longlong"; then
+@@ -4266,6 +4266,7 @@ if test "xyes" = "x$longlong"; then
    ])
  fi
  
@@ -46,40 +46,38 @@ index 2304775b1..0e38e2089 100755
  # check for ssize_t
  AC_CHECK_TYPE(ssize_t, ,
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index a2fd57a83..0c97c592c 100644
+index e8d2259f2..19a94db5e 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
-@@ -55,7 +55,7 @@ LIB_CFILES = altsvc.c amigaos.c asyn-ares.c asyn-thread.c base64.c            \
-   hostsyn.c http.c http2.c http_chunks.c http_digest.c http_negotiate.c       \
-   http_ntlm.c http_proxy.c idn_win32.c if2ip.c imap.c inet_ntop.c inet_pton.c \
-   krb5.c ldap.c llist.c md4.c md5.c memdebug.c mime.c mprintf.c mqtt.c        \
--  multi.c netrc.c non-ascii.c nonblock.c openldap.c parsedate.c pingpong.c    \
-+  multi.c netrc.c non-ascii.c nonblock.c openldap.c parsedate.c pathtools.c pingpong.c    \
-   pop3.c progress.c psl.c doh.c rand.c rename.c rtsp.c select.c               \
-   sendf.c setopt.c sha256.c share.c slist.c smb.c smtp.c socketpair.c socks.c \
-   socks_gssapi.c socks_sspi.c speedcheck.c splay.c strcase.c strdup.c         \
-@@ -75,7 +75,7 @@ LIB_HFILES = altsvc.h amigaos.h arpa_telnet.h asyn.h conncache.h connect.h    \
-   http2.h http_chunks.h http_digest.h http_negotiate.h http_ntlm.h            \
-   http_proxy.h if2ip.h imap.h inet_ntop.h inet_pton.h llist.h memdebug.h      \
-   mime.h mqtt.h multihandle.h multiif.h netrc.h non-ascii.h nonblock.h        \
--  parsedate.h pingpong.h pop3.h progress.h psl.h doh.h quic.h rand.h rename.h \
-+  parsedate.h pathtools.h pingpong.h pop3.h progress.h psl.h doh.h quic.h rand.h rename.h \
-   rtsp.h select.h sendf.h setopt.h setup-vms.h share.h sigpipe.h slist.h      \
-   smb.h smtp.h sockaddr.h socketpair.h socks.h speedcheck.h splay.h strcase.h \
-   strdup.h strerror.h strtok.h strtoofft.h system_win32.h telnet.h tftp.h     \
+@@ -170,6 +170,7 @@ LIB_CFILES =         \
+   nonblock.c         \
+   openldap.c         \
+   parsedate.c        \
++  pathtools.c        \
+   pingpong.c         \
+   pop3.c             \
+   progress.c         \
+@@ -289,6 +290,7 @@ LIB_HFILES =         \
+   non-ascii.h        \
+   nonblock.h         \
+   parsedate.h        \
++  pathtools.h        \
+   pingpong.h         \
+   pop3.h             \
+   progress.h         \
 diff --git a/lib/curl_config.h.in b/lib/curl_config.h.in
-index ab8651a51..5fc41c7ec 100644
+index fa5cf8de7..c32143ae8 100644
 --- a/lib/curl_config.h.in
 +++ b/lib/curl_config.h.in
-@@ -15,6 +15,9 @@
- /* Default SSL backend */
- #undef CURL_DEFAULT_SSL_BACKEND
+@@ -12,6 +12,9 @@
+ /* Location of default ca path */
+ #undef CURL_CA_PATH
  
 +/* Location of executable */
 +#undef CURL_BINDIR
 +
- /* to disable cookies support */
- #undef CURL_DISABLE_COOKIES
+ /* Default SSL backend */
+ #undef CURL_DEFAULT_SSL_BACKEND
  
 diff --git a/lib/pathtools.c b/lib/pathtools.c
 new file mode 100644
@@ -707,10 +705,10 @@ index 000000000..dfabfaf10
 +
 +#endif /* PATHTOOLS_H */
 diff --git a/lib/url.c b/lib/url.c
-index 8af33c040..5c93b6af9 100644
+index c02d2c201..6ab194556 100644
 --- a/lib/url.c
 +++ b/lib/url.c
-@@ -123,6 +123,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
+@@ -124,6 +124,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
  #include "setopt.h"
  #include "altsvc.h"
  #include "dynbuf.h"
@@ -720,7 +718,7 @@ index 8af33c040..5c93b6af9 100644
  
  /* The last 3 #include files should be in this order */
  #include "curl_printf.h"
-@@ -556,12 +559,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -569,12 +572,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
     */
    if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
  #if defined(CURL_CA_BUNDLE)
@@ -756,5 +754,5 @@ index 8af33c040..5c93b6af9 100644
        return result;
  #endif
 -- 
-2.28.0.windows.1
+2.30.0.windows.2
 

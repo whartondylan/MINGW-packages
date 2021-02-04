@@ -1,4 +1,4 @@
-From e289d0cd935df5d11e36604d9bce3acbc31d6e7f Mon Sep 17 00:00:00 2001
+From ba4d809b2554621fef2d41614a276dc3161db7b3 Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 31 Oct 2018 10:52:59 +0100
 Subject: [PATCH 2/2] Hack: make relocation work inside libexec/git-core/ and
@@ -30,10 +30,10 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/lib/url.c b/lib/url.c
-index 5c93b6af9..647aa6890 100644
+index 6ab194556..3e34acebe 100644
 --- a/lib/url.c
 +++ b/lib/url.c
-@@ -562,10 +562,19 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -575,10 +575,19 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
  #if defined(__MINGW32__)
      const size_t path_max = PATH_MAX;
      char relocated[PATH_MAX + 1], *relative;
@@ -55,5 +55,5 @@ index 5c93b6af9..647aa6890 100644
      simplify_path(relocated);
      result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_ORIG], relocated);
 -- 
-2.28.0.windows.1
+2.30.0.windows.2
 
