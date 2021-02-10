@@ -4,7 +4,7 @@ _realname=pcre2
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
 pkgver=10.36
-pkgrel=0
+pkgrel=1
 pkgdesc="A library that implements Perl 5-style regular expressions (mingw-w64)"
 arch=('any')
 url="https://pcre.org/"
@@ -23,14 +23,14 @@ source=(https://ftp.pcre.org/pub/pcre/${_realname}-${pkgver}.tar.bz2{,.sig}
         0004-RunGrepTest-skip-test-with-absolute-Unix-path.patch
         0005-RunGrepTest-skip-script-callout-test.patch
         0006-Fix-INTERACTIVE-fd-on-Windows.patch)
-sha256sums=('35514dff0ccdf02b55bd2e9fa586a1b9d01f62332c3356e379eabb75f789d8aa'
+sha256sums=('a9ef39278113542968c7c73a31cfcb81aca1faa64690f400b907e8ab6b4a665c'
             'SKIP'
-            'a20c4c3a340d4e8b3fb0a22197796777e6a9f21d46b6f98164750931543a2d9f'
-            'f73ccc5ba01faa0772f802da354dbef89ea4306344ee36fb1a9e92d616b1fd48'
-            '3689af7b69804295140062a2e70b5b61e7e949abacd39ddbfa8d933447f16979'
-            '3f7b6a2de5fd5478b44aeadb98d217988fc1576418430ecb746ddf16582755d5'
-            'fcaeffd0ab12691c7d0e793dc6cb39116cbbea41050b1b7ff1a9f7a80b272d62'
-            '2482fa16c728c247505e59d6ce7798fdd9387699b0dce7146627177b687246ea')
+            'b4e506a55d54c53e4da6e4e0611fc21d0f6bf3ac1f75e3412372e8259102b80a'
+            'f15d4aea1f509882a9dd67bc4889548e89f9f8210eefe3b46d591564f6a56213'
+            '3304083273fa979001987fd11183c5c342ad297a50db677d3ff42a45c510b72d'
+            '089d340098d337f733d3efba60808d6fafdd123f8a6b703a4304ba739130d1f9'
+            'e07c1f5632be9bef9d481b51a7eca9f87f941dc3578fda662eec3df916862b7c'
+            '279e33f6efdced59b037af900e5d1bf70f9a431a97801546f36d5c161ee319a2')
 validpgpkeys=('45F68D54BBE23FB3039B46E59766E084FB0F43D8')
 
 prepare () {
