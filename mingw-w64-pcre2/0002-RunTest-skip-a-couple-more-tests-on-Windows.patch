@@ -1,4 +1,4 @@
-From 3f615b9b222e959963b4f38d56e5f7278bd8921b Mon Sep 17 00:00:00 2001
+From 59fc8bd8a8d459d459881563b68db6e5c2bb742d Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:54:57 +0200
 Subject: [PATCH 2/6] RunTest: skip a couple more tests on Windows
@@ -13,7 +13,7 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/RunTest b/RunTest
-index d295ef3..61cf1f0 100755
+index e71c1fc..1cef819 100755
 --- a/RunTest
 +++ b/RunTest
 @@ -420,8 +420,8 @@ if [ $do0  = no -a $do1  = no -a $do2  = no -a $do3  = no -a \
@@ -45,5 +45,5 @@ index d295ef3..61cf1f0 100755
    do24=yes
    do25=yes
 -- 
-2.22.0.windows.1.2.ge21386722b8b
+2.30.0.windows.2
 

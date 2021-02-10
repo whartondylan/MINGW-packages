@@ -1,4 +1,4 @@
-From c4c4bbeabf1302e876a2c75b09693c0266521462 Mon Sep 17 00:00:00 2001
+From d065d0649b6bd1cd97549b61416cf44b8eb90794 Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:49:47 +0200
 Subject: [PATCH 1/6] RunTest: skip test that must fail on Windows
@@ -9,7 +9,7 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/RunTest b/RunTest
-index 6715d15..d295ef3 100755
+index 14d9f60..e71c1fc 100755
 --- a/RunTest
 +++ b/RunTest
 @@ -479,7 +479,7 @@ for bmode in "$test8" "$test16" "$test32"; do
@@ -22,5 +22,5 @@ index 6715d15..d295ef3 100755
    fi
  
 -- 
-2.22.0.windows.1.2.ge21386722b8b
+2.30.0.windows.2
 

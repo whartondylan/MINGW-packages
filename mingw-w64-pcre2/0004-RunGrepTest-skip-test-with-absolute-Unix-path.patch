@@ -1,4 +1,4 @@
-From a102fe3ab2ac5f447a84ed3828d40550bf779fb5 Mon Sep 17 00:00:00 2001
+From 1dc88c054670cdef6d326201f3e8f5f66fd6aa86 Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:11:09 +0200
 Subject: [PATCH 4/6] RunGrepTest: skip test with absolute Unix path
@@ -14,7 +14,7 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  2 files changed, 3 insertions(+), 20 deletions(-)
 
 diff --git a/RunGrepTest b/RunGrepTest
-index d51acf1..076aab5 100755
+index 823f9e9..7b93f95 100755
 --- a/RunGrepTest
 +++ b/RunGrepTest
 @@ -570,9 +570,9 @@ echo "---------------------------- Test 109 -----------------------------" >>tes
@@ -31,7 +31,7 @@ index d51acf1..076aab5 100755
  echo "---------------------------- Test 111 -----------------------------" >>testtrygrep
  (cd $srcdir; $valgrind $vjs $pcre2grep --line-offsets -M 'match (\d+):\n (.)\n' testdata/grepinput) >>testtrygrep
 diff --git a/testdata/grepoutput b/testdata/grepoutput
-index 2bd69be..12b0633 100644
+index 5f3b97c..47eda34 100644
 --- a/testdata/grepoutput
 +++ b/testdata/grepoutput
 @@ -790,23 +790,6 @@ RC=0
@@ -59,5 +59,5 @@ index 2bd69be..12b0633 100644
  607:0,12
  609:0,12
 -- 
-2.22.0.windows.1.2.ge21386722b8b
+2.30.0.windows.2
 

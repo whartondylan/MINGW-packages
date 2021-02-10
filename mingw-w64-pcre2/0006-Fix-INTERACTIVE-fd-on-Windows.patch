@@ -1,4 +1,4 @@
-From 741590366d42fed296ff61f2fd0fa934865264c4 Mon Sep 17 00:00:00 2001
+From 8953d0614e16b2476b8ab8d95f3cf60cde186622 Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Thu, 4 Jul 2019 14:25:49 +0200
 Subject: [PATCH 6/6] Fix INTERACTIVE(fd) on Windows
@@ -13,7 +13,7 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 24 insertions(+)
 
 diff --git a/src/pcre2test.c b/src/pcre2test.c
-index 4010772..137491a 100644
+index aa007f8..e7ca0a6 100644
 --- a/src/pcre2test.c
 +++ b/src/pcre2test.c
 @@ -103,6 +103,30 @@ that first, falling back to readline/readline.h. */
@@ -48,5 +48,5 @@ index 4010772..137491a 100644
  
  
 -- 
-2.22.0.windows.1.2.ge21386722b8b
+2.30.0.windows.2
 
