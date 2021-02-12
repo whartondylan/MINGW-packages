@@ -114,8 +114,13 @@ static void my_path_append(LPWSTR list, LPCWSTR path, size_t alloc)
 	}
 }
 
+static int running_on_arm64 = -1;
+
 static int is_running_on_arm64()
 {
+	if (running_on_arm64 >= 0)
+		return running_on_arm64;
+
 	USHORT process_machine = 0;
 	USHORT native_machine = 0;
 
@@ -124,9 +129,10 @@ static int is_running_on_arm64()
 		(BOOL (WINAPI *)(HANDLE, PUSHORT, PUSHORT))
 		GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process2");
 
-	return IsWow64Process2 &&
+	running_on_arm64 = IsWow64Process2 &&
 		IsWow64Process2(GetCurrentProcess(), &process_machine, &native_machine) &&
 		native_machine == 0xaa64;
+	return running_on_arm64;
 }
 
 static int is_system32_path(LPWSTR path)
