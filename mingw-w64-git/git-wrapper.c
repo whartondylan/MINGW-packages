@@ -116,7 +116,7 @@ static void my_path_append(LPWSTR list, LPCWSTR path, size_t alloc)
 
 static int running_on_arm64 = -1;
 
-static int is_running_on_arm64()
+static int is_running_on_arm64(LPWSTR top_level_path, LPWSTR msystem_bin)
 {
 	if (running_on_arm64 >= 0)
 		return running_on_arm64;
@@ -132,6 +132,19 @@ static int is_running_on_arm64()
 	running_on_arm64 = IsWow64Process2 &&
 		IsWow64Process2(GetCurrentProcess(), &process_machine, &native_machine) &&
 		native_machine == 0xaa64;
+
+	if (running_on_arm64) {
+		size_t len = wcslen(top_level_path);
+
+		/* Does /arm64/bin exist? */
+		my_path_append(top_level_path, L"arm64/bin", MAX_PATH);
+		if (_waccess(top_level_path, 0) != -1)
+			wcscpy(msystem_bin, L"arm64/bin");
+		else
+			running_on_arm64 = 0;
+		top_level_path[len] = L'\0';
+	}
+
 	return running_on_arm64;
 }
 
@@ -149,7 +162,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 	int len;
 
 	/* Set MSYSTEM */
-	if (is_running_on_arm64()) {
+	if (running_on_arm64 > 0) {
 		swprintf(msystem, sizeof(msystem),
 				L"ARM64");
 	} else {
@@ -208,7 +221,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 		my_path_append(path2, L"cmd;", len);
 	else {
 		my_path_append(path2, msystem_bin, len);
-		if (is_running_on_arm64()) {
+		if (running_on_arm64 > 0) {
 			/*
 			 * Many modules aren't available natively for ARM64 yet, but we can leverage i686 emulation.
 			 * Therefore we add /mingw32/bin to the path.
@@ -621,6 +634,8 @@ static void initialize_top_level_path(LPWSTR top_level_path, LPWSTR exepath,
 	while (strip_count) {
 		if (strip_count < 0) {
 			int len = wcslen(top_level_path);
+			if (is_running_on_arm64(top_level_path, msystem_bin))
+				return;
 			my_path_append(top_level_path, msystem_bin, MAX_PATH);
 			if (_waccess(top_level_path, 0) != -1) {
 				/* We are in an MSys2-based setup */
@@ -651,6 +666,8 @@ static void initialize_top_level_path(LPWSTR top_level_path, LPWSTR exepath,
 		if (strip_count > 0)
 			--strip_count;
 	}
+	/* Only enable ARM64 support if <top-level>/arm64/bin/ exists */
+	is_running_on_arm64(top_level_path, msystem_bin);
 }
 
 static void maybe_read_config(LPWSTR top_level_path)
@@ -704,13 +721,8 @@ int main(void)
 	LPWSTR working_directory = NULL;
 
 	/* Determine MSys2-based Git path. */
-	if (is_running_on_arm64()) {
-		swprintf(msystem_bin, sizeof(msystem_bin),
-			L"arm64\\bin");
-	} else {
-		swprintf(msystem_bin, sizeof(msystem_bin),
-			L"mingw%d\\bin", (int) sizeof(void *) * 8);
-	}
+	swprintf(msystem_bin, sizeof(msystem_bin),
+		L"mingw%d\\bin", (int) sizeof(void *) * 8);
 	*top_level_path = L'\0';
 
 	/* get the installation location */
