@@ -114,7 +114,7 @@ static void my_path_append(LPWSTR list, LPCWSTR path, size_t alloc)
 	}
 }
 
-bool IsRunningOnARM64()
+static int is_running_on_arm64()
 {
 	USHORT process_machine = 0;
 	USHORT native_machine = 0;
@@ -142,7 +142,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 	int len;
 
 	/* Set MSYSTEM */
-	if (IsRunningOnARM64()) {
+	if (is_running_on_arm64()) {
 		swprintf(msystem, sizeof(msystem),
 				L"ARM64");
 	} else {
@@ -201,7 +201,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 		my_path_append(path2, L"cmd;", len);
 	else {
 		my_path_append(path2, msystem_bin, len);
-		if (IsRunningOnARM64()) {
+		if (is_running_on_arm64()) {
 			/*
 			 * Many modules aren't available natively for ARM64 yet, but we can leverage i686 emulation.
 			 * Therefore we add /minw32/bin to the path.
@@ -697,7 +697,7 @@ int main(void)
 	LPWSTR working_directory = NULL;
 
 	/* Determine MSys2-based Git path. */
-	if (IsRunningOnARM64()) {
+	if (is_running_on_arm64()) {
 		swprintf(msystem_bin, sizeof(msystem_bin),
 			L"arm64\\bin");
 	} else {
