@@ -693,7 +693,7 @@ int main(void)
 		is_git_command = 1, full_path = 1, skip_arguments = 0,
 		allocate_console = 0, show_console = -1,
 		append_quote_to_cmdline = 0;
-	WCHAR exepath[MAX_PATH], exe[MAX_PATH], top_level_path[MAX_PATH];
+	WCHAR exepath[MAX_PATH], exe_bup[MAX_PATH], exe[MAX_PATH], top_level_path[MAX_PATH];
 	LPWSTR cmd = NULL, exep = exe, prefix_args = NULL, basename;
 	LPWSTR working_directory = NULL;
 
@@ -710,6 +710,7 @@ int main(void)
 	/* get the installation location */
 	/* GetModuleFileName(NULL, exepath, MAX_PATH); */
 	find_exe_realpath(exepath, MAX_PATH);
+	wcscpy(exe_bup, exepath);
 	if (!PathRemoveFileSpec(exepath)) {
 		fwprintf(stderr, L"Invalid executable path: %s\n", exepath);
 		ExitProcess(1);
@@ -809,6 +810,11 @@ int main(void)
 			working_directory = malloc(sizeof(WCHAR) * len);
 			GetEnvironmentVariable(L"HOME", working_directory, len);
 		}
+	}
+
+	if (!wcscmp(exe_bup, exep)) {
+		fwprintf(stderr, L"BUG (fork bomb): %s\n", exep);
+		ExitProcess(1);
 	}
 
 	{
