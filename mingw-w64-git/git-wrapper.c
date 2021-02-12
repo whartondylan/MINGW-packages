@@ -121,6 +121,7 @@ static int is_running_on_arm64()
 
 	/* Note: IsWow64Process2 is only available in Windows 10 1511+ */
 	BOOL (WINAPI* IsWow64Process2)(HANDLE, PUSHORT, PUSHORT) =
+		(BOOL (WINAPI *)(HANDLE, PUSHORT, PUSHORT))
 		GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process2");
 
 	return IsWow64Process2 &&
