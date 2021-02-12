@@ -204,7 +204,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 		if (is_running_on_arm64()) {
 			/*
 			 * Many modules aren't available natively for ARM64 yet, but we can leverage i686 emulation.
-			 * Therefore we add /minw32/bin to the path.
+			 * Therefore we add /mingw32/bin to the path.
 			 */
 			wcscat(path2, L";");
 			wcscat(path2, top_level_path);
