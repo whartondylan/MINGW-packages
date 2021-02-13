@@ -114,18 +114,38 @@ static void my_path_append(LPWSTR list, LPCWSTR path, size_t alloc)
 	}
 }
 
-bool IsRunningOnARM64()
+static int running_on_arm64 = -1;
+
+static int is_running_on_arm64(LPWSTR top_level_path, LPWSTR msystem_bin)
 {
+	if (running_on_arm64 >= 0)
+		return running_on_arm64;
+
 	USHORT process_machine = 0;
 	USHORT native_machine = 0;
 
-	// Note: IsWow64Process2 is only available in Windows 10 1511+
+	/* Note: IsWow64Process2 is only available in Windows 10 1511+ */
 	BOOL (WINAPI* IsWow64Process2)(HANDLE, PUSHORT, PUSHORT) =
-    GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process2");
+		(BOOL (WINAPI *)(HANDLE, PUSHORT, PUSHORT))
+		GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process2");
 
-	return IsWow64Process2 &&
+	running_on_arm64 = IsWow64Process2 &&
 		IsWow64Process2(GetCurrentProcess(), &process_machine, &native_machine) &&
 		native_machine == 0xaa64;
+
+	if (running_on_arm64) {
+		size_t len = wcslen(top_level_path);
+
+		/* Does /arm64/bin exist? */
+		my_path_append(top_level_path, L"arm64/bin", MAX_PATH);
+		if (_waccess(top_level_path, 0) != -1)
+			wcscpy(msystem_bin, L"arm64/bin");
+		else
+			running_on_arm64 = 0;
+		top_level_path[len] = L'\0';
+	}
+
+	return running_on_arm64;
 }
 
 static int is_system32_path(LPWSTR path)
@@ -142,7 +162,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 	int len;
 
 	/* Set MSYSTEM */
-	if (IsRunningOnARM64()) {
+	if (running_on_arm64 > 0) {
 		swprintf(msystem, sizeof(msystem),
 				L"ARM64");
 	} else {
@@ -201,10 +221,10 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 		my_path_append(path2, L"cmd;", len);
 	else {
 		my_path_append(path2, msystem_bin, len);
-		if (IsRunningOnARM64()) {
+		if (running_on_arm64 > 0) {
 			/*
 			 * Many modules aren't available natively for ARM64 yet, but we can leverage i686 emulation.
-			 * Therefore we add /minw32/bin to the path.
+			 * Therefore we add /mingw32/bin to the path.
 			 */
 			wcscat(path2, L";");
 			wcscat(path2, top_level_path);
@@ -614,6 +634,8 @@ static void initialize_top_level_path(LPWSTR top_level_path, LPWSTR exepath,
 	while (strip_count) {
 		if (strip_count < 0) {
 			int len = wcslen(top_level_path);
+			if (is_running_on_arm64(top_level_path, msystem_bin))
+				return;
 			my_path_append(top_level_path, msystem_bin, MAX_PATH);
 			if (_waccess(top_level_path, 0) != -1) {
 				/* We are in an MSys2-based setup */
@@ -644,6 +666,8 @@ static void initialize_top_level_path(LPWSTR top_level_path, LPWSTR exepath,
 		if (strip_count > 0)
 			--strip_count;
 	}
+	/* Only enable ARM64 support if <top-level>/arm64/bin/ exists */
+	is_running_on_arm64(top_level_path, msystem_bin);
 }
 
 static void maybe_read_config(LPWSTR top_level_path)
@@ -692,23 +716,19 @@ int main(void)
 		is_git_command = 1, full_path = 1, skip_arguments = 0,
 		allocate_console = 0, show_console = -1,
 		append_quote_to_cmdline = 0;
-	WCHAR exepath[MAX_PATH], exe[MAX_PATH], top_level_path[MAX_PATH];
+	WCHAR exepath[MAX_PATH], exe_bup[MAX_PATH], exe[MAX_PATH], top_level_path[MAX_PATH];
 	LPWSTR cmd = NULL, exep = exe, prefix_args = NULL, basename;
 	LPWSTR working_directory = NULL;
 
 	/* Determine MSys2-based Git path. */
-	if (IsRunningOnARM64()) {
-		swprintf(msystem_bin, sizeof(msystem_bin),
-			L"arm64\\bin");
-	} else {
-		swprintf(msystem_bin, sizeof(msystem_bin),
-			L"mingw%d\\bin", (int) sizeof(void *) * 8);
-	}
+	swprintf(msystem_bin, sizeof(msystem_bin),
+		L"mingw%d\\bin", (int) sizeof(void *) * 8);
 	*top_level_path = L'\0';
 
 	/* get the installation location */
 	/* GetModuleFileName(NULL, exepath, MAX_PATH); */
 	find_exe_realpath(exepath, MAX_PATH);
+	wcscpy(exe_bup, exepath);
 	if (!PathRemoveFileSpec(exepath)) {
 		fwprintf(stderr, L"Invalid executable path: %s\n", exepath);
 		ExitProcess(1);
@@ -808,6 +828,11 @@ int main(void)
 			working_directory = malloc(sizeof(WCHAR) * len);
 			GetEnvironmentVariable(L"HOME", working_directory, len);
 		}
+	}
+
+	if (!wcscmp(exe_bup, exep)) {
+		fwprintf(stderr, L"BUG (fork bomb): %s\n", exep);
+		ExitProcess(1);
 	}
 
 	{
