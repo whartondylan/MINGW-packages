@@ -742,7 +742,7 @@ int main(void)
 		/* do nothing */
 	}
 	else if (!wcsicmp(basename, L"git-lfs.exe")) {
-		initialize_top_level_path(top_level_path, exepath, NULL, 1);
+		initialize_top_level_path(top_level_path, exepath, msystem_bin, 1);
 
 		/* set the default exe module */
 		wcscpy(exe, top_level_path);
@@ -755,7 +755,7 @@ int main(void)
 		const WCHAR *infix = L"libexec\\git-core";
 		wait = 0;
 		allocate_console = 1;
-		initialize_top_level_path(top_level_path, exepath, NULL, 1);
+		initialize_top_level_path(top_level_path, exepath, msystem_bin, 1);
 
 		/* set the default exe module */
 		wcscpy(exe, top_level_path);
@@ -797,7 +797,7 @@ int main(void)
 		my_path_append(exe, L"git.exe", MAX_PATH);
 	}
 	else if (!wcsicmp(basename, L"git.exe")) {
-		initialize_top_level_path(top_level_path, exepath, NULL, 1);
+		initialize_top_level_path(top_level_path, exepath, msystem_bin, 1);
 
 		/* set the default exe module */
 		wcscpy(exe, top_level_path);
