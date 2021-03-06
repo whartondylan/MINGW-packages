@@ -7,8 +7,8 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-html"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-test-artifacts")
-tag=2.30.1.windows.1
-pkgver=2.30.1.1.ca911fc9d0
+tag=2.30.2.windows.1
+pkgver=2.30.2.1.37f0a4afad
 pkgrel=1
 pkgdesc="The fast distributed version control system (mingw-w64)"
 arch=('any')
