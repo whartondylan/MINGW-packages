@@ -13,6 +13,7 @@ url="https://www.gnutls.org/"
 options=('!zipman')
 depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
          "${MINGW_PACKAGE_PREFIX}-gmp"
+         "${MINGW_PACKAGE_PREFIX}-gtk-doc"
          "${MINGW_PACKAGE_PREFIX}-libidn2"
          "${MINGW_PACKAGE_PREFIX}-libsystre"
          "${MINGW_PACKAGE_PREFIX}-libtasn1"
