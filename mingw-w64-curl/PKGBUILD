@@ -4,7 +4,7 @@ _realname=curl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 pkgver=7.76.0
-pkgrel=0
+pkgrel=1
 pkgdesc="Command line tool and library for transferring data with URLs. (mingw-w64)"
 arch=('any')
 url="https://curl.haxx.se"
@@ -27,8 +27,8 @@ source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch")
 sha256sums=('e29bfe3633701590d75b0071bbb649ee5ca4ca73f00649268bd389639531c49a'
             'SKIP'
-            '2fc3531b0df7ef3d7353f5fe265c04d82220101ce4d3e09868be1ead11625654'
-            '76859b0719fabdfa4e4e62d799dc400c84d3210cca6afb6cad09a08a716b9c47')
+            '0d38b703933a7aa6a6da07628518a32d07e4bae125d0c0facf3a40d95f9975c9'
+            '8dea3c446c51982e0c5f876a34d903ff97943307622cdd4b3b259d5c4c495669')
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
               '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
