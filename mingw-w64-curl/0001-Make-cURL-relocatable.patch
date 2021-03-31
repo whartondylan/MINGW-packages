@@ -1,4 +1,4 @@
-From b4890b37058ea319475e5809c142d922b198c82e Mon Sep 17 00:00:00 2001
+From 3e25aa096d4629831cc700bd4567ae1765201a58 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
 Subject: [PATCH 1/2] Make cURL relocatable
@@ -34,10 +34,10 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  create mode 100644 lib/pathtools.h
 
 diff --git a/configure.ac b/configure.ac
-index e72aca604..f25ef508d 100755
+index f66248150..914d43fb6 100755
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4266,6 +4266,7 @@ if test "xyes" = "x$longlong"; then
+@@ -4370,6 +4370,7 @@ if test "xyes" = "x$longlong"; then
    ])
  fi
  
@@ -46,10 +46,10 @@ index e72aca604..f25ef508d 100755
  # check for ssize_t
  AC_CHECK_TYPE(ssize_t, ,
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index e8d2259f2..19a94db5e 100644
+index 90ec6aa05..093c67597 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
-@@ -170,6 +170,7 @@ LIB_CFILES =         \
+@@ -173,6 +173,7 @@ LIB_CFILES =         \
    nonblock.c         \
    openldap.c         \
    parsedate.c        \
@@ -57,7 +57,7 @@ index e8d2259f2..19a94db5e 100644
    pingpong.c         \
    pop3.c             \
    progress.c         \
-@@ -289,6 +290,7 @@ LIB_HFILES =         \
+@@ -292,6 +293,7 @@ LIB_HFILES =         \
    non-ascii.h        \
    nonblock.h         \
    parsedate.h        \
@@ -66,7 +66,7 @@ index e8d2259f2..19a94db5e 100644
    pop3.h             \
    progress.h         \
 diff --git a/lib/curl_config.h.in b/lib/curl_config.h.in
-index fa5cf8de7..c32143ae8 100644
+index 89a1d195a..8c8305754 100644
 --- a/lib/curl_config.h.in
 +++ b/lib/curl_config.h.in
 @@ -12,6 +12,9 @@
@@ -705,7 +705,7 @@ index 000000000..dfabfaf10
 +
 +#endif /* PATHTOOLS_H */
 diff --git a/lib/url.c b/lib/url.c
-index c02d2c201..6ab194556 100644
+index 19fcfb842..056be8327 100644
 --- a/lib/url.c
 +++ b/lib/url.c
 @@ -124,6 +124,9 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
@@ -718,7 +718,7 @@ index c02d2c201..6ab194556 100644
  
  /* The last 3 #include files should be in this order */
  #include "curl_printf.h"
-@@ -569,12 +572,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -575,12 +578,33 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
     */
    if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
  #if defined(CURL_CA_BUNDLE)
@@ -731,9 +731,9 @@ index c02d2c201..6ab194556 100644
 +    relative = get_relative_path(CURL_BINDIR, CURL_CA_BUNDLE);
 +    strncat(relocated, relative, path_max - 1);
 +    simplify_path(relocated);
-+    result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_ORIG], relocated);
++    result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], relocated);
 +#else
-     result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_ORIG], CURL_CA_BUNDLE);
+     result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], CURL_CA_BUNDLE);
 -    if(result)
 +#endif /* defined(__MINGW32__) */
 +    if(result) {
@@ -754,5 +754,5 @@ index c02d2c201..6ab194556 100644
        return result;
  #endif
 -- 
-2.30.0.windows.2
+2.31.1.windows.1
 
