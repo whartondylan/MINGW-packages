@@ -36,7 +36,7 @@ print-builtins:
 	@echo $(BUILT_INS)
 
 strip-all: strip
-	$(STRIP) $(STRIP_OPTS) \
+	$(STRIP) $(STRIP_OPTS) $(SCALAR_EXE) $(CMD_SCALAR_EXE) \
 		contrib/credential/wincred/git-credential-wincred.exe \
 		cmd/git{,-gui,k}.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
 

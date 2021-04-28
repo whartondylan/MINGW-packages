@@ -69,7 +69,7 @@ sha256sums=('SKIP'
             '0726d386e98d703d5254458056e02824fb3de5602e55a31ec0cddf67c302c3a4'
             '0726d386e98d703d5254458056e02824fb3de5602e55a31ec0cddf67c302c3a4'
             'cbed8b133eb9eec9972f146be5c3ff49db29b2fff8ab9c87a6d0c646c08a5128'
-            'dbee281ae3b1a345f6595096e0c474a9fb33f28bed9b16cfa8a75db9bdf51d81'
+            'eafc21e36ee375662b28f0ac73b7c116d3d6b28c8a2c6a273f205ba397565dcb'
             '79bb4745063bc3e67831da1f694be0e98998b653a3e334e24db57500b1fee108'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
@@ -185,7 +185,7 @@ build() {
   fi
 
   case "${pkgname[@]}" in *pdb*)
-    make -f ../mingw-w64-git.mak STRIP=$PWD/../cv2pdb-strip STRIP_OPTS= strip-all;;
+    make -f ../mingw-w64-git.mak STRIP=$PWD/../cv2pdb-strip STRIP_OPTS= $SCALAR_EXE $CMD_SCALAR_EXE strip-all;;
   esac &&
   case " $targets " in
   *" all "*)
@@ -265,6 +265,12 @@ package_git-pdb () {
   cd "$srcdir"/git
 
   make -f ../mingw-w64-git.mak DESTDIR="$pkgdir" install-pdbs
+
+  if test -f contrib/scalar/Makefile
+  then
+    install -m644 scalar.pdb $pkgdir/$PREFIX/bin/
+    install -m644 cmd/scalar.pdb $pkgdir/cmd/
+  fi
 }
 
 package_mingw-w64-i686-git () {
