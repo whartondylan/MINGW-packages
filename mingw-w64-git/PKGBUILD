@@ -179,6 +179,7 @@ build() {
   if test -f contrib/scalar/Makefile
   then
     case " $targets " in *' all '*) make -f contrib/scalar/Makefile all-scalar;; esac
+    case " $targets " in *' html '*|*' man '*) make -f contrib/scalar/Makefile docs-scalar;; esac
     SCALAR_EXE='SCALAR_EXE=scalar$X'
     CMD_SCALAR_EXE='CMD_SCALAR_EXE=cmd/scalar$X'
     cp cmd/git.exe cmd/scalar.exe
@@ -244,6 +245,11 @@ package_git-doc-html () {
 
   # subtree, for backwards-compatibility with MSys2's Git package
   make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-html
+
+  if test -f contrib/scalar/Makefile
+  then
+    install -m644 Documentation/scalar.html $pkgdir/$PREFIX/share/doc/git-doc/
+  fi
 }
 
 package_git-doc-man () {
@@ -253,6 +259,12 @@ package_git-doc-man () {
 
   # subtree, for backwards-compatibility with MSys2's Git package
   make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-man
+
+  if test -f contrib/scalar/Makefile
+  then
+    install -m644 Documentation/scalar.1 $pkgdir/$PREFIX/share/man/man1/
+    gzip -9 $pkgdir/$PREFIX/share/man/man1/scalar.1
+  fi
 }
 
 package_git-test-artifacts () {
