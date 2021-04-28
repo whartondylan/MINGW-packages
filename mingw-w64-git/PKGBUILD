@@ -69,7 +69,7 @@ sha256sums=('SKIP'
             '0726d386e98d703d5254458056e02824fb3de5602e55a31ec0cddf67c302c3a4'
             '0726d386e98d703d5254458056e02824fb3de5602e55a31ec0cddf67c302c3a4'
             'cbed8b133eb9eec9972f146be5c3ff49db29b2fff8ab9c87a6d0c646c08a5128'
-            '595c3af0b17de8e0b042531d716448ecf4b27bd5d36a8ac46829d05ce4d2c9d5'
+            '2ea095d5c36119866128c65e685c8e2cec32425a3ad739fc08e2fedf3a6f75e5'
             '79bb4745063bc3e67831da1f694be0e98998b653a3e334e24db57500b1fee108'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
@@ -174,9 +174,11 @@ build() {
     }
   done &&
 
+  SCALAR_EXE=
   if test -f contrib/scalar/Makefile
   then
     case " $targets " in *' all '*) make -f contrib/scalar/Makefile all-scalar;; esac
+    SCALAR_EXE='SCALAR_EXE=scalar$X'
   fi
 
   case "${pkgname[@]}" in *pdb*)
@@ -184,7 +186,7 @@ build() {
   esac &&
   case " $targets " in
   *" all "*)
-    make -f ../mingw-w64-git.mak sign-executables &&
+    make -f ../mingw-w64-git.mak $SCALAR_EXE sign-executables &&
     make -f ../mingw-w64-git.mak print-builtins | tr ' ' '\n' > builtins.txt
     ;;
   esac

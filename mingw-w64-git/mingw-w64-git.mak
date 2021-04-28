@@ -55,7 +55,7 @@ sign-executables:
 ifeq (,$(SIGNTOOL))
 	@echo Skipping code-signing
 else
-	@eval $(SIGNTOOL) $(filter %.exe,$(ALL_PROGRAMS)) \
+	@eval $(SIGNTOOL) $(filter %.exe,$(ALL_PROGRAMS)) $(SCALAR_EXE) \
 		contrib/credential/wincred/git-credential-wincred.exe git.exe \
 		cmd/git{,-gui,k}.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
 endif
