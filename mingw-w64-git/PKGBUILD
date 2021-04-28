@@ -249,6 +249,8 @@ package_git-doc-html () {
   if test -f contrib/scalar/Makefile
   then
     install -m644 Documentation/scalar.html $pkgdir/$PREFIX/share/doc/git-doc/
+    # make `git help scalar` "work"
+    install -m644 Documentation/scalar.html $pkgdir/$PREFIX/share/doc/git-doc/gitscalar.html
   fi
 }
 
