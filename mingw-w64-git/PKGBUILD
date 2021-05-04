@@ -217,6 +217,10 @@ package_git () {
 	../start-ssh-agent.cmd ../start-ssh-pageant.cmd \
 	$pkgdir/cmd
 
+  # Scalar
+  test ! -x $pkgdir/$PREFIX/bin/scalar.exe ||
+  install -m755 cmd/git.exe $pkgdir/cmd/scalar.exe
+
   # Install builtins.txt
   install -m644 builtins.txt $pkgdir$SHAREDIR
 }
