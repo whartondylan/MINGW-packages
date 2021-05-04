@@ -749,16 +749,6 @@ int main(void)
 		my_path_append(exe, msystem_bin, MAX_PATH);
 		my_path_append(exe, L"git-lfs.exe", MAX_PATH);
 	}
-	else if (!wcsicmp(basename, L"scalar.exe")) {
-		initialize_top_level_path(top_level_path, exepath, msystem_bin, 1);
-
-		needs_env_setup = 1;
-
-		/* set the default exe module */
-		wcscpy(exe, top_level_path);
-		my_path_append(exe, msystem_bin, MAX_PATH);
-		my_path_append(exe, basename, MAX_PATH);
-	}
 	else if (!wcsicmp(basename, L"git-gui.exe") ||
 			!wcsicmp(basename, L"gitk.exe")) {
 		static WCHAR buffer[BUFSIZE];

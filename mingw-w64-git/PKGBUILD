@@ -62,14 +62,14 @@ sha256sums=('SKIP'
             '62f455747f33953a723ff7b070d43f0ed03c1d8d0749d7bb06288e14d356b637'
             'f16b345aba17acd124ab5940635dfa2d87445df73eedbeb80e0285f29c85415a'
             '80b0b11efe5a2f9b4cd92f28c260d0b3aad8b809c34ed95237c59b73e08ade0b'
-            '20ce597511611717a320cf01bfdedff4cafdfe127cae620606d4047e0aa22925'
+            '11762285bdc8a55b6e31b7cf424bc091ea26d48d2796c3f538d36dfec5eff5e7'
             'ee0ed30b2601413a6efcd15f236747404cd2d576dcfad77fb5b1700852cde857'
             'c975292adae1f2666f07f8ee9b7d50576da249d9151c6bd211602adc8d37b6ab'
             'a7e80489af33468e67a39d4c9c2fbf396e1f1e9533bb447f26432951ccf5e77c'
             '0726d386e98d703d5254458056e02824fb3de5602e55a31ec0cddf67c302c3a4'
             '0726d386e98d703d5254458056e02824fb3de5602e55a31ec0cddf67c302c3a4'
             'cbed8b133eb9eec9972f146be5c3ff49db29b2fff8ab9c87a6d0c646c08a5128'
-            'eafc21e36ee375662b28f0ac73b7c116d3d6b28c8a2c6a273f205ba397565dcb'
+            '595c3af0b17de8e0b042531d716448ecf4b27bd5d36a8ac46829d05ce4d2c9d5'
             '79bb4745063bc3e67831da1f694be0e98998b653a3e334e24db57500b1fee108'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
@@ -174,23 +174,12 @@ build() {
     }
   done &&
 
-  SCALAR_EXE=
-  CMD_SCALAR_EXE=
-  if test -f contrib/scalar/Makefile
-  then
-    case " $targets " in *' all '*) make -f contrib/scalar/Makefile all-scalar;; esac
-    case " $targets " in *' html '*|*' man '*) make -f contrib/scalar/Makefile docs-scalar;; esac
-    SCALAR_EXE='SCALAR_EXE=scalar$X'
-    CMD_SCALAR_EXE='CMD_SCALAR_EXE=cmd/scalar$X'
-    cp cmd/git.exe cmd/scalar.exe
-  fi
-
   case "${pkgname[@]}" in *pdb*)
-    make -f ../mingw-w64-git.mak STRIP=$PWD/../cv2pdb-strip STRIP_OPTS= $SCALAR_EXE $CMD_SCALAR_EXE strip-all;;
+    make -f ../mingw-w64-git.mak STRIP=$PWD/../cv2pdb-strip STRIP_OPTS= strip-all;;
   esac &&
   case " $targets " in
   *" all "*)
-    make -f ../mingw-w64-git.mak $SCALAR_EXE $CMD_SCALAR_EXE sign-executables &&
+    make -f ../mingw-w64-git.mak sign-executables &&
     make -f ../mingw-w64-git.mak print-builtins | tr ' ' '\n' > builtins.txt
     ;;
   esac
@@ -230,12 +219,6 @@ package_git () {
 
   # Install builtins.txt
   install -m644 builtins.txt $pkgdir$SHAREDIR
-
-  if test -f contrib/scalar/Makefile
-  then
-    install -m755 scalar.exe $pkgdir/$PREFIX/bin
-    install -m755 cmd/scalar.exe $pkgdir/cmd
-  fi
 }
 
 package_git-doc-html () {
@@ -245,13 +228,6 @@ package_git-doc-html () {
 
   # subtree, for backwards-compatibility with MSys2's Git package
   make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-html
-
-  if test -f contrib/scalar/Makefile
-  then
-    install -m644 Documentation/scalar.html $pkgdir/$PREFIX/share/doc/git-doc/
-    # make `git help scalar` "work"
-    install -m644 Documentation/scalar.html $pkgdir/$PREFIX/share/doc/git-doc/gitscalar.html
-  fi
 }
 
 package_git-doc-man () {
@@ -261,12 +237,6 @@ package_git-doc-man () {
 
   # subtree, for backwards-compatibility with MSys2's Git package
   make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-man
-
-  if test -f contrib/scalar/Makefile
-  then
-    install -m644 Documentation/scalar.1 $pkgdir/$PREFIX/share/man/man1/
-    gzip -9 $pkgdir/$PREFIX/share/man/man1/scalar.1
-  fi
 }
 
 package_git-test-artifacts () {
@@ -279,12 +249,6 @@ package_git-pdb () {
   cd "$srcdir"/git
 
   make -f ../mingw-w64-git.mak DESTDIR="$pkgdir" install-pdbs
-
-  if test -f contrib/scalar/Makefile
-  then
-    install -m644 scalar.pdb $pkgdir/$PREFIX/bin/
-    install -m644 cmd/scalar.pdb $pkgdir/cmd/
-  fi
 }
 
 package_mingw-w64-i686-git () {

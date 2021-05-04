@@ -36,7 +36,7 @@ print-builtins:
 	@echo $(BUILT_INS)
 
 strip-all: strip
-	$(STRIP) $(STRIP_OPTS) $(SCALAR_EXE) $(CMD_SCALAR_EXE) \
+	$(STRIP) $(STRIP_OPTS) \
 		contrib/credential/wincred/git-credential-wincred.exe \
 		cmd/git{,-gui,k}.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
 
@@ -55,7 +55,7 @@ sign-executables:
 ifeq (,$(SIGNTOOL))
 	@echo Skipping code-signing
 else
-	@eval $(SIGNTOOL) $(filter %.exe,$(ALL_PROGRAMS)) $(SCALAR_EXE) $(CMD_SCALAR_EXE) \
+	@eval $(SIGNTOOL) $(filter %.exe,$(ALL_PROGRAMS)) \
 		contrib/credential/wincred/git-credential-wincred.exe git.exe \
 		cmd/git{,-gui,k}.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
 endif
