@@ -60,7 +60,7 @@ build() {
   extra_config+=("--with-ssl")
   extra_config+=("--with-ca-bundle=${MINGW_PREFIX}/ssl/certs/ca-bundle.crt")
   extra_config+=('--with-nghttp2=${MINGW_PREFIX}/')
-  extra_config+=("--with-winssl")
+  extra_config+=("--with-schannel")
   cd "${srcdir}/build-${CARCH}"
   ../${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
