@@ -792,6 +792,14 @@ int main(void)
 		prefix_args = buffer;
 		prefix_args_len = wcslen(buffer);
 	}
+	else if (!wcsicmp(basename, L"git-remote-http.exe")) {
+		is_git_command = 0;
+		needs_env_setup = 0;
+
+		/* Call remote-https */
+		wcscpy(exe, exepath);
+		my_path_append(exe, L"git-remote-https.exe", MAX_PATH);
+	}
 	else if (!wcsnicmp(basename, L"git-", 4)) {
 		is_git_command = 0;
 		needs_env_setup = 0;
