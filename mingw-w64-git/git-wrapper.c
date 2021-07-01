@@ -265,7 +265,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
  * untouched.
  */
 static LPWSTR fixup_commandline(LPWSTR exepath, LPWSTR *exep, int *wait,
-	LPWSTR prefix_args, int prefix_args_len, int is_git_command,
+	LPCWSTR prefix_args, int prefix_args_len, int is_git_command,
 	int skip_arguments, int append_quote_to_cmdline)
 {
 	int wargc = 0;
@@ -476,7 +476,7 @@ static void set_app_id(LPWSTR app_id)
 }
 
 static int configure_via_resource(LPWSTR basename, LPWSTR exepath, LPWSTR exep,
-	LPWSTR *prefix_args, int *prefix_args_len,
+	LPCWSTR *prefix_args, int *prefix_args_len,
 	int *is_git_command, LPWSTR *working_directory, int *full_path,
 	int *skip_arguments, int *allocate_console, int *show_console,
 	int *append_quote_to_cmdline)
@@ -717,8 +717,9 @@ int main(void)
 		allocate_console = 0, show_console = -1,
 		append_quote_to_cmdline = 0;
 	WCHAR exepath[MAX_PATH], exe_bup[MAX_PATH], exe[MAX_PATH], top_level_path[MAX_PATH];
-	LPWSTR cmd = NULL, exep = exe, prefix_args = NULL, basename;
+	LPWSTR cmd = NULL, exep = exe, basename;
 	LPWSTR working_directory = NULL;
+	LPCWSTR prefix_args = NULL;
 
 	/* Determine MSys2-based Git path. */
 	swprintf(msystem_bin, sizeof(msystem_bin),
