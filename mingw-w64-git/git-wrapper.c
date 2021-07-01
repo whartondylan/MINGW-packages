@@ -828,6 +828,29 @@ int main(void)
 		}
 	}
 
+	else if (!wcsicmp(basename, L"sh.exe") || !wcsicmp(basename, L"ash.exe")) {
+		is_git_command = 0;
+		needs_env_setup = 0;
+
+		/* Call BusyBox' ash */
+		prefix_args = L"sh";
+		prefix_args_len = wcslen(prefix_args);
+
+		wcscpy(exe, exepath);
+		my_path_append(exe, L"busybox.exe", MAX_PATH);
+		if (_waccess(exe, 0) == -1) {
+			initialize_top_level_path(top_level_path, exepath, msystem_bin, -4);
+
+			wcscpy(exe, top_level_path);
+			my_path_append(exe, msystem_bin, MAX_PATH);
+			my_path_append(exe, L"busybox.exe", MAX_PATH);
+			if (_waccess(exe, 0) == -1) {
+				fwprintf(stderr, L"Could not find '%ls'\n", exe);
+				exit(1);
+			}
+		}
+	}
+
 	if (needs_env_setup) {
 		if (!top_level_path[0])
 			initialize_top_level_path(top_level_path, exepath,
