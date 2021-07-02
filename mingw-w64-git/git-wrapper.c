@@ -265,7 +265,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
  * untouched.
  */
 static LPWSTR fixup_commandline(LPWSTR exepath, LPWSTR *exep, int *wait,
-	LPWSTR prefix_args, int prefix_args_len, int is_git_command,
+	LPCWSTR prefix_args, int prefix_args_len, int is_git_command,
 	int skip_arguments, int append_quote_to_cmdline)
 {
 	int wargc = 0;
@@ -476,7 +476,7 @@ static void set_app_id(LPWSTR app_id)
 }
 
 static int configure_via_resource(LPWSTR basename, LPWSTR exepath, LPWSTR exep,
-	LPWSTR *prefix_args, int *prefix_args_len,
+	LPCWSTR *prefix_args, int *prefix_args_len,
 	int *is_git_command, LPWSTR *working_directory, int *full_path,
 	int *skip_arguments, int *allocate_console, int *show_console,
 	int *append_quote_to_cmdline)
@@ -717,8 +717,9 @@ int main(void)
 		allocate_console = 0, show_console = -1,
 		append_quote_to_cmdline = 0;
 	WCHAR exepath[MAX_PATH], exe_bup[MAX_PATH], exe[MAX_PATH], top_level_path[MAX_PATH];
-	LPWSTR cmd = NULL, exep = exe, prefix_args = NULL, basename;
+	LPWSTR cmd = NULL, exep = exe, basename;
 	LPWSTR working_directory = NULL;
+	LPCWSTR prefix_args = NULL;
 
 	/* Determine MSys2-based Git path. */
 	swprintf(msystem_bin, sizeof(msystem_bin),
@@ -792,6 +793,14 @@ int main(void)
 		prefix_args = buffer;
 		prefix_args_len = wcslen(buffer);
 	}
+	else if (!wcsicmp(basename, L"git-remote-http.exe")) {
+		is_git_command = 0;
+		needs_env_setup = 0;
+
+		/* Call remote-https */
+		wcscpy(exe, exepath);
+		my_path_append(exe, L"git-remote-https.exe", MAX_PATH);
+	}
 	else if (!wcsnicmp(basename, L"git-", 4)) {
 		is_git_command = 0;
 		needs_env_setup = 0;
@@ -816,6 +825,29 @@ int main(void)
 		if (_waccess(exe, 0) == -1) {
 			wcscpy(exe, top_level_path);
 			my_path_append(exe, L"bin\\git.exe", MAX_PATH);
+		}
+	}
+
+	else if (!wcsicmp(basename, L"sh.exe") || !wcsicmp(basename, L"ash.exe")) {
+		is_git_command = 0;
+		needs_env_setup = 0;
+
+		/* Call BusyBox' ash */
+		prefix_args = L"sh";
+		prefix_args_len = wcslen(prefix_args);
+
+		wcscpy(exe, exepath);
+		my_path_append(exe, L"busybox.exe", MAX_PATH);
+		if (_waccess(exe, 0) == -1) {
+			initialize_top_level_path(top_level_path, exepath, msystem_bin, -4);
+
+			wcscpy(exe, top_level_path);
+			my_path_append(exe, msystem_bin, MAX_PATH);
+			my_path_append(exe, L"busybox.exe", MAX_PATH);
+			if (_waccess(exe, 0) == -1) {
+				fwprintf(stderr, L"Could not find '%ls'\n", exe);
+				exit(1);
+			}
 		}
 	}
 
