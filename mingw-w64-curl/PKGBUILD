@@ -13,7 +13,6 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
 depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
          "${MINGW_PACKAGE_PREFIX}-c-ares"
          "${MINGW_PACKAGE_PREFIX}-libidn2"
-         "${MINGW_PACKAGE_PREFIX}-libmetalink"
          "${MINGW_PACKAGE_PREFIX}-libssh2"
          "${MINGW_PACKAGE_PREFIX}-zlib"
          "${MINGW_PACKAGE_PREFIX}-ca-certificates"
@@ -72,7 +71,6 @@ build() {
     --enable-static \
     --enable-shared \
     --enable-sspi \
-    --with-libmetalink=${MINGW_PREFIX} \
     --with-libssh2 \
     "${extra_config[@]}"
 # there's a bug with zsh completion generation script and Windows.
