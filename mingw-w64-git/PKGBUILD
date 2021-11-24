@@ -107,6 +107,9 @@ prepare () {
 	USE_ASCIIDOCTOR = YesPlease
 	EOF
 
+	test -n "$WITHOUT_PDBS" ||
+	echo "COMPAT_CFLAGS += -gdwarf-4 -gstrict-dwarf # cv2pdb cannot really handle DWARF5 yet" >>config.mak
+
 	cp ../git-bash.txt Documentation/
 
 	# Slightly dirty workaround for missing docbook-xsl-ns
