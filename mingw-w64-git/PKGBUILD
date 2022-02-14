@@ -16,9 +16,8 @@ url="https://git-for-windows.github.io/"
 license=('GPL2')
 
 options=()
-makedepends=('python2' 'less' 'openssh' 'patch' 'make' 'tar' 'diffutils'
-	'ca-certificates' 'asciidoc' 'xmlto'
-	"${MINGW_PACKAGE_PREFIX}-asciidoctor-extensions")
+makedepends=('python' 'less' 'openssh' 'patch' 'make' 'tar' 'diffutils'
+	'ca-certificates' 'xmlto' "${MINGW_PACKAGE_PREFIX}-asciidoctor-extensions")
 install=git.install
 
 case "$(printf "%s\n%s\n" "$pkgver" "2.18.0" | sort -V)" in
