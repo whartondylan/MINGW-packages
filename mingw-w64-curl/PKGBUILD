@@ -3,7 +3,7 @@
 _realname=curl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=7.81.0
+pkgver=7.82.0
 pkgrel=1
 pkgdesc="Command line tool and library for transferring data with URLs. (mingw-w64)"
 arch=('any')
@@ -24,7 +24,7 @@ options=('staticlibs')
 source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         "0001-Make-cURL-relocatable.patch"
         "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch")
-sha256sums=('1e7a38d7018ec060f1f16df839854f0889e94e122c4cfa5d3a37c2dc56f1e258'
+sha256sums=('46d9a0400a33408fd992770b04a44a7434b3036f2e8089ac28b57573d59d371f'
             'SKIP'
             '8332381d7eedec4db3a4bbfa3758d9c7ceb4bb6f7ee946c11aa140c0007e5559'
             '8dea3c446c51982e0c5f876a34d903ff97943307622cdd4b3b259d5c4c495669')
