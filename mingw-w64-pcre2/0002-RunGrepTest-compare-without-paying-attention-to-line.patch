@@ -1,7 +1,7 @@
-From 894dec51c198aef3b3fb8b64f5ba5c68adabe037 Mon Sep 17 00:00:00 2001
+From 4f584a360b1d68345aec44113e36ef5b0fd10479 Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:09:43 +0200
-Subject: [PATCH 3/6] RunGrepTest: compare without paying attention to line
+Subject: [PATCH 2/5] RunGrepTest: compare without paying attention to line
  endings
 
 The output of pcre2grep has CR/LF line endings on Windows, but PCRE2's
@@ -13,7 +13,7 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/RunGrepTest b/RunGrepTest
-index 4d514e4..823f9e9 100755
+index 443ed76..239605f 100755
 --- a/RunGrepTest
 +++ b/RunGrepTest
 @@ -63,10 +63,11 @@ fi
@@ -33,5 +33,5 @@ index 4d514e4..823f9e9 100755
  # If this test is being run from "make check", $srcdir will be set. If not, set
  # it to the current or parent directory, whichever one contains the test data.
 -- 
-2.30.0.windows.2
+2.36.1.windows.1
 

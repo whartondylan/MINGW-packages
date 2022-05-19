@@ -1,7 +1,7 @@
-From 59fc8bd8a8d459d459881563b68db6e5c2bb742d Mon Sep 17 00:00:00 2001
+From 5a05502fd76450ebf8484811a1508f4828e1b33a Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:54:57 +0200
-Subject: [PATCH 2/6] RunTest: skip a couple more tests on Windows
+Subject: [PATCH 1/5] RunTest: skip a couple more tests on Windows
 
 Some of these require a larger stack (which we cannot force on Windows),
 some are locale dependent (when the locale mechanism is completely
@@ -13,10 +13,10 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/RunTest b/RunTest
-index e71c1fc..1cef819 100755
+index 9b67870..e3c9a4a 100755
 --- a/RunTest
 +++ b/RunTest
-@@ -420,8 +420,8 @@ if [ $do0  = no -a $do1  = no -a $do2  = no -a $do3  = no -a \
+@@ -425,8 +425,8 @@ if [ $do0  = no -a $do1  = no -a $do2  = no -a $do3  = no -a \
     ]; then
    do0=yes
    do1=yes
@@ -27,7 +27,7 @@ index e71c1fc..1cef819 100755
    do4=yes
    do5=yes
    do6=yes
-@@ -433,14 +433,14 @@ if [ $do0  = no -a $do1  = no -a $do2  = no -a $do3  = no -a \
+@@ -438,14 +438,14 @@ if [ $do0  = no -a $do1  = no -a $do2  = no -a $do3  = no -a \
    do12=yes
    do13=yes
    do14=yes
@@ -45,5 +45,5 @@ index e71c1fc..1cef819 100755
    do24=yes
    do25=yes
 -- 
-2.30.0.windows.2
+2.36.1.windows.1
 

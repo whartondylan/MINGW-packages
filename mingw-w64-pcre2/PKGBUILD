@@ -3,50 +3,48 @@
 _realname=pcre2
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-pkgver=10.37
-pkgrel=1
+pkgver=10.40
+pkgrel=0
 pkgdesc="A library that implements Perl 5-style regular expressions (mingw-w64)"
 arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
 url="https://pcre.org/"
 license=("BSD")
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc" "${MINGW_PACKAGE_PREFIX}-autotools")
 depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
          "${MINGW_PACKAGE_PREFIX}-bzip2"
          #"${MINGW_PACKAGE_PREFIX}-readline"
          "${MINGW_PACKAGE_PREFIX}-wineditline"
          "${MINGW_PACKAGE_PREFIX}-zlib")
 options=('staticlibs' 'strip')
-source=(https://ftp.pcre.org/pub/pcre/${_realname}-${pkgver}.tar.bz2{,.sig}
-        0001-RunTest-skip-test-that-must-fail-on-Windows.patch
-        0002-RunTest-skip-a-couple-more-tests-on-Windows.patch
-        0003-RunGrepTest-compare-without-paying-attention-to-line.patch
-        0004-RunGrepTest-skip-test-with-absolute-Unix-path.patch
-        0005-RunGrepTest-skip-script-callout-test.patch
-        0006-Fix-INTERACTIVE-fd-on-Windows.patch)
-sha256sums=('4d95a96e8b80529893b4562be12648d798b957b1ba1aae39606bbc2ab956d270'
+source=(https://github.com/PhilipHazel/pcre2/releases/download/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2{,.sig}
+        0001-RunTest-skip-a-couple-more-tests-on-Windows.patch
+        0002-RunGrepTest-compare-without-paying-attention-to-line.patch
+        0003-RunGrepTest-skip-test-with-absolute-Unix-path.patch
+        0004-RunGrepTest-skip-script-callout-test.patch
+        0005-Fix-INTERACTIVE-fd-on-Windows.patch)
+sha256sums=('14e4b83c4783933dc17e964318e6324f7cae1bc75d8f3c79bc6969f00c159d68'
             'SKIP'
-            'b4e506a55d54c53e4da6e4e0611fc21d0f6bf3ac1f75e3412372e8259102b80a'
-            'f15d4aea1f509882a9dd67bc4889548e89f9f8210eefe3b46d591564f6a56213'
-            '3304083273fa979001987fd11183c5c342ad297a50db677d3ff42a45c510b72d'
-            '089d340098d337f733d3efba60808d6fafdd123f8a6b703a4304ba739130d1f9'
-            'e07c1f5632be9bef9d481b51a7eca9f87f941dc3578fda662eec3df916862b7c'
-            '279e33f6efdced59b037af900e5d1bf70f9a431a97801546f36d5c161ee319a2')
+            '7c58ffbdf84dfc340e22c8f3e0f1a009f279843a63b64984d0bdbd948e396679'
+            'e514a7df1cbc00754f0c21153406f74332787dbad12036c8d840af7fbc48f444'
+            '43387a43d3919f179d3ffac6be200df66bfde5e181a79f9e48354a9d7494a895'
+            'e80b0fcb8689b8444240a5d30112e9afbe1443dd541f1755904a671d4e4913a8'
+            '0c38d4d88768870dab2250925cf94ec843526048fd2c0458514a640f428ff51d')
 validpgpkeys=('45F68D54BBE23FB3039B46E59766E084FB0F43D8')
 
 prepare () {
   cd "${srcdir}/${_realname}-${pkgver}"
 
-  patch -p1 <"${srcdir}"/0001-RunTest-skip-test-that-must-fail-on-Windows.patch
-  patch -p1 <"${srcdir}"/0002-RunTest-skip-a-couple-more-tests-on-Windows.patch
-  patch -p1 <"${srcdir}"/0003-RunGrepTest-compare-without-paying-attention-to-line.patch
-  patch -p1 <"${srcdir}"/0004-RunGrepTest-skip-test-with-absolute-Unix-path.patch
-  patch -p1 <"${srcdir}"/0005-RunGrepTest-skip-script-callout-test.patch
-  patch -p1 <"${srcdir}"/0006-Fix-INTERACTIVE-fd-on-Windows.patch
+  patch -p1 <"${srcdir}"/0001-RunTest-skip-a-couple-more-tests-on-Windows.patch
+  patch -p1 <"${srcdir}"/0002-RunGrepTest-compare-without-paying-attention-to-line.patch
+  patch -p1 <"${srcdir}"/0003-RunGrepTest-skip-test-with-absolute-Unix-path.patch
+  patch -p1 <"${srcdir}"/0004-RunGrepTest-skip-script-callout-test.patch
+  patch -p1 <"${srcdir}"/0005-Fix-INTERACTIVE-fd-on-Windows.patch
 }
 
 build() {
-  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
-  mkdir -p "${srcdir}/build-${MINGW_CHOST}" && cd "${srcdir}/build-${MINGW_CHOST}"
+  [[ -d ${srcdir}/build-${MSYSTEM} ]] && rm -rf ${srcdir}/build-${MSYSTEM}
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
 
   "${srcdir}"/${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
@@ -65,12 +63,12 @@ build() {
 }
 
 check() {
-  cd "${srcdir}/build-${MINGW_CHOST}"
+  cd "${srcdir}/build-${MSYSTEM}"
   make check
 }
 
 package() {
-  cd "${srcdir}/build-${MINGW_CHOST}"
+  cd "${srcdir}/build-${MSYSTEM}"
   make DESTDIR="${pkgdir}" install
 
   # License files
