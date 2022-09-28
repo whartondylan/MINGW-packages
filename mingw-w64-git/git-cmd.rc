@@ -3,4 +3,4 @@ BEGIN
 	0 "MINIMAL_PATH=1 @@COMSPEC@@ /K ""doskey git=^""@@EXEPATH@@\\cmd\\git.exe^"" $*"""
 END
 
-"MAINICON" ICON "git-for-windows.ico"
+MAINICON ICON "git-for-windows.ico"

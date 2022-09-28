@@ -4,4 +4,4 @@ BEGIN
 	1 "SHOW_CONSOLE=1 APPEND_QUOTE=1 @@COMSPEC@@ /S /C """"@@EXEPATH@@\\usr\\bin\\bash.exe"" --login -i"
 END
 
-"MAINICON" ICON "git-for-windows.ico"
+MAINICON ICON "git-for-windows.ico"
