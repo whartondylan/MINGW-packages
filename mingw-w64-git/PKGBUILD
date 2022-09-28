@@ -73,12 +73,14 @@ sha256sums=('SKIP'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
 USE_ASCIIDOCTOR="YesPlease"
+COMPAT_CFLAGS=
 
 if test -z "$WITHOUT_PDBS"
 then
 	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
 	makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
 	options+=('!strip')
+	COMPAT_CFLAGS="-gdwarf-4 -gstrict-dwarf" # cv2pdb cannot really handle DWARF5 yet
 else
 	options+=('strip')
 fi
@@ -106,10 +108,8 @@ prepare () {
 
 	cat >config.mak <<-EOF
 	USE_ASCIIDOCTOR = $USE_ASCIIDOCTOR
+	COMPAT_CFLAGS += $COMPAT_CFLAGS
 	EOF
-
-	test -n "$WITHOUT_PDBS" ||
-	echo "COMPAT_CFLAGS += -gdwarf-4 -gstrict-dwarf # cv2pdb cannot really handle DWARF5 yet" >>config.mak
 
 	cp ../git-bash.txt Documentation/
 
