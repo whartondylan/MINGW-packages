@@ -74,17 +74,22 @@ sha256sums=('SKIP'
 
 USE_ASCIIDOCTOR="YesPlease"
 COMPAT_CFLAGS=
+STRIP=
+STRIP_OPTS=
 
 if [[ "$MSYSTEM" == CLANG* && -z "$WITHOUT_PDBS" ]]
 then
   pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
   options+=('!strip')
+  STRIP=llvm-strip
+  STRIP_OPTS=--strip-debug
 elif test -z "$WITHOUT_PDBS"
 then
 	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
 	makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
 	options+=('!strip')
 	COMPAT_CFLAGS="-gdwarf-4 -gstrict-dwarf" # cv2pdb cannot really handle DWARF5 yet
+	STRIP=$PWD/cv2pdb-strip
 else
 	options+=('strip')
 fi
@@ -183,7 +188,7 @@ build() {
   done &&
 
   case "${pkgname[@]}" in *pdb*)
-    make -f ../mingw-w64-git.mak STRIP=$PWD/../cv2pdb-strip STRIP_OPTS= strip-all;;
+    make -f ../mingw-w64-git.mak STRIP=$STRIP STRIP_OPTS=$STRIP_OPTS strip-all;;
   esac &&
   case " $targets " in
   *" all "*)
