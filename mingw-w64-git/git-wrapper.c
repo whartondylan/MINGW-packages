@@ -136,10 +136,10 @@ static int is_running_on_arm64(LPWSTR top_level_path, LPWSTR msystem_bin)
 	if (running_on_arm64) {
 		size_t len = wcslen(top_level_path);
 
-		/* Does /arm64/bin exist? */
-		my_path_append(top_level_path, L"arm64/bin", MAX_PATH);
+		/* Does /clangarm64/bin exist? */
+		my_path_append(top_level_path, L"clangarm64/bin", MAX_PATH);
 		if (_waccess(top_level_path, 0) != -1)
-			wcscpy(msystem_bin, L"arm64/bin");
+			wcscpy(msystem_bin, L"clangarm64/bin");
 		else
 			running_on_arm64 = 0;
 		top_level_path[len] = L'\0';
@@ -164,7 +164,7 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 	/* Set MSYSTEM */
 	if (running_on_arm64 > 0) {
 		swprintf(msystem, sizeof(msystem),
-				L"ARM64");
+				L"CLANGARM64");
 	} else {
 		swprintf(msystem, sizeof(msystem),
 				L"MINGW%d", (int)sizeof(void*) * 8);
@@ -221,15 +221,6 @@ static void setup_environment(LPWSTR top_level_path, int full_path)
 		my_path_append(path2, L"cmd;", len);
 	else {
 		my_path_append(path2, msystem_bin, len);
-		if (running_on_arm64 > 0) {
-			/*
-			 * Many modules aren't available natively for ARM64 yet, but we can leverage i686 emulation.
-			 * Therefore we add /mingw32/bin to the path.
-			 */
-			wcscat(path2, L";");
-			wcscat(path2, top_level_path);
-			my_path_append(path2, L"mingw32\\bin;", len);
-		}
 		if (_waccess(path2, 0) != -1) {
 			/* We are in an MSys2-based setup */
 			int len2 = GetEnvironmentVariable(L"HOME", NULL, 0);
