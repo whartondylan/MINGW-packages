@@ -72,6 +72,8 @@ sha256sums=('SKIP'
             '79bb4745063bc3e67831da1f694be0e98998b653a3e334e24db57500b1fee108'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
+USE_ASCIIDOCTOR="YesPlease"
+
 if test -z "$WITHOUT_PDBS"
 then
 	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
@@ -103,7 +105,7 @@ prepare () {
 	cd "$srcdir/git" &&
 
 	cat >config.mak <<-EOF
-	USE_ASCIIDOCTOR = YesPlease
+	USE_ASCIIDOCTOR = $USE_ASCIIDOCTOR
 	EOF
 
 	test -n "$WITHOUT_PDBS" ||
