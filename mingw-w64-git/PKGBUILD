@@ -76,6 +76,7 @@ USE_ASCIIDOCTOR="YesPlease"
 COMPAT_CFLAGS=
 STRIP=
 STRIP_OPTS=
+LDFLAGS=
 
 if [[ "$MSYSTEM" == CLANG* && -z "$WITHOUT_PDBS" ]]
 then
@@ -83,6 +84,7 @@ then
   options+=('!strip')
   STRIP=llvm-strip
   STRIP_OPTS=--strip-debug
+  LDFLAGS="-Wl,-pdb=" # Ensures that Clang generates PDB files
 elif test -z "$WITHOUT_PDBS"
 then
 	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
@@ -118,6 +120,7 @@ prepare () {
 	cat >config.mak <<-EOF
 	USE_ASCIIDOCTOR = $USE_ASCIIDOCTOR
 	COMPAT_CFLAGS += $COMPAT_CFLAGS
+	LDFLAGS = $LDFLAGS
 	EOF
 
 	cp ../git-bash.txt Documentation/
@@ -188,7 +191,12 @@ build() {
   done &&
 
   case "${pkgname[@]}" in *pdb*)
-    make -f ../mingw-w64-git.mak STRIP=$STRIP STRIP_OPTS=$STRIP_OPTS strip-all;;
+    make -f ../mingw-w64-git.mak STRIP=$STRIP STRIP_OPTS=$STRIP_OPTS strip-all
+    if [[ "$MSYSTEM" == CLANG* ]]; then
+      # Clang doesn't generate PDBs for the files below, because they're hard linked to git-remote-http.
+      for i in git-remote-https.pdb git-remote-ftp.pdb git-remote-ftps.pdb; do ln git-remote-http.pdb $i; done
+    fi
+    ;;
   esac &&
   case " $targets " in
   *" all "*)
