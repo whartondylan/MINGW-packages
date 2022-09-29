@@ -96,6 +96,13 @@ else
 	options+=('strip')
 fi
 
+if test CLANGARM64 = "$MSYSTEM"
+then
+  # Asciidoctor depends on Ruby which is not available for CLANGARM64 yet
+  makedepends=("${makedepends[@]/${MINGW_PACKAGE_PREFIX}-asciidoctor-extensions}")
+  USE_ASCIIDOCTOR=
+fi
+
 pkgver() {
   cd "$srcdir/git"
   basever=${tag%.windows.*}
@@ -111,6 +118,9 @@ i686)
   ;;
 x86_64)
   SHAREDIR=/mingw64/share/git
+  ;;
+aarch64)
+  SHAREDIR=/clangarm64/share/git
   ;;
 esac
 
@@ -313,5 +323,25 @@ package_mingw-w64-x86_64-git-test-artifacts () {
 }
 
 package_mingw-w64-x86_64-git-pdb () {
+	package_git-pdb
+}
+
+package_mingw-w64-clang-aarch64-git () {
+  package_git
+}
+
+package_mingw-w64-clang-aarch64-git-doc-html () {
+  package_git-doc-html
+}
+
+package_mingw-w64-clang-aarch64-git-doc-man () {
+  package_git-doc-man
+}
+
+package_mingw-w64-clang-aarch64-git-test-artifacts () {
+  package_git-test-artifacts
+}
+
+package_mingw-w64-clang-aarch64-git-pdb () {
 	package_git-pdb
 }
