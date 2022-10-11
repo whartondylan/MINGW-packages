@@ -4,7 +4,7 @@ _realname=openssl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	"${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
-_ver=1.1.1q
+_ver=1.1.1r
 # use a pacman compatible version scheme
 pkgver=${_ver/[a-z]/.${_ver//[0-9.]/}}
 pkgrel=1
@@ -20,7 +20,7 @@ source=(https://www.openssl.org/source/${_realname}-${_ver}.tar.gz{,.asc}
         'openssl-1.1.1-relocation.patch'
         '0001-tests-work-around-the-MSYS-vs-Windows-paths-problem.patch'
         '0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch')
-sha256sums=('d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca'
+sha256sums=('e389352ae3d5ae4d38597bf8a54f1dcb6fb3c8b50f4fe58a94bb1bf7f85d82a0'
             'SKIP'
             '1c6bf1b9cf0f183c96349b1820df52b1c5f2bc193060d4d31a6c45230a857f5c'
             'f2871bff59d19fe60086116c0549b54814e8e0af7a9ce3b96bb21604466ad556'
