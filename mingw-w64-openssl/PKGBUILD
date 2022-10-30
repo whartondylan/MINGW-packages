@@ -11,7 +11,10 @@ pkgrel=1
 arch=('any')
 pkgdesc="The Open Source toolkit for Secure Sockets Layer and Transport Layer Security (mingw-w64)"
 depends=("${MINGW_PACKAGE_PREFIX}-ca-certificates" "${MINGW_PACKAGE_PREFIX}-gcc-libs" "${MINGW_PACKAGE_PREFIX}-zlib")
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-cv2pdb")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc")
+if [[ "$MSYSTEM" != CLANG* ]]; then
+  makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
+fi
 options=('!strip' '!buildflags' 'staticlibs')
 license=('BSD')
 url="https://www.openssl.org"
@@ -78,9 +81,17 @@ build() {
      ${srcdir}/${_realname}-${_ver}/Configure
 #     ${srcdir}/build-${CARCH}/Configure
 
-  _mingw=mingw
-  if $(echo ${CARCH} | grep -q x86_64); then
-    _mingw=mingw64
+  export CC=${MINGW_PREFIX}/bin/cc.exe
+  export CXX=${MINGW_PREFIX}/bin/c++.exe
+  STRIP_OPTS=
+
+  if [[ "$MSYSTEM" == CLANG* ]]
+  then
+    export LDFLAGS="-Wl,-pdb=" # Ensures that Clang generates PDB files
+    STRIP=llvm-strip
+    STRIP_OPTS=--strip-debug
+  else
+    STRIP=cv2pdb
   fi
   cd "${srcdir}/build-${CARCH}"
   export MSYS2_ARG_CONV_EXCL="--prefix="
@@ -109,7 +120,7 @@ build() {
   *-pdb|*-pdb\ *)
     for file in apps/*.exe *.dll engines/*.dll
     do
-      cv2pdb "$file" || exit
+      $STRIP $STRIP_OPTS "$file" || exit
     done
 
     # copy cv2pdb'ed versions of libeay32.dll and ssleay32.dll to apps/
