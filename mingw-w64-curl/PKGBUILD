@@ -117,10 +117,18 @@ package_mingw-w64-x86_64-curl() {
   package_1
 }
 
+package_mingw-w64-clang-aarch64-curl() {
+  package_1
+}
+
 package_mingw-w64-i686-curl-pdb() {
   package_1 pdb
 }
 
 package_mingw-w64-x86_64-curl-pdb() {
+  package_1 pdb
+}
+
+package_mingw-w64-clang-aarch64-curl-pdb() {
   package_1 pdb
 }
