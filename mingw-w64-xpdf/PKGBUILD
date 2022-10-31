@@ -14,7 +14,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-gcc"
              "${MINGW_PACKAGE_PREFIX}-cmake")
 depends=("${MINGW_PACKAGE_PREFIX}-zlib")
 options=('strip')
-source=(https://xpdfreader-dl.s3.amazonaws.com/xpdf-${pkgver}.tar.gz{,.sig}
+source=(https://dl.xpdfreader.com/old/xpdf-${pkgver}.tar.gz{,.sig}
         001-cmake.patch
         002-xpdf-4.00-64bit.patch
         003-xpdf-4.00-libpaperfix.patch
