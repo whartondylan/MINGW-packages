@@ -61,24 +61,46 @@ sha256sums=('SKIP'
             'a9dcba5aebc93ae7aacdee03275780fc6c0f15e88fda30c93041e75851e75090'
             'f16b345aba17acd124ab5940635dfa2d87445df73eedbeb80e0285f29c85415a'
             '80b0b11efe5a2f9b4cd92f28c260d0b3aad8b809c34ed95237c59b73e08ade0b'
-            '76344d4e4ef81147303ccd0f729d2b99be6efddebdbb9b9848ab64c5321e62e2'
-            'ee0ed30b2601413a6efcd15f236747404cd2d576dcfad77fb5b1700852cde857'
+            '86488c26283693a1e4073f0198138e7159f99dbeff622bd3a7f5df42d30baa8a'
+            'dab3e41e935a33f443a4ff4ef4ce92c191b6d952d9eb37e14885540ad5af99ed'
             'c975292adae1f2666f07f8ee9b7d50576da249d9151c6bd211602adc8d37b6ab'
-            'a7e80489af33468e67a39d4c9c2fbf396e1f1e9533bb447f26432951ccf5e77c'
-            '0726d386e98d703d5254458056e02824fb3de5602e55a31ec0cddf67c302c3a4'
-            '0726d386e98d703d5254458056e02824fb3de5602e55a31ec0cddf67c302c3a4'
+            'bc52b47e59bcc072815cbde7fa081a0ea301fa2c409b84e68a0070c2e1132640'
+            'db754d6fe6722ad54d43df15ee93b1d9cead406158ed84dcbf35e5b4225469ed'
+            'db754d6fe6722ad54d43df15ee93b1d9cead406158ed84dcbf35e5b4225469ed'
             'cbed8b133eb9eec9972f146be5c3ff49db29b2fff8ab9c87a6d0c646c08a5128'
             '595c3af0b17de8e0b042531d716448ecf4b27bd5d36a8ac46829d05ce4d2c9d5'
             '79bb4745063bc3e67831da1f694be0e98998b653a3e334e24db57500b1fee108'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
-if test -z "$WITHOUT_PDBS"
+USE_ASCIIDOCTOR="YesPlease"
+COMPAT_CFLAGS=
+STRIP=
+STRIP_OPTS=
+LDFLAGS=
+
+if [[ "$MSYSTEM" == CLANG* && -z "$WITHOUT_PDBS" ]]
+then
+  pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
+  options+=('!strip')
+  STRIP=llvm-strip
+  STRIP_OPTS=--strip-debug
+  LDFLAGS="-Wl,-pdb=" # Ensures that Clang generates PDB files
+elif test -z "$WITHOUT_PDBS"
 then
 	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
 	makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
 	options+=('!strip')
+	COMPAT_CFLAGS="-gdwarf-4 -gstrict-dwarf" # cv2pdb cannot really handle DWARF5 yet
+	STRIP=$PWD/cv2pdb-strip
 else
 	options+=('strip')
+fi
+
+if test CLANGARM64 = "$MSYSTEM"
+then
+  # Asciidoctor depends on Ruby which is not available for CLANGARM64 yet
+  makedepends=("${makedepends[@]/${MINGW_PACKAGE_PREFIX}-asciidoctor-extensions}")
+  USE_ASCIIDOCTOR=
 fi
 
 pkgver() {
@@ -97,17 +119,19 @@ i686)
 x86_64)
   SHAREDIR=/mingw64/share/git
   ;;
+aarch64)
+  SHAREDIR=/clangarm64/share/git
+  ;;
 esac
 
 prepare () {
 	cd "$srcdir/git" &&
 
 	cat >config.mak <<-EOF
-	USE_ASCIIDOCTOR = YesPlease
+	USE_ASCIIDOCTOR = $USE_ASCIIDOCTOR
+	COMPAT_CFLAGS += $COMPAT_CFLAGS
+	LDFLAGS = $LDFLAGS
 	EOF
-
-	test -n "$WITHOUT_PDBS" ||
-	echo "COMPAT_CFLAGS += -gdwarf-4 -gstrict-dwarf # cv2pdb cannot really handle DWARF5 yet" >>config.mak
 
 	cp ../git-bash.txt Documentation/
 
@@ -177,7 +201,12 @@ build() {
   done &&
 
   case "${pkgname[@]}" in *pdb*)
-    make -f ../mingw-w64-git.mak STRIP=$PWD/../cv2pdb-strip STRIP_OPTS= strip-all;;
+    make -f ../mingw-w64-git.mak STRIP=$STRIP STRIP_OPTS=$STRIP_OPTS strip-all
+    if [[ "$MSYSTEM" == CLANG* ]]; then
+      # Clang doesn't generate PDBs for the files below, because they're hard linked to git-remote-http.
+      for i in git-remote-https.pdb git-remote-ftp.pdb git-remote-ftps.pdb; do ln git-remote-http.pdb $i; done
+    fi
+    ;;
   esac &&
   case " $targets " in
   *" all "*)
@@ -294,5 +323,25 @@ package_mingw-w64-x86_64-git-test-artifacts () {
 }
 
 package_mingw-w64-x86_64-git-pdb () {
+	package_git-pdb
+}
+
+package_mingw-w64-clang-aarch64-git () {
+  package_git
+}
+
+package_mingw-w64-clang-aarch64-git-doc-html () {
+  package_git-doc-html
+}
+
+package_mingw-w64-clang-aarch64-git-doc-man () {
+  package_git-doc-man
+}
+
+package_mingw-w64-clang-aarch64-git-test-artifacts () {
+  package_git-test-artifacts
+}
+
+package_mingw-w64-clang-aarch64-git-pdb () {
 	package_git-pdb
 }
