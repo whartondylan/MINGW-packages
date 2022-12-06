@@ -1,0 +1,85 @@
+name: PR build
+
+on: pull_request
+
+jobs:
+  determine-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: determine packages to build
+        id: set-matrix
+        shell: bash
+        run: |
+          define_matrix () {
+            comm -12 "$2" "$3" >"$4" &&
+            cat "$4" &&
+            sed -e 's/\/$//' -e 's/.*/"&", /' -e '$s/, $//' <"$4" >list.txt &&
+            echo "$1=[$(test ! -s list.txt && echo '""' || tr -d '\n' <list.txt)]" >>$GITHUB_OUTPUT
+          }
+
+          git diff ${{github.event.pull_request.base.sha}}... --name-only |
+          sed -e 's|[^/]*$||' |
+          sort -u >touched.txt &&
+
+          git ls-files \*/PKGBUILD | sed 's|[^/]*$||' | sort >directories.txt &&
+          define_matrix matrix directories.txt touched.txt packages.txt
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+  build:
+    needs: determine-packages
+    runs-on: windows-latest
+    if: needs.determine-packages.outputs.matrix != '[""]'
+    strategy:
+      fail-fast: false
+      matrix:
+        directory: ${{ fromJSON(needs.determine-packages.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: git-for-windows/setup-git-for-windows-sdk@v1
+        with:
+          flavor: full
+      - name: get GPG key(s)
+        shell: bash
+        run: |
+          cd "${{ matrix.directory }}" &&
+          . PKGBUILD &&
+          for key in "${validpgpkeys[@]}" 57759F748D223F034D8BE870BB3AA74136C569BB
+          do
+            gpg $GPG_OPTIONS --recv-keys --batch --yes --keyserver hkp://keyserver.ubuntu.com "$key" &&
+            echo "$key:6:" | gpg $GPG_OPTIONS --import-ownertrust ||
+            exit 1
+          done
+      - name: build ${{ matrix.directory }}
+        shell: bash
+        run: |
+          # reduce time required to install packages by disabling pacman's disk space checking
+          sed -i 's/^CheckSpace/#CheckSpace/g' /etc/pacman.conf &&
+
+          top_dir=$PWD &&
+          cd "${{ matrix.directory }}" &&
+          MAKEFLAGS=-j8 makepkg-mingw -s --noconfirm &&
+
+          artifacts="$(basename "${{ matrix.directory }}")-artifacts" &&
+          mkdir -p "$top_dir/$artifacts" &&
+          mv *.tar.* "$top_dir/$artifacts"/ &&
+          echo "artifacts=$artifacts" >>$GITHUB_ENV
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.artifacts }}
+          path: ${{ env.artifacts }}
+      - name: ensure that the Git worktree is still clean
+        shell: bash
+        run: |
+          cd "${{ matrix.directory }}" &&
+          if ! git update-index --ignore-submodules --refresh ||
+            ! git diff-files --ignore-submodules ||
+            ! git diff-index --cached --ignore-submodules HEAD
+          then
+            echo "::error::Uncommitted changes after build!" >&2
+            git diff
+            exit 1
+          fi
