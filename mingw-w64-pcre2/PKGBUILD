@@ -25,11 +25,11 @@ source=(https://github.com/PhilipHazel/pcre2/releases/download/${_realname}-${pk
         0005-Fix-INTERACTIVE-fd-on-Windows.patch)
 sha256sums=('0f78cebd3e28e346475fb92e95fe9999945b4cbaad5f3b42aca47b887fb53308'
             'SKIP'
-            '7c58ffbdf84dfc340e22c8f3e0f1a009f279843a63b64984d0bdbd948e396679'
-            'e514a7df1cbc00754f0c21153406f74332787dbad12036c8d840af7fbc48f444'
-            '43387a43d3919f179d3ffac6be200df66bfde5e181a79f9e48354a9d7494a895'
-            'e80b0fcb8689b8444240a5d30112e9afbe1443dd541f1755904a671d4e4913a8'
-            '0c38d4d88768870dab2250925cf94ec843526048fd2c0458514a640f428ff51d')
+            'c035cb1d9bcfd656c2ae8808bcfe3f6b01a5c675b443b3f32e4f4fb41274252f'
+            'd0ba134b5f907bcaa507d3784ee885530d45e3e96cf116431974611abcf13a82'
+            'f4c9a3f70c9b9afda90b008f89ec30ff19d8b8dcc226c0082f8bcf6bb24df06c'
+            'b3e657820bd2f4525b2112a0e5f4830be7f566164df8bb8ed4f0bc76f1ee2d58'
+            '02983f222024484143eeea2cc87d424e47eca8ac0ee77fc0e924aaff1156c459')
 validpgpkeys=('45F68D54BBE23FB3039B46E59766E084FB0F43D8')
 
 prepare () {
