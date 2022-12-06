@@ -3,7 +3,7 @@
 _realname=pcre2
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-pkgver=10.40
+pkgver=10.41
 pkgrel=1
 pkgdesc="A library that implements Perl 5-style regular expressions (mingw-w64)"
 arch=('any')
@@ -23,7 +23,7 @@ source=(https://github.com/PhilipHazel/pcre2/releases/download/${_realname}-${pk
         0003-RunGrepTest-skip-test-with-absolute-Unix-path.patch
         0004-RunGrepTest-skip-script-callout-test.patch
         0005-Fix-INTERACTIVE-fd-on-Windows.patch)
-sha256sums=('14e4b83c4783933dc17e964318e6324f7cae1bc75d8f3c79bc6969f00c159d68'
+sha256sums=('0f78cebd3e28e346475fb92e95fe9999945b4cbaad5f3b42aca47b887fb53308'
             'SKIP'
             '7c58ffbdf84dfc340e22c8f3e0f1a009f279843a63b64984d0bdbd948e396679'
             'e514a7df1cbc00754f0c21153406f74332787dbad12036c8d840af7fbc48f444'
