@@ -1,0 +1,66 @@
+From d98dfe0514ebf64d24246e0f8e4b49a6206d59f8 Mon Sep 17 00:00:00 2001
+From: Johannes Schindelin <johannes.schindelin@gmx.de>
+Date: Tue, 6 Dec 2022 23:41:42 +0100
+Subject: [PATCH 6/8] RunGrepTest: work around Unix vs Windows path issues
+
+We run the tests using the MSYS2 Bash, which will do its best to pretend
+that it can handle Unix paths, but when it calls a MINGW program (such
+as the test programs of mingw-w64-pcre2), things start to get messy and
+we sometimes have to help manually.
+
+This is such a time when we have to help manually.
+
+Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
+---
+ RunGrepTest | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/RunGrepTest b/RunGrepTest
+index 106238d..9589529 100755
+--- a/RunGrepTest
++++ b/RunGrepTest
+@@ -595,7 +595,7 @@ echo "---------------------------- Test 109 -----------------------------" >>tes
+ echo "RC=$?" >>testtrygrep
+ 
+ echo "---------------------------- Test 110 -----------------------------" >>testtrygrep
+-(cd $srcdir; $valgrind $vjs $pcre2grep --om-separator / -Mo0 -o1 -o2 'match (\d+):\n (.)\n' testdata/grepinput) >>testtrygrep
++(cd $srcdir; MSYS2_ARG_CONV_EXCL=/ $valgrind $vjs $pcre2grep --om-separator / -Mo0 -o1 -o2 'match (\d+):\n (.)\n' testdata/grepinput) >>testtrygrep
+ echo "RC=$?" >>testtrygrep
+ 
+ echo "---------------------------- Test 111 -----------------------------" >>testtrygrep
+@@ -762,7 +762,7 @@ echo "---------------------------- Test 140 -----------------------------" >>tes
+ echo "RC=$?" >>testtrygrep
+ 
+ echo "---------------------------- Test 141 -----------------------------" >>testtrygrep
+-printf "$srcdir/testdata/grepinputv\n-\n" >testtemp1grep
++printf "$(cygpath -am "$srcdir")/testdata/grepinputv\n-\n" >testtemp1grep
+ printf 'This is a line from stdin.' >testtemp2grep
+ $valgrind $vjs $pcre2grep --file-list testtemp1grep "line from stdin" <testtemp2grep >>testtrygrep 2>&1
+ echo "RC=$?" >>testtrygrep
+@@ -779,7 +779,7 @@ $valgrind $vjs $pcre2grep -f - $srcdir/testdata/grepinputv <testtemp1grep >>test
+ echo "RC=$?" >>testtrygrep
+ 
+ echo "---------------------------- Test 144 -----------------------------" >>testtrygrep
+-$valgrind $vjs $pcre2grep -f /non/exist $srcdir/testdata/grepinputv >>testtrygrep 2>&1
++MSYS2_ARG_CONV_EXCL=/non $valgrind $vjs $pcre2grep -f /non/exist $srcdir/testdata/grepinputv >>testtrygrep 2>&1
+ echo "RC=$?" >>testtrygrep
+ 
+ echo "---------------------------- Test 145 -----------------------------" >>testtrygrep
+@@ -821,11 +821,11 @@ $valgrind $vjs $pcre2grep --buffer-size=0 >>testtrygrep 2>&1
+ echo "RC=$?" >>testtrygrep
+ $valgrind $vjs $pcre2grep --exclude '(badpat' abc /dev/null >>testtrygrep 2>&1
+ echo "RC=$?" >>testtrygrep
+-$valgrind $vjs $pcre2grep --exclude-from /non/exist abc /dev/null >>testtrygrep 2>&1
++MSYS2_ARG_CONV_EXCL=/non $valgrind $vjs $pcre2grep --exclude-from /non/exist abc /dev/null >>testtrygrep 2>&1
+ echo "RC=$?" >>testtrygrep
+-$valgrind $vjs $pcre2grep --include-from /non/exist abc /dev/null >>testtrygrep 2>&1
++MSYS2_ARG_CONV_EXCL=/non $valgrind $vjs $pcre2grep --include-from /non/exist abc /dev/null >>testtrygrep 2>&1
+ echo "RC=$?" >>testtrygrep
+-$valgrind $vjs $pcre2grep --file-list=/non/exist abc /dev/null >>testtrygrep 2>&1
++MSYS2_ARG_CONV_EXCL=/non $valgrind $vjs $pcre2grep --file-list /non/exist abc /dev/null >>testtrygrep 2>&1
+ echo "RC=$?" >>testtrygrep
+ 
+ echo "---------------------------- Test 149 -----------------------------" >>testtrygrep
+-- 
+2.39.0.rc0.windows.1
+

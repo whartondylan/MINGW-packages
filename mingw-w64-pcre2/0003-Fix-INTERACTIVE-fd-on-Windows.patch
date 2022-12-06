@@ -1,7 +1,7 @@
-From 564fd3dd4bd611181cfcc306a46c70e065518d1d Mon Sep 17 00:00:00 2001
+From 4887905f9b526e27ce1ebc3cf29172c27b7f67bc Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Thu, 4 Jul 2019 14:25:49 +0200
-Subject: [PATCH 5/5] Fix INTERACTIVE(fd) on Windows
+Subject: [PATCH 3/8] Fix INTERACTIVE(fd) on Windows
 
 On Windows, `isatty()` also reports success on character devices such as
 `NUL`, even if it is not an interactive console. That is, however, what

@@ -1,7 +1,7 @@
 From 6f5e40032c16172e5797151e7a7e2275e5eb0738 Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:54:57 +0200
-Subject: [PATCH 1/5] RunTest: skip a couple more tests on Windows
+Subject: [PATCH 1/8] RunTest: skip a couple more tests on Windows
 
 Some of these require a larger stack (which we cannot force on Windows),
 some are locale dependent (when the locale mechanism is completely

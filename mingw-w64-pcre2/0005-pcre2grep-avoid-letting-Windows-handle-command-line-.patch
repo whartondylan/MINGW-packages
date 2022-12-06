@@ -1,0 +1,62 @@
+From d9631144a5a7815a60e84f3c99a529dba63cff5e Mon Sep 17 00:00:00 2001
+From: Johannes Schindelin <johannes.schindelin@gmx.de>
+Date: Wed, 7 Dec 2022 11:10:54 +0100
+Subject: [PATCH 5/8] pcre2grep: avoid letting Windows handle command-line
+ encoding
+
+PCRE2 internally uses a multi-byte encoding, while Windows uses wide
+characters. That means that a `_spawnvp()` call will inherently try to
+use the multi-byte -> UTF-16 conversion, and since Windows does not
+_really_ understand UTF-8 as a multi-byte encoding, it will get it all
+wrong.
+
+So let's hand-roll that conversion to ensure it's UTF-8 -> UTF-16 and
+nothing else.
+
+This is required for the UTF-8 tests in `RunGrepTests` to pass.
+
+Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
+---
+ src/pcre2grep.c | 26 +++++++++++++++++++++++---
+ 1 file changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/src/pcre2grep.c b/src/pcre2grep.c
+index b6249c1..f189ee9 100644
+--- a/src/pcre2grep.c
++++ b/src/pcre2grep.c
+@@ -2468,9 +2468,29 @@ while (length > 0)
+ necessary, otherwise assume fork(). */
+ 
+ #ifdef WIN32
+-fflush(stderr);
+-fflush(stdout);
+-result = _spawnvp(_P_WAIT, argsvector[0], (const char * const *)argsvector);
++  {
++    size_t size = 0, count = 1;
++    wchar_t **w0, *w1, **wargv;
++    int i;
++
++    for (i = 0; argsvector[i]; i++) {
++      count++;
++      size += MultiByteToWideChar(CP_UTF8, 0, argsvector[i], -1, NULL, 0);
++    }
++    wargv = malloc(count * sizeof(wchar_t *) + size * sizeof(wchar_t));
++    w0 = wargv;
++    w1 = (void *)(w0 + count);
++    for (i = 0; argsvector[i]; i++) {
++      *(w0++) = w1;
++      w1 += MultiByteToWideChar(CP_UTF8, 0, argsvector[i], -1, w1, size);
++    }
++    *w0 = NULL;
++
++    fflush(stderr);
++    fflush(stdout);
++    result = _wspawnvp(_P_WAIT, wargv[0], (const wchar_t * const*)wargv);
++    free(wargv);
++  }
+ 
+ #elif defined __VMS
+   {
+-- 
+2.39.0.rc0.windows.1
+

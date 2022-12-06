@@ -1,7 +1,7 @@
 From d7dbb5eba261bdcbad2f865a2c343ffa952ef5fe Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:09:43 +0200
-Subject: [PATCH 2/5] RunGrepTest: compare without paying attention to line
+Subject: [PATCH 2/8] RunGrepTest: compare without paying attention to line
  endings
 
 The output of pcre2grep has CR/LF line endings on Windows, but PCRE2's
