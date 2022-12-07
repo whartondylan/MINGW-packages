@@ -11,7 +11,10 @@ pkgrel=1
 arch=('any')
 pkgdesc="The Open Source toolkit for Secure Sockets Layer and Transport Layer Security (mingw-w64)"
 depends=("${MINGW_PACKAGE_PREFIX}-ca-certificates" "${MINGW_PACKAGE_PREFIX}-gcc-libs" "${MINGW_PACKAGE_PREFIX}-zlib")
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-cv2pdb")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc")
+if [[ "$MSYSTEM" != CLANG* ]]; then
+  makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
+fi
 options=('!strip' '!buildflags' 'staticlibs')
 license=('BSD')
 url="https://www.openssl.org"
@@ -19,12 +22,14 @@ noextract=(${_realname}-${_ver}.tar.gz)
 source=(https://www.openssl.org/source/${_realname}-${_ver}.tar.gz{,.asc}
         'openssl-1.1.1-relocation.patch'
         '0001-tests-work-around-the-MSYS-vs-Windows-paths-problem.patch'
-        '0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch')
+        '0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch'
+        'openssl-1.1.1-mingw-arm.patch')
 sha256sums=('c5ac01e760ee6ff0dab61d6b2bbd30146724d063eb322180c6f18a6f74e4b6aa'
             'SKIP'
             '1c6bf1b9cf0f183c96349b1820df52b1c5f2bc193060d4d31a6c45230a857f5c'
             'f2871bff59d19fe60086116c0549b54814e8e0af7a9ce3b96bb21604466ad556'
-            '8d370171d3fc47db8603097c56c247b1ea7a1364109ac202064c70cf1629deef')
+            '8d370171d3fc47db8603097c56c247b1ea7a1364109ac202064c70cf1629deef'
+            'd41fad88631e7b8d2a56662f2166ea97ecbc6369f2ad3eac415182bc9ac9f308')
 
 validpgpkeys=('8657ABB260F056B1E5190839D9C4D26D0E604491'
               '7953AC1FBC3DC8B3B292393ED5E9E43F7DF9EE8C'
@@ -63,7 +68,8 @@ prepare() {
   apply_patch_with_msg \
      openssl-1.1.1-relocation.patch \
      0001-tests-work-around-the-MSYS-vs-Windows-paths-problem.patch \
-     0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch
+     0001-shlib_wrap.sh-accommodate-for-MINGW-builds-being-tes.patch \
+     openssl-1.1.1-mingw-arm.patch
 }
 
 build() {
@@ -78,9 +84,29 @@ build() {
      ${srcdir}/${_realname}-${_ver}/Configure
 #     ${srcdir}/build-${CARCH}/Configure
 
-  _mingw=mingw
-  if $(echo ${CARCH} | grep -q x86_64); then
-    _mingw=mingw64
+  case "${CARCH}" in
+    i?86)
+      _mingw=mingw
+      ;;
+    x86_64)
+      _mingw=mingw64
+      ;;
+    aarch64)
+      _mingw="mingwarm64 no-asm"
+      ;;
+  esac
+
+  export CC=${MINGW_PREFIX}/bin/cc.exe
+  export CXX=${MINGW_PREFIX}/bin/c++.exe
+  STRIP_OPTS=
+
+  if [[ "$MSYSTEM" == CLANG* ]]
+  then
+    export LDFLAGS="-Wl,-pdb=" # Ensures that Clang generates PDB files
+    STRIP=llvm-strip
+    STRIP_OPTS=--strip-debug
+  else
+    STRIP=cv2pdb
   fi
   cd "${srcdir}/build-${CARCH}"
   export MSYS2_ARG_CONV_EXCL="--prefix="
@@ -109,7 +135,7 @@ build() {
   *-pdb|*-pdb\ *)
     for file in apps/*.exe *.dll engines/*.dll
     do
-      cv2pdb "$file" || exit
+      $STRIP $STRIP_OPTS "$file" || exit
     done
 
     # copy cv2pdb'ed versions of libeay32.dll and ssleay32.dll to apps/
@@ -161,10 +187,18 @@ package_mingw-w64-x86_64-openssl() {
   _package
 }
 
+package_mingw-w64-clang-aarch64-openssl() {
+  _package
+}
+
 package_mingw-w64-i686-openssl-pdb() {
   _package pdb
 }
 
 package_mingw-w64-x86_64-openssl-pdb() {
+  _package pdb
+}
+
+package_mingw-w64-clang-aarch64-openssl-pdb() {
   _package pdb
 }
