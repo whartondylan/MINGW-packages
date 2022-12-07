@@ -1,7 +1,7 @@
-From 4f584a360b1d68345aec44113e36ef5b0fd10479 Mon Sep 17 00:00:00 2001
+From d7dbb5eba261bdcbad2f865a2c343ffa952ef5fe Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:09:43 +0200
-Subject: [PATCH 2/5] RunGrepTest: compare without paying attention to line
+Subject: [PATCH 2/8] RunGrepTest: compare without paying attention to line
  endings
 
 The output of pcre2grep has CR/LF line endings on Windows, but PCRE2's
@@ -13,7 +13,7 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/RunGrepTest b/RunGrepTest
-index 443ed76..239605f 100755
+index d5bd16a..106238d 100755
 --- a/RunGrepTest
 +++ b/RunGrepTest
 @@ -63,10 +63,11 @@ fi
@@ -30,8 +30,8 @@ index 443ed76..239605f 100755
 +#diff -ub /dev/null /dev/null 2>/dev/null && cf="diff -ub"
 +cf="git -c core.autocrlf=false diff --no-index --ignore-space-at-eol"
  
- # If this test is being run from "make check", $srcdir will be set. If not, set
- # it to the current or parent directory, whichever one contains the test data.
+ # Add a -a (always treat as text) if available. This was added in an attempt
+ # to get more detail from an Alpine Linux test failure on GitHub.
 -- 
-2.36.1.windows.1
+2.39.0.rc0.windows.1
 

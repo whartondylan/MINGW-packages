@@ -1,0 +1,43 @@
+From f7ab458412dea056a3336ee28560820bf4d68b67 Mon Sep 17 00:00:00 2001
+From: Johannes Schindelin <johannes.schindelin@gmx.de>
+Date: Wed, 7 Dec 2022 01:48:56 +0100
+Subject: [PATCH 7/8] RunGrepTest: Windows does not have a /bin/echo
+
+Therefore, let's hard-code the absolute path to the MSYS2 "echo.exe" in
+`$MSYSROOT/usr/bin/echo.exe`.
+
+Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
+---
+ RunGrepTest | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/RunGrepTest b/RunGrepTest
+index 9589529..9258627 100755
+--- a/RunGrepTest
++++ b/RunGrepTest
+@@ -973,10 +973,10 @@ fi
+ 
+ if $valgrind $vjs $pcre2grep --help | $valgrind $vjs $pcre2grep -q 'callout scripts in patterns are supported'; then
+   echo "Testing pcre2grep script callouts"
+-  $valgrind $vjs $pcre2grep '(T)(..(.))(?C"/bin/echo|Arg1: [$1] [$2] [$3]|Arg2: $|${1}$| ($4) ($14) ($0)")()' $srcdir/testdata/grepinputv >testtrygrep
+-  $valgrind $vjs $pcre2grep '(T)(..(.))()()()()()()()(..)(?C"/bin/echo|Arg1: [$11] [${11}]")' $srcdir/testdata/grepinputv >>testtrygrep
++  $valgrind $vjs $pcre2grep '(T)(..(.))(?C"echo|Arg1: [$1] [$2] [$3]|Arg2: $|${1}$| ($4) ($14) ($0)")()' $srcdir/testdata/grepinputv >testtrygrep
++  $valgrind $vjs $pcre2grep '(T)(..(.))()()()()()()()(..)(?C"echo|Arg1: [$11] [${11}]")' $srcdir/testdata/grepinputv >>testtrygrep
+   $valgrind $vjs $pcre2grep '(T)(?C"|$0:$1$n")' $srcdir/testdata/grepinputv >>testtrygrep
+-  $valgrind $vjs $pcre2grep '(T)(?C"/bin/echo|$0:$1$n")' $srcdir/testdata/grepinputv >>testtrygrep
++  $valgrind $vjs $pcre2grep '(T)(?C"echo|$0:$1$n")' $srcdir/testdata/grepinputv >>testtrygrep
+   $valgrind $vjs $pcre2grep '(T)(?C"|$1$n")(*F)' $srcdir/testdata/grepinputv >>testtrygrep
+   $valgrind $vjs $pcre2grep -m1 '(T)(?C"|$0:$1:$x{41}$o{101}$n")' $srcdir/testdata/grepinputv >>testtrygrep
+ 
+@@ -994,7 +994,7 @@ if $valgrind $vjs $pcre2grep --help | $valgrind $vjs $pcre2grep -q 'callout scri
+   if [ $utf8 -ne 0 ] ; then
+     echo "Testing pcre2grep script callout with UTF-8 features"
+     $valgrind $vjs $pcre2grep -u '(T)(?C"|$0:$x{a6}$n")' $srcdir/testdata/grepinputv >testtrygrep
+-    $valgrind $vjs $pcre2grep -u '(T)(?C"/bin/echo|$0:$x{a6}$n")' $srcdir/testdata/grepinputv >>testtrygrep
++    $valgrind $vjs $pcre2grep -u '(T)(?C"echo|$0:$x{a6}$n")' $srcdir/testdata/grepinputv >>testtrygrep
+ 
+     if [ $nonfork = 1 ] ; then
+       $cf $srcdir/testdata/grepoutputCNU testtrygrep
+-- 
+2.39.0.rc0.windows.1
+

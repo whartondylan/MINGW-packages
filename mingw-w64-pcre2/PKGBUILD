@@ -3,7 +3,7 @@
 _realname=pcre2
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-pkgver=10.40
+pkgver=10.41
 pkgrel=1
 pkgdesc="A library that implements Perl 5-style regular expressions (mingw-w64)"
 arch=('any')
@@ -20,16 +20,22 @@ options=('staticlibs' 'strip')
 source=(https://github.com/PhilipHazel/pcre2/releases/download/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2{,.sig}
         0001-RunTest-skip-a-couple-more-tests-on-Windows.patch
         0002-RunGrepTest-compare-without-paying-attention-to-line.patch
-        0003-RunGrepTest-skip-test-with-absolute-Unix-path.patch
-        0004-RunGrepTest-skip-script-callout-test.patch
-        0005-Fix-INTERACTIVE-fd-on-Windows.patch)
-sha256sums=('14e4b83c4783933dc17e964318e6324f7cae1bc75d8f3c79bc6969f00c159d68'
+        0003-Fix-INTERACTIVE-fd-on-Windows.patch
+        0004-pcre2grep-flush-stdout-before-spawning-callouts.patch
+        0005-pcre2grep-avoid-letting-Windows-handle-command-line-.patch
+        0006-RunGrepTest-work-around-Unix-vs-Windows-path-issues.patch
+        0007-RunGrepTest-Windows-does-not-have-a-bin-echo.patch
+        0008-RunGrepTest-work-around-MSYS2-idiosyncrasy.patch)
+sha256sums=('0f78cebd3e28e346475fb92e95fe9999945b4cbaad5f3b42aca47b887fb53308'
             'SKIP'
-            '7c58ffbdf84dfc340e22c8f3e0f1a009f279843a63b64984d0bdbd948e396679'
-            'e514a7df1cbc00754f0c21153406f74332787dbad12036c8d840af7fbc48f444'
-            '43387a43d3919f179d3ffac6be200df66bfde5e181a79f9e48354a9d7494a895'
-            'e80b0fcb8689b8444240a5d30112e9afbe1443dd541f1755904a671d4e4913a8'
-            '0c38d4d88768870dab2250925cf94ec843526048fd2c0458514a640f428ff51d')
+            'bf9f757e17f72009ee04af33c4e5d153ce6f4181e3ad8381d9306019f395048d'
+            'ab57fb231b459365311c77de051481bfd4b589029e5011a24a0326898a4e018d'
+            '1aa92d60269a14cafb0cbb9d4767e4cc78b3655ba0da487ec306ed7a6ffb4e96'
+            '10dd1d9b27446fc7ee125a92b07afd367ead3227d962c95ef40938d00df7270a'
+            'e94d86c9f3b4b696aa89e4085507e748ccec722143ed3f9c6b3860abc2c5faae'
+            '85aa283b61c13701713f2e56a1830d88485cda1dceeb21f3b848ff5fe1d4a68d'
+            'd1680e9554bbbdb85d0719184c5ba6a6a50723ce66bd5671432166946e1ac5f4'
+            'df5a2d44c999bbcadd1b13222d84e15f59c048c9eb32d305737fe50097169e54')
 validpgpkeys=('45F68D54BBE23FB3039B46E59766E084FB0F43D8')
 
 prepare () {
@@ -37,9 +43,12 @@ prepare () {
 
   patch -p1 <"${srcdir}"/0001-RunTest-skip-a-couple-more-tests-on-Windows.patch
   patch -p1 <"${srcdir}"/0002-RunGrepTest-compare-without-paying-attention-to-line.patch
-  patch -p1 <"${srcdir}"/0003-RunGrepTest-skip-test-with-absolute-Unix-path.patch
-  patch -p1 <"${srcdir}"/0004-RunGrepTest-skip-script-callout-test.patch
-  patch -p1 <"${srcdir}"/0005-Fix-INTERACTIVE-fd-on-Windows.patch
+  patch -p1 <"${srcdir}"/0003-Fix-INTERACTIVE-fd-on-Windows.patch
+  patch -p1 <"${srcdir}"/0004-pcre2grep-flush-stdout-before-spawning-callouts.patch
+  patch -p1 <"${srcdir}"/0005-pcre2grep-avoid-letting-Windows-handle-command-line-.patch
+  patch -p1 <"${srcdir}"/0006-RunGrepTest-work-around-Unix-vs-Windows-path-issues.patch
+  patch -p1 <"${srcdir}"/0007-RunGrepTest-Windows-does-not-have-a-bin-echo.patch
+  patch -p1 <"${srcdir}"/0008-RunGrepTest-work-around-MSYS2-idiosyncrasy.patch
 }
 
 build() {
