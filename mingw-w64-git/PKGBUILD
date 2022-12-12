@@ -87,13 +87,13 @@ then
   LDFLAGS="-Wl,-pdb=" # Ensures that Clang generates PDB files
 elif test -z "$WITHOUT_PDBS"
 then
-	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
-	makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
-	options+=('!strip')
-	COMPAT_CFLAGS="-gdwarf-4 -gstrict-dwarf" # cv2pdb cannot really handle DWARF5 yet
-	STRIP=$PWD/cv2pdb-strip
+  pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
+  makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
+  options+=('!strip')
+  COMPAT_CFLAGS="-gdwarf-4 -gstrict-dwarf" # cv2pdb cannot really handle DWARF5 yet
+  STRIP=$PWD/cv2pdb-strip
 else
-	options+=('strip')
+  options+=('strip')
 fi
 
 if test CLANGARM64 = "$MSYSTEM"
@@ -125,30 +125,30 @@ aarch64)
 esac
 
 prepare () {
-	cd "$srcdir/git" &&
+  cd "$srcdir/git" &&
 
-	cat >config.mak <<-EOF
-	USE_ASCIIDOCTOR = $USE_ASCIIDOCTOR
-	COMPAT_CFLAGS += $COMPAT_CFLAGS
-	LDFLAGS = $LDFLAGS
-	EOF
+  cat >config.mak <<-EOF
+USE_ASCIIDOCTOR = $USE_ASCIIDOCTOR
+COMPAT_CFLAGS += $COMPAT_CFLAGS
+LDFLAGS = $LDFLAGS
+EOF
 
-	cp ../git-bash.txt Documentation/
+  cp ../git-bash.txt Documentation/
 
-	# Slightly dirty workaround for missing docbook-xsl-ns
-	grep -q http://docbook.sourceforge.net/release/xsl-ns/current /etc/xml/catalog || {
-		(cd /usr/share/xml/ &&
-		 test -d docbook-xsl-ns-1.78.1 ||
-		 curl -L https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/1.78.1/docbook-xsl-ns-1.78.1.tar.bz2/download |
-		 tar xjf -)
-		for rewrite in System URI
-		do
-			xmlcatalog --noout --add "rewrite$rewrite" \
-				http://docbook.sourceforge.net/release/xsl-ns/current \
-				/usr/share/xml/docbook-xsl-ns-1.78.1 \
-				/etc/xml/catalog
-		done
-	}
+  # Slightly dirty workaround for missing docbook-xsl-ns
+  grep -q http://docbook.sourceforge.net/release/xsl-ns/current /etc/xml/catalog || {
+    (cd /usr/share/xml/ &&
+     test -d docbook-xsl-ns-1.78.1 ||
+     curl -L https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/1.78.1/docbook-xsl-ns-1.78.1.tar.bz2/download |
+     tar xjf -)
+    for rewrite in System URI
+    do
+      xmlcatalog --noout --add "rewrite$rewrite" \
+        http://docbook.sourceforge.net/release/xsl-ns/current \
+        /usr/share/xml/docbook-xsl-ns-1.78.1 \
+        /etc/xml/catalog
+    done
+  }
 }
 
 build() {
@@ -303,7 +303,7 @@ package_mingw-w64-i686-git-test-artifacts () {
 }
 
 package_mingw-w64-i686-git-pdb () {
-	package_git-pdb
+  package_git-pdb
 }
 
 package_mingw-w64-x86_64-git () {
@@ -323,7 +323,7 @@ package_mingw-w64-x86_64-git-test-artifacts () {
 }
 
 package_mingw-w64-x86_64-git-pdb () {
-	package_git-pdb
+  package_git-pdb
 }
 
 package_mingw-w64-clang-aarch64-git () {
@@ -343,5 +343,5 @@ package_mingw-w64-clang-aarch64-git-test-artifacts () {
 }
 
 package_mingw-w64-clang-aarch64-git-pdb () {
-	package_git-pdb
+  package_git-pdb
 }
