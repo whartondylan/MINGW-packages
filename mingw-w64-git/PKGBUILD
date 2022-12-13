@@ -201,10 +201,14 @@ build() {
   done &&
 
   case "${pkgname[@]}" in *pdb*)
-    make -f ../mingw-w64-git.mak STRIP="$STRIP" STRIP_OPTS=$STRIP_OPTS strip-all
+    make -f ../mingw-w64-git.mak STRIP="$STRIP" STRIP_OPTS=$STRIP_OPTS strip-all &&
     if [[ "$MSYSTEM" == CLANG* ]]; then
       # Clang doesn't generate PDBs for the files below, because they're hard linked to git-remote-http.
-      for i in git-remote-https.pdb git-remote-ftp.pdb git-remote-ftps.pdb; do ln git-remote-http.pdb $i; done
+      for i in git-remote-https.pdb git-remote-ftp.pdb git-remote-ftps.pdb
+      do
+        ln git-remote-http.pdb $i ||
+        return 1
+      done
     fi
     ;;
   esac &&
