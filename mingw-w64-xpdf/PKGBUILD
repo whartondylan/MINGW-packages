@@ -21,6 +21,7 @@ source=(https://dl.xpdfreader.com/old/xpdf-${pkgver}.tar.gz{,.sig}
         004-xpdf-4.00-man-path-fix.patch
         005-xpdf-4.00-permissions.patch
         006-xpdf-4.00-only-tools.patch)
+validpgpkeys=('A56006CA75CF8B13FA2F120DF4825F5397271342') # "-Xpdf- <xpdf@xpdfreader.com>"
 sha256sums=('ff3d92c42166e35b1ba6aec9b5f0adffb5fc05a3eb95dc49505b6e344e4216d6'
             'SKIP'
             'df71b83964dfb7ae1c5ce2d37c6634bbda27288609e7a5248e2142f0ddbec2c0'
