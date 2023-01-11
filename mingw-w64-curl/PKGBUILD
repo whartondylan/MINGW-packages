@@ -24,11 +24,13 @@ depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
 options=('staticlibs')
 source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         "0001-Make-cURL-relocatable.patch"
-        "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch")
+        "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
+        https://github.com/curl/curl/commit/54120efdf64c40c93308dee3935bbed7e1cdc1aa.patch)
 sha256sums=('5d6e128761b7110946d1276aff6f0f266f2b726f5e619f7e0a057a474155f307'
             'SKIP'
             '13a090fd04bb057639eb9aceea8d43c0828b03a19d966103dd6a72af5ddc5efb'
-            '4e014889f83e534516f444fa130e338d5e113dbfd55b98cc5c988bbc5c1825ff')
+            '4e014889f83e534516f444fa130e338d5e113dbfd55b98cc5c988bbc5c1825ff'
+            'd142acb6a638995a9cc418fc22c947f29d9103da9861266c7022e9b1dea093cd')
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
               '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
@@ -57,6 +59,7 @@ prepare() {
   rm -f lib/pathtools.h lib/pathtools.c tests/data/test2070 >/dev/null 2>&1 || true
   patch -p1 -i "${srcdir}/0001-Make-cURL-relocatable.patch"
   patch -p1 -i "${srcdir}/0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
+  patch -p1 -i "${srcdir}/54120efdf64c40c93308dee3935bbed7e1cdc1aa.patch"
   autoreconf -vfi
 }
 
