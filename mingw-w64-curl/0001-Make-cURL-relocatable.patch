@@ -1,4 +1,4 @@
-From d3e740d1b5bc716e563aca0808dc2efde7bebfcd Mon Sep 17 00:00:00 2001
+From 5259b40b4c3cc7d2375785ff6aebf73dad751a4a Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
 Subject: [PATCH 1/2] Make cURL relocatable

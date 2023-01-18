@@ -28,8 +28,8 @@ source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
         https://github.com/curl/curl/commit/54120efdf64c40c93308dee3935bbed7e1cdc1aa.patch)
 sha256sums=('5d6e128761b7110946d1276aff6f0f266f2b726f5e619f7e0a057a474155f307'
             'SKIP'
-            '9207b8a913a03d1a776c112e2d79a5eb30d1a8ff526694e96adaae4e20f0e17c'
-            '3270c62ed2ebe3a1cdc249ebcfc2e6bc02a05f449b958b06757a35566cb3fa6f'
+            'd8386671a7819d39bb71209f2cd255bc91c803494f26639aed6e62f42694faec'
+            'e3387326ca48c740309171063274408febb9ee0ec5de601ae77ac77b8e490999'
             'd142acb6a638995a9cc418fc22c947f29d9103da9861266c7022e9b1dea093cd')
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
