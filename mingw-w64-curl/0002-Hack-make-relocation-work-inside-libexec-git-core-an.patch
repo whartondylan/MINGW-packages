@@ -1,4 +1,4 @@
-From f08bfc7455e14fef4514d52e08ed31609142723c Mon Sep 17 00:00:00 2001
+From bb72c7849027bab8da878b41cbef3b438b0ba52f Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 31 Oct 2018 10:52:59 +0100
 Subject: [PATCH 2/2] Hack: make relocation work inside libexec/git-core/ and
@@ -26,14 +26,14 @@ extend the Git for Windows-specific hack with a hard-code `bin/` case.
 
 Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
 ---
- lib/url.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ lib/url.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
 diff --git a/lib/url.c b/lib/url.c
-index c54a49e49..aa96a5828 100644
+index 8eb7b524c..60c669292 100644
 --- a/lib/url.c
 +++ b/lib/url.c
-@@ -584,10 +584,19 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+@@ -595,12 +595,30 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
  #if defined(__MINGW32__)
      const size_t path_max = PATH_MAX;
      char relocated[PATH_MAX + 1], *relative;
@@ -45,15 +45,26 @@ index c54a49e49..aa96a5828 100644
 +    if((len = strlen(relocated)) > 18 &&
 +       !strcmp(relocated + len - 18, "/libexec/git-core/")) {
 +      /* Hack for Git for Windows */
-+      relative = strdup("../../ssl/certs/ca-bundle.crt");
++      relative = strdup("../../etc/ssl/certs/ca-bundle.crt");
 +    } else if(len > 5 && !strcmp(relocated + len - 5, "/bin/")) {
 +      /* Hack for Git for Windows */
-+      relative = strdup("../ssl/certs/ca-bundle.crt");
++      relative = strdup("../etc/ssl/certs/ca-bundle.crt");
 +    } else
 +      relative = get_relative_path(CURL_BINDIR, CURL_CA_BUNDLE);
      strncat(relocated, relative, path_max - 1);
      simplify_path(relocated);
++    if (access(relocated, R_OK) != 0 &&
++	(len = strlen(relocated)) >= 28 &&
++	!strcmp(relocated + len - 28, "/etc/ssl/certs/ca-bundle.crt")) {
++      /* Try without /etc/ */
++      memmove(relocated + len - 28, relocated + len - 24, 25);
++      if (access(relocated, R_OK) != 0)
++        /* fall back to using /etc/ */
++        strcat(relocated + len - 28, "/etc/ssl/certs/ca-bundle.crt");
++    }
      result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], relocated);
+ #else
+     result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], CURL_CA_BUNDLE);
 -- 
-2.36.0.windows.1
+2.39.0.windows.2
 
