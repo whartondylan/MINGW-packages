@@ -3,27 +3,29 @@
 _realname=connect
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=1.104
-tag='fd6f352325d4'
-pkgrel=1
+pkgver=1.105
+tag='e122d9bd28e1'
+pkgrel=3
 pkgdesc="Make socket connection using SOCKS4/5 and HTTP tunnel (mingw-w64)"
 arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
 license=('GPL2+')
-url="https://bitbucket.org/gotoh/connect/overview"
+url="https://github.com/gotoh/ssh-connect"
 options=('strip')
-source=(${_realname}-${pkgver}.tar.bz2::"https://bitbucket.org/gotoh/${_realname}/get/${pkgver}.tar.bz2")
-sha256sums=('e262cd3a6ee66e65187f3780ca808bc8dddee03dc5c5755b2b9c4db10274eb40')
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc")
+source=(${_realname}-${pkgver}.tar.gz::"${url}/archive/${pkgver}.tar.gz")
+sha256sums=('96c50fefe7ecf015cf64ba6cec9e421ffd3b18fef809f59961ef9229df528f3e')
 
 build() {
-  cd "${srcdir}/gotoh-${_realname}-${tag}"
+  cd "${srcdir}/ssh-connect-${pkgver}"
 
   test -x ver || printf '#!/bin/sh\n\necho Windows\n' > ver
 
-  PATH=.:$PATH make -j1 rebuild
+  PATH=.:$PATH make -j1 rebuild CC=cc
 }
 
 package() {
-  cd "${srcdir}/gotoh-${_realname}-${tag}"
+  cd "${srcdir}/ssh-connect-${pkgver}"
 
   install -d "${pkgdir}${MINGW_PREFIX}/bin/"
   install connect.exe "${pkgdir}${MINGW_PREFIX}/bin/"
