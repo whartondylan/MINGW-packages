@@ -28,6 +28,10 @@ void sanitise_path(char * path);
    if IMPLEMENT_SYS_GET_EXECUTABLE_PATH is defined, otherwise uses argv0. */
 int get_executable_path(char const * argv0, char * result, ssize_t max_size);
 
+#if defined(_WIN32)
+int get_dll_path(char * result, unsigned long max_size);
+#endif
+
 /* Where possible, in-place removes occourances of '.' and 'path/..' */
 void simplify_path(char * path);
 
@@ -44,10 +48,12 @@ strip_n_prefix_folders(char const * path, size_t n);
 void
 strip_n_suffix_folders(char * path, size_t n);
 
-char const * get_relocated_path (char const * from, char const * to, char const * actual_from);
 char * get_relocated_path_list(char const * from, char const * to_path_list);
+char * get_relocated_path_list_lib(char const * from, char const * to_path_list);
 
 char * single_path_relocation(const char *from, const char *to);
+char * single_path_relocation_lib(const char *from, const char *to);
 char * pathlist_relocation(const char *from_path, const char *to_path_list);
+char * pathlist_relocation_lib(const char *from_path, const char *to_path_list);
 
 #endif /* PATHTOOLS_H */
