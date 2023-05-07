@@ -44,6 +44,13 @@ sha256sums=('0a381cd82f4d00a9a334438b8ca239afea5bfefcfa9a1025f2bf118e79e0b5f0'
             'b5e23618ad6000c87b0200232578e74ef7a475e2b7e19f3949fec134d7837570')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2')  # Daniel Stenberg
 
+if test -z "$WITHOUT_ALTERNATES"
+then
+	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-openssl-alternate")
+        pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls-alternate")
+        pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl-alternate")
+fi
+
 case "$WITHOUT_PDBS,$MSYSTEM" in
 ,CLANG*)
 	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
@@ -174,6 +181,14 @@ do_package() {
     return
   }
 
+  test alternate != "$2" || {
+    install -d -m 755 "${pkgdir}${MINGW_PREFIX}/bin"
+    infix=${1:--openssl}
+    test -winssl != $infix || infix=-schannel # the name "winssl" was ill-considered ;-)
+    install -m 755 lib/.libs/libcurl-4.dll "${pkgdir}${MINGW_PREFIX}/bin/libcurl$infix-4.dll"
+    return
+  }
+
   make DESTDIR="${pkgdir}" install
 
   local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
@@ -187,6 +202,7 @@ package_curl() {
   depends=("${depends[@]}"
            "${_cert_depends[@]}"
            "${_openssl_depends[@]}")
+  test alternate = "$1" ||
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl"
              "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls")
   do_package "" "$@"
@@ -195,17 +211,21 @@ package_curl() {
 package_curl-winssl() {
   depends=("${depends[@]}"
            "${MINGW_PACKAGE_PREFIX}-libssh2-wincng")
+  test alternate = "$1" ||
   provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  test alternate = "$1" ||
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}"
              "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls")
   do_package -winssl "$@"
 }
 
 package_curl-gnutls() {
+  test alternate = "$1" ||
   provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
   depends=("${depends[@]}"
            "${_cert_depends[@]}"
            "${_gnutls_depends[@]}")
+  test alternate = "$1" ||
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}"
              "${MINGW_PACKAGE_PREFIX}-${_realname}-winssl")
   do_package -gnutls "$@"
@@ -221,6 +241,18 @@ package_curl-winssl-pdb() {
 
 package_curl-gnutls-pdb() {
   package_curl-gnutls pdb
+}
+
+package_curl-openssl-alternate() {
+  package_curl alternate
+}
+
+package_curl-winssl-alternate() {
+  package_curl-winssl alternate
+}
+
+package_curl-gnutls-alternate() {
+  package_curl-gnutls alternate
 }
 
 # template start; name=mingw-w64-splitpkg-wrappers; version=1.0;
