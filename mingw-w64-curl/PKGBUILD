@@ -2,89 +2,160 @@
 
 _realname=curl
 pkgbase=mingw-w64-${_realname}
-pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-winssl")
 pkgver=8.0.1
-pkgrel=1
-pkgdesc="Command line tool and library for transferring data with URLs. (mingw-w64)"
+pkgrel=2
+pkgdesc="Command line tool and library for transferring data with URLs (mingw-w64)"
 arch=('any')
-url="https://curl.haxx.se"
-license=("MIT")
-makedepends=("${MINGW_PACKAGE_PREFIX}-cc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
+url="https://curl.se/"
+license=("spdx:MIT")
+_cert_depends=("${MINGW_PACKAGE_PREFIX}-ca-certificates"
+               "${MINGW_PACKAGE_PREFIX}-libssh2")
+_openssl_depends=("${MINGW_PACKAGE_PREFIX}-openssl"
+                  "${MINGW_PACKAGE_PREFIX}-nghttp2")
+_gnutls_depends=("${MINGW_PACKAGE_PREFIX}-rtmpdump"
+                 "${MINGW_PACKAGE_PREFIX}-gnutls")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-autotools"
+             "${_cert_depends[@]}"
+             "${_openssl_depends[@]}"
+             "${_gnutls_depends[@]}")
 depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
          "${MINGW_PACKAGE_PREFIX}-c-ares"
+         "${MINGW_PACKAGE_PREFIX}-brotli"
          "${MINGW_PACKAGE_PREFIX}-libidn2"
          "${MINGW_PACKAGE_PREFIX}-libpsl"
-         "${MINGW_PACKAGE_PREFIX}-libssh2"
          "${MINGW_PACKAGE_PREFIX}-zlib"
-         "${MINGW_PACKAGE_PREFIX}-ca-certificates"
-         "${MINGW_PACKAGE_PREFIX}-openssl"
-         "${MINGW_PACKAGE_PREFIX}-nghttp2"
-         "${MINGW_PACKAGE_PREFIX}-brotli"
          "${MINGW_PACKAGE_PREFIX}-zstd")
 options=('staticlibs')
-source=("${url}/download/${_realname}-${pkgver}.tar.bz2"{,.asc}
+source=("https://github.com/curl/curl/releases/download/${_realname}-${pkgver//./_}/${_realname}-${pkgver}.tar.xz"{,.asc}
+        "pathtools.c"
+        "pathtools.h"
         "0001-Make-cURL-relocatable.patch"
         "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch")
-sha256sums=('9b6b1e96b748d04b968786b6bdf407aa5c75ab53a3d37c1c8c81cdb736555ccf'
+sha256sums=('0a381cd82f4d00a9a334438b8ca239afea5bfefcfa9a1025f2bf118e79e0b5f0'
             'SKIP'
-            'd8386671a7819d39bb71209f2cd255bc91c803494f26639aed6e62f42694faec'
-            'e3387326ca48c740309171063274408febb9ee0ec5de601ae77ac77b8e490999')
-validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
-              '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
-              '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
+            '08209cbf1633fa92eae7e5d28f95f8df9d6184cc20fa878c99aec4709bb257fd'
+            '965d3921ec4fdeec94a2718bc2c85ce5e1a00ea0e499330a554074a7ae15dfc6'
+            '64cbbea0a6b273b2008a08479ea8736fb4917225d434f3c08da2560318393de0'
+            'b5e23618ad6000c87b0200232578e74ef7a475e2b7e19f3949fec134d7837570')
+validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2')  # Daniel Stenberg
 
-if [[ "$MSYSTEM" == CLANG* && -z "$WITHOUT_PDBS" ]]
+if test -z "$WITHOUT_ALTERNATES"
 then
+	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-openssl-alternate")
+        pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls-alternate")
+        pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl-alternate")
+fi
+
+case "$WITHOUT_PDBS,$MSYSTEM" in
+,CLANG*)
 	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
+        pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls-pdb")
+        pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl-pdb")
 	options+=('!strip')
 	STRIP=llvm-strip
 	STRIP_OPTS=--strip-debug
-elif test -z "$WITHOUT_PDBS"
-then
+	;;
+,*)
 	pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
+        pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls-pdb")
+        pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl-pdb")
 	makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
 	options+=('!strip')
 	STRIP=cv2pdb
-else
+	;;
+*)
 	options+=('strip')
-fi
+esac
+
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying ${_patch}"
+    patch -Nbp1 -i "${srcdir}/${_patch}"
+  done
+}
 
 prepare() {
-  cd "${_realname}-${pkgver}"
-  # MINGW builds typically mean that prepare is run twice: once for 64-bit and
-  # once for 64-bit. These files are therefore added twice by below patches, so
-  # let's force-delete them before trying to add them.
-  rm -f lib/pathtools.h lib/pathtools.c tests/data/test2070 >/dev/null 2>&1 || true
-  patch -p1 -i "${srcdir}/0001-Make-cURL-relocatable.patch"
-  patch -p1 -i "${srcdir}/0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
+  test ! -d "${startdir}/../mingw-w64-pathtools" || {
+    cmp "${startdir}/../mingw-w64-pathtools/pathtools.c" "${srcdir}/pathtools.c" &&
+    cmp "${startdir}/../mingw-w64-pathtools/pathtools.h" "${srcdir}/pathtools.h"
+  } || exit 1
+
+  cd "${srcdir}/${_realname}-${pkgver}"
+  cp -fHv "${srcdir}"/pathtools.[ch] lib/
+
+  apply_patch_with_msg \
+    0001-Make-cURL-relocatable.patch \
+    0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch
+
   autoreconf -vfi
 }
 
-build() {
-  [[ "$MSYSTEM" == CLANG* ]] && export LDFLAGS="-Wl,-pdb=" # Ensures that Clang generates PDB files
-
+do_build() {
+  _variant=$1
+  _destdir="${srcdir}/build-${MSYSTEM}"
+  if [ "${_variant}" != "-openssl" ]; then
+    _destdir="${_destdir}${_variant}"
+  fi
   local -a extra_config
-  extra_config+=( --disable-debug )
-  mkdir -p "${srcdir}/build-${CARCH}"
-  extra_config+=("--with-ssl")
-  extra_config+=("--with-ca-bundle=${MINGW_PREFIX}/ssl/certs/ca-bundle.crt")
-  extra_config+=('--with-nghttp2=${MINGW_PREFIX}/')
-  extra_config+=("--with-schannel")
-  cd "${srcdir}/build-${CARCH}"
+  if check_option "debug" "y"; then
+    extra_config+=( --enable-debug )
+  else
+    extra_config+=( --disable-debug )
+  fi
+
+  local -a _variant_config
+  if [ "${_variant}" = "-winssl" ]; then
+    _variant_config+=("--with-schannel")
+    _variant_config+=('--without-nghttp2')
+    _variant_config+=("--without-ca-bundle")
+    _variant_config+=("--without-ca-path")
+    _variant_config+=("--without-librtmp")
+  elif [ "${_variant}" = "-gnutls" ]; then
+    _variant_config+=("--with-default-ssl-backend=gnutls")
+    _variant_config+=("--with-gnutls")
+    _variant_config+=("--with-schannel")
+    _variant_config+=('--without-nghttp2')
+    _variant_config+=("--with-ca-bundle=${MINGW_PREFIX}/etc/ssl/certs/ca-bundle.crt")
+    _variant_config+=("--with-librtmp")
+  elif [ "${_variant}" = "-openssl" ]; then
+    _variant_config+=("--with-default-ssl-backend=openssl")
+    _variant_config+=("--with-openssl")
+    _variant_config+=("--with-schannel")
+    _variant_config+=("--with-ca-bundle=${MINGW_PREFIX}/etc/ssl/certs/ca-bundle.crt")
+    _variant_config+=("--with-nghttp2=${MINGW_PREFIX}")
+    _variant_config+=("--without-librtmp")
+  fi
+
+  case "$MSYSTEM" in CLANG*) export LDFLAGS="-Wl,-pdb=";; esac # Ensures that Clang generates PDB files
+
+  msg2 "Building shared library"
+  mkdir -p "${_destdir}-shared" && cd "${_destdir}-shared"
   ../${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
     --build=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
+    --disable-pthreads \
     --without-random \
-    --without-librtmp \
-    --enable-static \
+    --disable-static \
     --enable-shared \
     --enable-sspi \
+    --enable-ldap \
+    --enable-ldaps \
+    --with-brotli \
+    --with-ldap-lib=wldap32 \
     --with-libssh2 \
+    --with-zstd \
+    "${_variant_config[@]}" \
     "${extra_config[@]}"
 # there's a bug with zsh completion generation script and Windows.
-# curl has to specified with the file extension.
+# curl has to be specified with the file extension.
   sed -i "s|\/curl > \$\@|\/curl\$\{EXEEXT\} > \$\@|" scripts/Makefile
   make
   case "${pkgname[@]}"
@@ -94,13 +165,27 @@ build() {
   esac
 }
 
-package_1() {
-  cd "${srcdir}/build-${CARCH}"
+build() {
+  do_build -openssl
+  do_build -winssl
+  do_build -gnutls
+}
 
-  test pdb != "$1" || {
+do_package() {
+  cd "${srcdir}/build-${MSYSTEM}$1-shared"
+
+  test pdb != "$2" || {
     install -d -m 755 "${pkgdir}${MINGW_PREFIX}/bin"
     install -m 755 lib/.libs/libcurl-4.pdb "${pkgdir}${MINGW_PREFIX}/bin"
     install -m 755 src/.libs/curl.pdb "${pkgdir}${MINGW_PREFIX}/bin"
+    return
+  }
+
+  test alternate != "$2" || {
+    install -d -m 755 "${pkgdir}${MINGW_PREFIX}/bin"
+    infix=${1:--openssl}
+    test -winssl != $infix || infix=-schannel # the name "winssl" was ill-considered ;-)
+    install -m 755 lib/.libs/libcurl-4.dll "${pkgdir}${MINGW_PREFIX}/bin/libcurl$infix-4.dll"
     return
   }
 
@@ -108,28 +193,97 @@ package_1() {
 
   local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
   sed -s "s|${PREFIX_DEPS}|${MINGW_PREFIX}|g" -i ${pkgdir}${MINGW_PREFIX}/bin/curl-config
+  sed -s "s|${PREFIX_DEPS}|${MINGW_PREFIX}|g" -i ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig/libcurl.pc
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
 }
 
-package_mingw-w64-i686-curl() {
-  package_1
+package_curl() {
+  depends=("${depends[@]}"
+           "${_cert_depends[@]}"
+           "${_openssl_depends[@]}")
+  test alternate = "$1" ||
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl"
+             "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls")
+
+  # (Temporarily) force git-sdk-* to switch to the mingw-w64-curl-winssl
+  # package because that package does not depend on OpenSSL, allowing Git for
+  # Windows to upgrade to OpenSSL v3.* (which would otherwise break libcurl,
+  # and therefore `git clone`, and therefore Git for Windows' SDK
+  # synchronization, because that upgrade changes the OpenSSL DLL's file name).
+  #
+  # To allow Git's `http.sslBackend=openssl` to work, still, this code block
+  # _actually_ overrides the `mingw-w64-curl` package with the
+  # `-openssl-alternate` variant, and letting that variant depend on the
+  # `-winssl` one. This effectively "force-upgrades" mingw-w64-curl with
+  # mingw-w64-curl-winssl and mingw-w64-curl-openssl-alternate.
+  #
+  # The plan is to remove this override after Git for Windows' SDK has upgraded
+  # to OpenSSL v3.* (the current idea being to do that about a week after Git
+  # for Windows v2.41.0 has been released, i.e. to wait for a sort-of-idle
+  # time).
+  test alternate != "$*" || {
+    depends+=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl")
+    replaces=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  }
+
+  do_package "" "$@"
 }
 
-package_mingw-w64-x86_64-curl() {
-  package_1
+package_curl-winssl() {
+  depends=("${depends[@]}"
+           "${MINGW_PACKAGE_PREFIX}-libssh2-wincng")
+  test alternate = "$1" ||
+  provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  test alternate = "$1" ||
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+             "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls")
+  do_package -winssl "$@"
 }
 
-package_mingw-w64-clang-aarch64-curl() {
-  package_1
+package_curl-gnutls() {
+  test alternate = "$1" ||
+  provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  depends=("${depends[@]}"
+           "${_cert_depends[@]}"
+           "${_gnutls_depends[@]}")
+  test alternate = "$1" ||
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+             "${MINGW_PACKAGE_PREFIX}-${_realname}-winssl")
+  do_package -gnutls "$@"
 }
 
-package_mingw-w64-i686-curl-pdb() {
-  package_1 pdb
+package_curl-pdb() {
+  package_curl pdb
 }
 
-package_mingw-w64-x86_64-curl-pdb() {
-  package_1 pdb
+package_curl-winssl-pdb() {
+  package_curl-winssl pdb
 }
 
-package_mingw-w64-clang-aarch64-curl-pdb() {
-  package_1 pdb
+package_curl-gnutls-pdb() {
+  package_curl-gnutls pdb
 }
+
+package_curl-openssl-alternate() {
+  package_curl alternate
+}
+
+package_curl-winssl-alternate() {
+  package_curl-winssl alternate
+}
+
+package_curl-gnutls-alternate() {
+  package_curl-gnutls alternate
+}
+
+# template start; name=mingw-w64-splitpkg-wrappers; version=1.0;
+# vim: set ft=bash :
+
+# generate wrappers
+for _name in "${pkgname[@]}"; do
+  _short="package_${_name#${MINGW_PACKAGE_PREFIX}-}"
+  _func="$(declare -f "${_short}")"
+  eval "${_func/#${_short}/package_${_name}}"
+done
+# template end;

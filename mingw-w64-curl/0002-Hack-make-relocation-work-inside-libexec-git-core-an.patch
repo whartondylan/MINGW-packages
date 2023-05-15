@@ -1,4 +1,4 @@
-From bb72c7849027bab8da878b41cbef3b438b0ba52f Mon Sep 17 00:00:00 2001
+From 7aec1b021f6f42cdd7bbd5d2575c7d004921db4e Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 31 Oct 2018 10:52:59 +0100
 Subject: [PATCH 2/2] Hack: make relocation work inside libexec/git-core/ and
@@ -26,45 +26,41 @@ extend the Git for Windows-specific hack with a hard-code `bin/` case.
 
 Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
 ---
- lib/url.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ lib/url.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/lib/url.c b/lib/url.c
-index 8eb7b524c..60c669292 100644
+index 7e9cf8ae6..77fd09a4a 100644
 --- a/lib/url.c
 +++ b/lib/url.c
-@@ -595,12 +595,30 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
- #if defined(__MINGW32__)
-     const size_t path_max = PATH_MAX;
-     char relocated[PATH_MAX + 1], *relative;
+@@ -579,10 +579,29 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+     get_dll_path(relocated_bundle, path_max);
+     strip_n_suffix_folders(relocated_bundle, 1);
+     strncat(relocated_bundle, "/", path_max - 1);
+-    char *relative = get_relative_path(CURL_BINDIR, CURL_CA_BUNDLE);
++    char *relative;
 +    size_t len;
-     get_dll_path(relocated, path_max);
-     strip_n_suffix_folders(relocated, 1);
-     strncat(relocated, "/", path_max);
--    relative = get_relative_path(CURL_BINDIR, CURL_CA_BUNDLE);
-+    if((len = strlen(relocated)) > 18 &&
-+       !strcmp(relocated + len - 18, "/libexec/git-core/")) {
++    if((len = strlen(relocated_bundle)) > 18 &&
++       !strcmp(relocated_bundle + len - 18, "/libexec/git-core/")) {
 +      /* Hack for Git for Windows */
 +      relative = strdup("../../etc/ssl/certs/ca-bundle.crt");
-+    } else if(len > 5 && !strcmp(relocated + len - 5, "/bin/")) {
++    } else if(len > 5 && !strcmp(relocated_bundle + len - 5, "/bin/")) {
 +      /* Hack for Git for Windows */
 +      relative = strdup("../etc/ssl/certs/ca-bundle.crt");
 +    } else
 +      relative = get_relative_path(CURL_BINDIR, CURL_CA_BUNDLE);
-     strncat(relocated, relative, path_max - 1);
-     simplify_path(relocated);
-+    if (access(relocated, R_OK) != 0 &&
-+	(len = strlen(relocated)) >= 28 &&
-+	!strcmp(relocated + len - 28, "/etc/ssl/certs/ca-bundle.crt")) {
+     strncat(relocated_bundle, relative, path_max - 1);
+     free((void*)relative);
+     simplify_path(relocated_bundle);
++    if (access(relocated_bundle, R_OK) != 0 &&
++	(len = strlen(relocated_bundle)) >= 28 &&
++	!strcmp(relocated_bundle + len - 28, "/etc/ssl/certs/ca-bundle.crt")) {
 +      /* Try without /etc/ */
-+      memmove(relocated + len - 28, relocated + len - 24, 25);
-+      if (access(relocated, R_OK) != 0)
++      memmove(relocated_bundle + len - 28, relocated_bundle + len - 24, 25);
++      if (access(relocated_bundle, R_OK) != 0)
 +        /* fall back to using /etc/ */
-+        strcat(relocated + len - 28, "/etc/ssl/certs/ca-bundle.crt");
++        strcat(relocated_bundle + len - 28, "/etc/ssl/certs/ca-bundle.crt");
 +    }
-     result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], relocated);
+     result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], relocated_bundle);
  #else
      result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], CURL_CA_BUNDLE);
--- 
-2.39.0.windows.2
-
