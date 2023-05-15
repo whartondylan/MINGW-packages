@@ -205,6 +205,28 @@ package_curl() {
   test alternate = "$1" ||
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl"
              "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls")
+
+  # (Temporarily) force git-sdk-* to switch to the mingw-w64-curl-winssl
+  # package because that package does not depend on OpenSSL, allowing Git for
+  # Windows to upgrade to OpenSSL v3.* (which would otherwise break libcurl,
+  # and therefore `git clone`, and therefore Git for Windows' SDK
+  # synchronization, because that upgrade changes the OpenSSL DLL's file name).
+  #
+  # To allow Git's `http.sslBackend=openssl` to work, still, this code block
+  # _actually_ overrides the `mingw-w64-curl` package with the
+  # `-openssl-alternate` variant, and letting that variant depend on the
+  # `-winssl` one. This effectively "force-upgrades" mingw-w64-curl with
+  # mingw-w64-curl-winssl and mingw-w64-curl-openssl-alternate.
+  #
+  # The plan is to remove this override after Git for Windows' SDK has upgraded
+  # to OpenSSL v3.* (the current idea being to do that about a week after Git
+  # for Windows v2.41.0 has been released, i.e. to wait for a sort-of-idle
+  # time).
+  test alternate != "$*" || {
+    depends+=("${MINGW_PACKAGE_PREFIX}-${_realname}-winssl")
+    replaces=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  }
+
   do_package "" "$@"
 }
 
