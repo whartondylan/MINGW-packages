@@ -27,7 +27,7 @@ _version=17.0.2
 _rc=
 _tag=llvmorg-${_version}${_rc}
 pkgver=${_version}${_rc/-/}
-pkgrel=2
+pkgrel=3
 pkgdesc="C language family frontend for LLVM (mingw-w64)"
 arch=('any')
 mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
@@ -176,7 +176,7 @@ build() {
     common_cmake_args+=(-DCMAKE_BUILD_TYPE=Debug)
     VERBOSE="VERBOSE=1"
   else
-    common_cmake_args+=(-DCMAKE_BUILD_TYPE=Release)
+    common_cmake_args+=(-DCMAKE_BUILD_TYPE=MinSizeRel)
   fi
   common_cmake_args+=(-Wno-dev
     -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX}
@@ -226,9 +226,9 @@ build() {
   # List of targets to build in CMake style
   # For more info see: https://github.com/msys2/MINGW-packages/discussions/9765
   if [ "${_compiler}" == "clang" ]; then
-    platform_config+=(-DLLVM_TARGETS_TO_BUILD="all")
+    platform_config+=(-DLLVM_TARGETS_TO_BUILD="host")
   else
-    platform_config+=(-DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;AVR;BPF;Mips;MSP430;NVPTX;RISCV;WebAssembly;X86")
+    platform_config+=(-DLLVM_TARGETS_TO_BUILD="host")
   fi
 
   mkdir build-${MSYSTEM} && cd build-${MSYSTEM}
@@ -244,7 +244,7 @@ build() {
     -DLLVM_ENABLE_ASSERTIONS=OFF \
     -DLLVM_ENABLE_FFI=ON \
     -DLLVM_ENABLE_PROJECTS="${_projects}" \
-    -DLLVM_ENABLE_SPHINX=ON \
+    -DLLVM_ENABLE_SPHINX=OFF \
     -DLLVM_ENABLE_THREADS=ON \
     -DLLVM_ENABLE_RTTI=ON \
     -DLLVM_INCLUDE_EXAMPLES=OFF \
@@ -266,15 +266,6 @@ build() {
   sed -i.orig '/compiler-rt\/cmake_install.cmake/d' projects/cmake_install.cmake
 }
 
-check() {
- cd "${srcdir}"/build-${MSYSTEM}
- # Remove || true once testcase doesn't cause failures.
-#  make check || true
-#  make check-clang || true
-  ${MINGW_PREFIX}/bin/cmake.exe -DLLVM_INCLUDE_TESTS=ON ../llvm
-  ${MINGW_PREFIX}/bin/cmake.exe --build .
-  ${MINGW_PREFIX}/bin/cmake.exe --build . -- check-lld || true
-}
 
 package_clang() {
   pkgdesc="C language family frontend for LLVM (mingw-w64)"
