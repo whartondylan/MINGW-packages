@@ -793,12 +793,12 @@ int main(void)
 		my_path_append(exe, L"git-remote-https.exe", MAX_PATH);
 	}
 	else if (!wcsnicmp(basename, L"git-", 4)) {
-		is_git_command = 0;
+		is_git_command = 1;
 		needs_env_setup = 0;
 
 		/* Call a builtin */
-		prefix_args = basename;
-		prefix_args_len = wcslen(prefix_args);
+		prefix_args = basename + 4;
+		prefix_args_len = wcslen(prefix_args) - 4;
 		if (!wcsicmp(prefix_args + prefix_args_len - 4, L".exe"))
 			prefix_args_len -= 4;
 
