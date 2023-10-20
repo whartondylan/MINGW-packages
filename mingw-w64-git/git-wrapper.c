@@ -116,7 +116,7 @@ static void my_path_append(LPWSTR list, LPCWSTR path, size_t alloc)
 
 static int running_on_arm64 = -1;
 
-static int is_running_on_arm64(LPWSTR top_level_path, LPWSTR msystem_bin)
+static int is_running_on_arm64_hardware()
 {
 	if (running_on_arm64 >= 0)
 		return running_on_arm64;
@@ -133,19 +133,27 @@ static int is_running_on_arm64(LPWSTR top_level_path, LPWSTR msystem_bin)
 		IsWow64Process2(GetCurrentProcess(), &process_machine, &native_machine) &&
 		native_machine == 0xaa64;
 
-	if (running_on_arm64) {
-		size_t len = wcslen(top_level_path);
-
-		/* Does /clangarm64/bin exist? */
-		my_path_append(top_level_path, L"clangarm64/bin", MAX_PATH);
-		if (_waccess(top_level_path, 0) != -1)
-			wcscpy(msystem_bin, L"clangarm64/bin");
-		else
-			running_on_arm64 = 0;
-		top_level_path[len] = L'\0';
-	}
-
 	return running_on_arm64;
+}
+
+static int is_running_on_arm64_msystem(LPWSTR top_level_path, LPWSTR msystem_bin)
+{
+	int ret=0;
+	size_t len = wcslen(top_level_path);
+
+	/* Does /clangarm64/bin exist? */
+	my_path_append(top_level_path, L"clangarm64/bin", MAX_PATH);
+	if (_waccess(top_level_path, 0) != -1) {
+		wcscpy(msystem_bin, L"clangarm64/bin");
+		ret=1;
+	}
+	top_level_path[len] = L'\0';
+	return ret;
+}
+
+static inline int is_running_on_arm64(LPWSTR top_level_path, LPWSTR msystem_bin)
+{
+	return is_running_on_arm64_hardware() && is_running_on_arm64_msystem(top_level_path, msystem_bin);
 }
 
 static int is_system32_path(LPWSTR path)
