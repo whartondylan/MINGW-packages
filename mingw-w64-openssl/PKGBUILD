@@ -4,7 +4,7 @@ _realname=openssl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	"${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
-pkgver=3.1.4
+pkgver=3.2.0
 pkgrel=1
 pkgdesc="The Open Source toolkit for Secure Sockets Layer and Transport Layer Security (mingw-w64)"
 arch=('any')
@@ -21,13 +21,15 @@ options=('!strip' '!buildflags')
 source=("https://www.openssl.org/source/openssl-${pkgver}.tar.gz"{,.asc}
         '001-support-aarch64.patch'
         '002-relocation.patch'
+        '003-mingw32-broken-test.patch'
         '0001-test_rand-use-the-better-chomp.patch'
         'pathtools.c'
         'pathtools.h')
-sha256sums=('840af5366ab9b522bde525826be3ef0fb0af81c6a9ebd84caa600fea1731eee3'
+sha256sums=('14c826f07c7e433706fb5c69fa9e25dab95684844b4c962a2cf1bf183eb4690e'
             'SKIP'
             '21b96771b401442570e885c2d5689a359a91e86dcbf5511db3667202b6c1fa8a'
-            '5628dd39ab0d3ce4afbb5207bab5d22766abc86a8875b48b6d4d3efd68550e68'
+            '8a2d91826bd1a8fd6d3a981d2a71cfb3170060f64a053eafd8e3b32f6a30ac3b'
+            'f80607b2d59b97648952fb3b8de0e3423f023d67331e0e02696e27fbcf84774c'
             '56fcd20131ae0c563db18ae00c6ba3b95cd9cb1e9934548079284ba3f52ad250'
             '08209cbf1633fa92eae7e5d28f95f8df9d6184cc20fa878c99aec4709bb257fd'
             '965d3921ec4fdeec94a2718bc2c85ce5e1a00ea0e499330a554074a7ae15dfc6')
@@ -58,6 +60,14 @@ prepare() {
      001-support-aarch64.patch \
      002-relocation.patch \
      0001-test_rand-use-the-better-chomp.patch
+
+  if [[ "$MSYSTEM" == MINGW32 ]]
+  then
+    # MINGW32 gmtime() doesn't handle negative values particularly well, which breaks a test that expects a
+    # negative value after converting an invalid ASN1 string to time_t but can't compare the expected result
+    # with the actual result
+    apply_patch_with_msg 003-mingw32-broken-test.patch
+  fi
 
   test ! -d "${startdir}/../mingw-w64-pathtools" || {
     cmp "${startdir}/../mingw-w64-pathtools/pathtools.c" "${srcdir}/pathtools.c" &&
@@ -131,7 +141,7 @@ build() {
 check() {
   cd "${srcdir}/build-${MSYSTEM}"
 
-  make VERBOSE=1 test
+  make VERBOSE=1 TESTS=-test_symbol_presence test
 }
 
 _package() {

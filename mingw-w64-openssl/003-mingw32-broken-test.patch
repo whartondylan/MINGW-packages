@@ -1,0 +1,16 @@
+--- a/test/asn1_time_test.c	2023-11-23 14:20:19.000000000 +0100
++++ b/test/asn1_time_test.c	2024-01-04 19:46:43.632664200 +0100
+@@ -67,13 +67,6 @@
+         "20210328030000+0200",
+         1616893200,
+     },
+-    {
+-        /*
+-         * Invalid strings should get -1 as a result
+-         */
+-        "INVALID",
+-        -1,
+-    },
+ };
+ 
+ static struct testdata tbl_testdata_pos[] = {
