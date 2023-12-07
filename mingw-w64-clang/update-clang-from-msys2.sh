@@ -49,7 +49,7 @@ mv upstream/$pkgname/README-patches.md ./ || die "$0: failed to replace existing
 
 sed -e "s/pkgrel=[.0-9]\+\(.*\)/pkgrel=$new_pkgrel\1/" \
     -e 's/-DCMAKE_BUILD_TYPE=Release/-DCMAKE_BUILD_TYPE=MinSizeRel/' \
-    -e 's/-DLLVM_TARGETS_TO_BUILD=".*"/-DLLVM_TARGETS_TO_BUILD="host"/' \
+    -e 's/-DLLVM_TARGETS_TO_BUILD=.*/-DLLVM_TARGETS_TO_BUILD=Native/' \
     -e 's/-DLLVM_ENABLE_SPHINX=ON/-DLLVM_ENABLE_SPHINX=OFF/'\
     -e '/^check()/,/^}/d' \
 	-i PKGBUILD
