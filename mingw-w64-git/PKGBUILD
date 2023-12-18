@@ -53,6 +53,7 @@ source=("${_realname}"::"git+https://github.com/git-for-windows/git.git#tag=v$ta
 	'git-wrapper.rc'
 	'gitk.rc'
 	'compat-bash.rc'
+	'tig.rc'
 	'mingw-w64-git.mak'
 	'cv2pdb-strip'
 	'edit-git-bash.c')
@@ -68,7 +69,8 @@ sha256sums=('SKIP'
             'db754d6fe6722ad54d43df15ee93b1d9cead406158ed84dcbf35e5b4225469ed'
             'db754d6fe6722ad54d43df15ee93b1d9cead406158ed84dcbf35e5b4225469ed'
             'cbed8b133eb9eec9972f146be5c3ff49db29b2fff8ab9c87a6d0c646c08a5128'
-            'f54dec5925a67c47d3b87a23cea6e370c3f38e61d3301860b725f29801c99bb0'
+            '027155aa6ca5f11ad7bcb89550a470935a9f22a9d5b3ab80a9eb209983258c1f'
+            '5618204ad488f053430131ab3b12b89e96bdff87856bbec4f27f8efa9f5c17dc'
             '7413506c59d25621e475aa45447993748332c72cfbb4cf94cce6bee6f1218a09'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
@@ -176,7 +178,7 @@ build() {
 	git-bash.exe git-cmd.exe compat-bash.exe \
 	cmd/git.exe cmd/gitk.exe cmd/git-gui.exe \
 	cmd/git-receive-pack.exe cmd/git-upload-pack.exe \
-	edit-git-bash.exe &&
+	cmd/tig.exe edit-git-bash.exe &&
   rm -f *.res &&
 
   # Also build git-credential-wincred.exe before the rest, so that those
@@ -251,7 +253,7 @@ package_git () {
   install -d -m755 $pkgdir/cmd
   install -m755 cmd/git.exe cmd/gitk.exe cmd/git-gui.exe \
 	cmd/git-receive-pack.exe cmd/git-upload-pack.exe \
-	../start-ssh-agent.cmd ../start-ssh-pageant.cmd \
+	cmd/tig.exe ../start-ssh-agent.cmd ../start-ssh-pageant.cmd \
 	$pkgdir/cmd
 
   # Scalar

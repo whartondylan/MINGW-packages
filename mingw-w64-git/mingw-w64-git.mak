@@ -8,7 +8,7 @@ git-wrapper.o: %.o: ../%.c GIT-PREFIX
 	$(QUIET_CC)$(CC) $(ALL_CFLAGS) $(COMPAT_CFLAGS) \
 		-fno-stack-protector -o $*.o -c -Wall -Wwrite-strings $<
 
-git-bash.res git-cmd.res git-wrapper.res gitk.res compat-bash.res: \
+git-bash.res git-cmd.res git-wrapper.res gitk.res compat-bash.res tig.res: \
 		%.res: ../%.rc
 	$(QUIET_RC)$(RC) -i $< -o $@
 
@@ -18,7 +18,9 @@ git-bash.exe git-cmd.exe compat-bash.exe: %.exe: %.res
 
 cmd/gitk.exe cmd/git-gui.exe: gitk.res
 
-git-bash.exe git-cmd.exe compat-bash.exe \
+cmd/tig.exe: tig.res
+
+git-bash.exe git-cmd.exe compat-bash.exe cmd/tig.exe \
 cmd/git.exe cmd/git-receive-pack.exe cmd/git-upload-pack.exe cmd/gitk.exe cmd/git-gui.exe: \
 		%.exe: git-wrapper.o git.res
 	@mkdir -p cmd
@@ -38,7 +40,8 @@ print-builtins:
 strip-all: strip
 	$(STRIP) $(STRIP_OPTS) \
 		contrib/credential/wincred/git-credential-wincred.exe \
-		cmd/git{,-receive-pack,-upload-pack,-gui,k}.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
+		cmd/git{,-receive-pack,-upload-pack,-gui,k}.exe \
+		cmd/tig.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
 
 install-pdbs:
 	$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$(bindir_SQ)'
@@ -57,7 +60,7 @@ ifeq (,$(SIGNTOOL))
 else
 	@eval $(SIGNTOOL) $(filter %.exe,$(ALL_PROGRAMS)) \
 		contrib/credential/wincred/git-credential-wincred.exe git.exe \
-		cmd/git{,-gui,k}.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
+		cmd/git{,-gui,k}.exe cmd/tig.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
 endif
 
 install-mingit-busybox-test-artifacts:
