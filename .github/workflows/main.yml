@@ -6,7 +6,7 @@ jobs:
   determine-packages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: determine packages to build
@@ -38,7 +38,7 @@ jobs:
       matrix:
         directory: ${{ fromJSON(needs.determine-packages.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: git-for-windows/setup-git-for-windows-sdk@v1
         with:
           flavor: full
@@ -67,7 +67,7 @@ jobs:
           mkdir -p "$top_dir/$artifacts" &&
           mv *.tar.* "$top_dir/$artifacts"/ &&
           echo "artifacts=$artifacts" >>$GITHUB_ENV
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.artifacts }}
           path: ${{ env.artifacts }}
