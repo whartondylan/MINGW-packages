@@ -17,7 +17,7 @@ license=('GPL2')
 
 options=()
 makedepends=('python' 'less' 'openssh' 'patch' 'make' 'tar' 'diffutils'
-	'ca-certificates' 'xmlto' "${MINGW_PACKAGE_PREFIX}-asciidoctor-extensions")
+	'ca-certificates' 'xmlto' "${MINGW_PACKAGE_PREFIX}-asciidoctor")
 install=git.install
 
 case "$(printf "%s\n%s\n" "$pkgver" "2.18.0" | sort -V)" in
@@ -101,7 +101,7 @@ fi
 if test CLANGARM64 = "$MSYSTEM"
 then
   # Asciidoctor depends on Ruby which is not available for CLANGARM64 yet
-  makedepends=("${makedepends[@]/${MINGW_PACKAGE_PREFIX}-asciidoctor-extensions}")
+  makedepends=("${makedepends[@]/${MINGW_PACKAGE_PREFIX}-asciidoctor}")
   USE_ASCIIDOCTOR=
 fi
 
