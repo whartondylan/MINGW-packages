@@ -74,7 +74,6 @@ sha256sums=('SKIP'
             '7413506c59d25621e475aa45447993748332c72cfbb4cf94cce6bee6f1218a09'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
-USE_ASCIIDOCTOR="YesPlease"
 COMPAT_CFLAGS=
 STRIP=
 STRIP_OPTS=
@@ -96,13 +95,6 @@ then
   STRIP="${BASH_SOURCE%/*}/src/cv2pdb-strip"
 else
   options+=('strip')
-fi
-
-if test CLANGARM64 = "$MSYSTEM"
-then
-  # Asciidoctor depends on Ruby which is not available for CLANGARM64 yet
-  makedepends=("${makedepends[@]/${MINGW_PACKAGE_PREFIX}-asciidoctor}")
-  USE_ASCIIDOCTOR=
 fi
 
 pkgver() {
@@ -130,7 +122,7 @@ prepare () {
   cd "$srcdir/git" &&
 
   cat >config.mak <<-EOF
-USE_ASCIIDOCTOR = $USE_ASCIIDOCTOR
+USE_ASCIIDOCTOR = YesPlease
 COMPAT_CFLAGS += $COMPAT_CFLAGS
 LDFLAGS = $LDFLAGS
 EOF
