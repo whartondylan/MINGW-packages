@@ -1,4 +1,4 @@
-From fa3ce34b932e40f52b614409349be0bdef6fc197 Mon Sep 17 00:00:00 2001
+From 2b2ba58fedbded8de6879fa89719196480708661 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
 Subject: [PATCH 1/2] Make cURL relocatable
@@ -25,14 +25,14 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  configure.ac         |  1 +
  lib/Makefile.inc     |  2 ++
  lib/curl_config.h.in |  3 +++
- lib/url.c            | 37 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 43 insertions(+)
+ lib/url.c            | 38 ++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 44 insertions(+)
 
 diff --git a/configure.ac b/configure.ac
-index a889919fe..626684867 100644
+index a4ea9f72d..166f370f6 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3457,6 +3457,7 @@ dnl default includes
+@@ -3608,6 +3608,7 @@ dnl default includes
  ]
  )
  
@@ -41,10 +41,10 @@ index a889919fe..626684867 100644
  dnl Checks for typedefs, structures, and compiler characteristics.
  AC_C_CONST
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index 663190a19..b7d597e80 100644
+index 66680f3ad..1772f7696 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
-@@ -186,6 +186,7 @@ LIB_CFILES =         \
+@@ -197,6 +197,7 @@ LIB_CFILES =         \
    noproxy.c          \
    openldap.c         \
    parsedate.c        \
@@ -52,7 +52,7 @@ index 663190a19..b7d597e80 100644
    pingpong.c         \
    pop3.c             \
    progress.c         \
-@@ -314,6 +315,7 @@ LIB_HFILES =         \
+@@ -333,6 +334,7 @@ LIB_HFILES =         \
    nonblock.h         \
    noproxy.h          \
    parsedate.h        \
@@ -61,10 +61,10 @@ index 663190a19..b7d597e80 100644
    pop3.h             \
    progress.h         \
 diff --git a/lib/curl_config.h.in b/lib/curl_config.h.in
-index 6d274171b..58647b5e7 100644
+index 50e075947..6c540bb25 100644
 --- a/lib/curl_config.h.in
 +++ b/lib/curl_config.h.in
-@@ -12,6 +12,9 @@
+@@ -15,6 +15,9 @@
  /* Location of default ca path */
  #undef CURL_CA_PATH
  
@@ -75,7 +75,7 @@ index 6d274171b..58647b5e7 100644
  #undef CURL_DEFAULT_SSL_BACKEND
  
 diff --git a/lib/url.c b/lib/url.c
-index f7b4bbbe9..7e9cf8ae6 100644
+index 2814d31ad..e7175be03 100644
 --- a/lib/url.c
 +++ b/lib/url.c
 @@ -119,6 +119,9 @@
@@ -88,9 +88,9 @@ index f7b4bbbe9..7e9cf8ae6 100644
  
  /* The last 3 #include files should be in this order */
  #include "curl_printf.h"
-@@ -570,21 +573,55 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
-    */
-   if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
+@@ -436,22 +439,57 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+   if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL &&
+      Curl_ssl_backend() != CURLSSLBACKEND_SECURETRANSPORT) {
  #if defined(CURL_CA_BUNDLE)
 +#if defined(__MINGW32__)
 +    const size_t path_max = PATH_MAX;
@@ -108,15 +108,17 @@ index f7b4bbbe9..7e9cf8ae6 100644
 +#endif /* defined(__MINGW32__) */
      if(result)
        return result;
- 
+ #ifndef CURL_DISABLE_PROXY
 +#if defined(__MINGW32__)
-+    result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_PROXY], relocated_bundle);
++    result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_PROXY],
++			    relocated_bundle);
 +#else
      result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_PROXY],
                              CURL_CA_BUNDLE);
 +#endif
      if(result)
        return result;
+ #endif
  #endif
  #if defined(CURL_CA_PATH)
 +#if defined(__MINGW32__)
@@ -135,7 +137,7 @@ index f7b4bbbe9..7e9cf8ae6 100644
 +#endif /* defined(__MINGW32__) */
      if(result)
        return result;
- 
+ #ifndef CURL_DISABLE_PROXY
 +#if defined(__MINGW32__)
 +    result = Curl_setstropt(&set->str[STRING_SSL_CAPATH_PROXY], relocated_ca_path);
 +#else
