@@ -6,7 +6,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-winssl")
 pkgver=8.8.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Command line tool and library for transferring data with URLs (mingw-w64)"
 arch=('any')
 mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
@@ -32,12 +32,14 @@ depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
          "${MINGW_PACKAGE_PREFIX}-zstd")
 options=('staticlibs')
 source=("https://github.com/curl/curl/releases/download/${_realname}-${pkgver//./_}/${_realname}-${pkgver}.tar.bz2"{,.asc}
+        "https://github.com/curl/curl/commit/9aa1d412b814a40868558da51a6ab28ce1384a58.patch"
         "pathtools.c"
         "pathtools.h"
         "0001-Make-cURL-relocatable.patch"
         "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch")
 sha256sums=('40d3792d38cfa244d8f692974a567e9a5f3387c547579f1124e95ea2a1020d0d'
             'SKIP'
+            '8ff5e00fb774d46527808d5ce28ed8e352844523957788149e4969dae6e1c10e'
             '08209cbf1633fa92eae7e5d28f95f8df9d6184cc20fa878c99aec4709bb257fd'
             '965d3921ec4fdeec94a2718bc2c85ce5e1a00ea0e499330a554074a7ae15dfc6'
             'd34c9474a0b54d36497e58b4792699ef37cc8b043a4cd5daf287e1e33f660207'
@@ -90,6 +92,7 @@ prepare() {
   cp -fHv "${srcdir}"/pathtools.[ch] lib/
 
   apply_patch_with_msg \
+    9aa1d412b814a40868558da51a6ab28ce1384a58.patch \
     0001-Make-cURL-relocatable.patch \
     0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch
 
