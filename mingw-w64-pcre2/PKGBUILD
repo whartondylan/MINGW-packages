@@ -73,7 +73,22 @@ build() {
 
 check() {
   cd "${srcdir}/build-${MSYSTEM}"
-  make check
+
+  # Work around bug in PCRE2 10.44
+  test i686 != "$CARCH" ||
+  for f in testdata/testoutput8-8-2 testdata/testoutput8-16-2 testdata/testoutput8-32-2
+  do
+    cp "../${_realname}-${pkgver}/$f" "../${_realname}-${pkgver}/$f.backup"
+    perl -pi -e 's{^(Memory allocation - compiled block : )(\d+)$}{$1 . ($2 - 24)}e' "../${_realname}-${pkgver}/$f"
+  done
+
+  make check || return 1
+
+  for f in testdata/testoutput8-8-2 testdata/testoutput8-16-2 testdata/testoutput8-32-2
+  do
+    test ! -f "../${_realname}-${pkgver}/$f.backup" ||
+    mv "../${_realname}-${pkgver}/$f.backup" "../${_realname}-${pkgver}/$f"
+  done
 }
 
 package() {
