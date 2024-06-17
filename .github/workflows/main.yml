@@ -59,6 +59,24 @@ jobs:
           # reduce time required to install packages by disabling pacman's disk space checking
           sed -i 's/^CheckSpace/#CheckSpace/g' /etc/pacman.conf &&
 
+          # help git-sdk-arm64 switch from `asciidoc` to `asciidoctor`
+          if test mingw-w64-git = '${{ matrix.directory }}'
+          then
+            packages=$(ls -d /var/lib/pacman/local/mingw-w64-*-asciidoctor-extensions-* 2>/dev/null |
+              sed -e 's|-[0-9].*||' -e 's|.*/||')
+            if test -n "$packages"
+            then
+              pacman -R --noconfirm $packages
+            fi &&
+            for prefix in /mingw32 /mingw64 /clangarm64
+            do
+              if test -x $prefix/bin/gem
+              then
+                PATH=$prefix/bin:$PATH gem uninstall asciidoctor
+              fi
+            done
+          fi &&
+
           top_dir=$PWD &&
           cd "${{ matrix.directory }}" &&
           MAKEFLAGS=-j8 makepkg-mingw -s --noconfirm &&
