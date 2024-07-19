@@ -4,7 +4,7 @@ mingw_prefix_path () {
 }
 
 bin_path () {
-	echo "$(cygpath -am / | sed 's/^\([A-Z]\):/\/\1/')/bin"
+	echo "$(cygpath -am / | sed 's/^\([A-Z]\):/\/proc\/cygdrive\/\1/')/bin"
 }
 
 copy_files () {
