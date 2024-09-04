@@ -4,7 +4,7 @@ _realname=openssl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	"${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
-pkgver=3.2.2
+pkgver=3.2.3
 pkgrel=1
 pkgdesc="The Open Source toolkit for Secure Sockets Layer and Transport Layer Security (mingw-w64)"
 arch=('any')
@@ -18,14 +18,14 @@ if [[ "$MSYSTEM" != CLANG* ]]; then
   makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
 fi
 options=('!strip' '!buildflags')
-source=("https://www.openssl.org/source/openssl-${pkgver}.tar.gz"{,.asc}
+source=("https://github.com/openssl/openssl/releases/download/openssl-${pkgver}/openssl-${pkgver}.tar.gz"{,.asc}
         '001-support-aarch64.patch'
         '002-relocation.patch'
         '003-mingw32-broken-test.patch'
         '0001-test_rand-use-the-better-chomp.patch'
         'pathtools.c'
         'pathtools.h')
-sha256sums=('197149c18d9e9f292c43f0400acaba12e5f52cacfe050f3d199277ea738ec2e7'
+sha256sums=('52b5f1c6b8022bc5868c308c54fb77705e702d6c6f4594f99a0df216acf46239'
             'SKIP'
             '21b96771b401442570e885c2d5689a359a91e86dcbf5511db3667202b6c1fa8a'
             '8a2d91826bd1a8fd6d3a981d2a71cfb3170060f64a053eafd8e3b32f6a30ac3b'
@@ -41,6 +41,7 @@ validpgpkeys=(
   'A21FAB74B0088AA361152586B8EF1A6BA9DA2D5C' # Tomáš Mráz <tm@t8m.info>
   'B7C1C14360F353A36862E4D5231C84CDDCC69C45' # Paul Dale <pauli@openssl.org>
   'EFC0A467D613CB83C7ED6D30D894E2CE8B3D79F5' # OpenSSL Management Committee <openssl-omc@openssl.org>
+  'BA5473A2B0587B07FB27CF2D216094DFD0CB81EF' # OpenSSL <openssl@openssl.org>
 )
 
 # Helper macros to help make tasks easier #
