@@ -90,6 +90,10 @@ prepare() {
     cmp "${startdir}/../mingw-w64-pathtools/pathtools.h" "${srcdir}/pathtools.h"
   } || exit 1
 
+  test ! -f "${srcdir}/netrc-regression-1.patch" ||
+  rm -f ${_realname}-${pkgver}/tests/data/test2309 \
+    ${_realname}-${pkgver}/tests/libtest/lib2309.c
+
   cd "${srcdir}/${_realname}-${pkgver}"
   cp -fHv "${srcdir}"/pathtools.[ch] lib/
 
