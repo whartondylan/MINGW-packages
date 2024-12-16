@@ -1,0 +1,26 @@
+From 0439499170b4e5ad4d4b4679ad284b4aa4df16f1 Mon Sep 17 00:00:00 2001
+From: Kevin Sun <kevin.sun@intel.com>
+Date: Thu, 12 Dec 2024 17:35:12 -0800
+Subject: [PATCH] netrc: restore _netrc fallback logic
+
+Regression from 05977f4f75fd08837a877, shipped in 8.11.0
+
+Fixes #15734
+Closes #15735
+---
+ lib/netrc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/netrc.c b/lib/netrc.c
+index d5ee3c0fd564a8..056ea96a7c8010 100644
+--- a/lib/netrc.c
++++ b/lib/netrc.c
+@@ -390,7 +390,7 @@ int Curl_parsenetrc(struct store_netrc *store, const char *host,
+     retcode = parsenetrc(store, host, loginp, passwordp, filealloc);
+     free(filealloc);
+ #ifdef _WIN32
+-    if(retcode == NETRC_FILE_MISSING) {
++    if((retcode == NETRC_FILE_MISSING) || (retcode == NETRC_FAILED)) {
+       /* fallback to the old-style "_netrc" file */
+       filealloc = aprintf("%s%s_netrc", home, DIR_CHAR);
+       if(!filealloc) {
