@@ -164,6 +164,9 @@ build() {
   CPPFLAGS="$(echo "$CPPFLAGS" |
 	sed 's/-D__USE_MINGW_ANSI_STDIO\(=[0-9]*\)\?//')"
 
+  # Guarantee that `GIT-VERSION-GEN` determines the version
+  unset GIT_VERSION
+
   # Make git-bash.exe first, to avoid triggering `* new link flags`
   rm -f *.res &&
   make -f ../mingw-w64-git.mak git-wrapper.exe \
