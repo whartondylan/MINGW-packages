@@ -28,14 +28,14 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-llvm"
          "${MINGW_PACKAGE_PREFIX}-compiler-rt"
          $( (( _clangprefix )) && echo "${MINGW_PACKAGE_PREFIX}-gcc-compat" )
          "${MINGW_PACKAGE_PREFIX}-lld")
-_version=18.1.6
+_version=19.1.6
 _rc=""
 _tag=llvmorg-${_version}${_rc}
 pkgver=${_version}${_rc/-/}
 pkgrel=2
 pkgdesc="C language family frontend for LLVM (mingw-w64)"
 arch=('any')
-mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
 url="https://llvm.org/"
 msys2_references=(
   "cpe: cpe:/a:llvm:llvm"
@@ -52,7 +52,6 @@ makedepends=($([[ "$_compiler" == "clang" ]] && echo \
              "${MINGW_PACKAGE_PREFIX}-libffi"
              "${MINGW_PACKAGE_PREFIX}-z3"
              "${MINGW_PACKAGE_PREFIX}-python"
-             "${MINGW_PACKAGE_PREFIX}-python-sphinx"
              $((( _clangprefix )) && echo \
                "${MINGW_PACKAGE_PREFIX}-compiler-rt" \
                "${MINGW_PACKAGE_PREFIX}-libc++")
@@ -79,24 +78,24 @@ source=("${_url}/llvm-${pkgver}.src.tar.xz"{,.sig}
         "0303-ignore-new-bfd-options.patch"
         # 0401-0499 -> clang-tools-extra
         )
-sha256sums=('c231d0a5445db2aafab855e052c247bdd9856ff9d7d9bffdd04e9f0bf8d5366f'
+sha256sums=('ad1a3b125ff014ded290094088de40efb9193ce81a24278184230b7d401f8a3e'
             'SKIP'
-            '54e0817f918b90b5f94684e9729ac2f9d3820fce040d6395d71c1f19ffa3b03c'
+            '6358cbb3e14687ca2f3465c61cffc65589b448aaa912ec2c163ef9fc046e8a89'
             'SKIP'
-            'd78732ec6d55b7374abe14b97c9529a7b56a1fe19929a5bf4c3802b69f77764e'
+            '417a7d0048d8eb62dbaa8461f1fd474eb6493b09e14d050b39cc1f051e8b71d1'
             'SKIP'
-            'f05f4e15a4524194c93303aa6027006a5182eccfe8f5c90491c2f1fbfcedb96b'
+            '0d4f312e1419152282c267e6b6a1fa5914a7a0c753a5e926bee1c8c28e614ae4'
             'SKIP'
-            'f1f059c2bf98ffa558cd0c48ea568736c41f0c8029dabb53147d48b9efdaa802'
+            '44fa50556cefbe3796e8256536267ee2f34ced5f3c1492473bccd75449cadbe6'
             'SKIP'
-            'a643261ed98ff76ab10f1a7039291fa841c292435ba1cfe11e235c2231b95cdb'
+            '9c7ec82d9a240dc2287b8de89d6881bb64ceea0dcd6ce133c34ef65bda22d99e'
             'SKIP'
-            '4ae7b394d341aea6fb7d3d373a4f561ba8e48c0fecded4bb4f1f5f12ba9bd2b6'
+            '0e8048333bab2ba3607910e5d074259f08dccf00615778d03a2a55416718eb45'
             'SKIP'
             'eb03df53671df6627768141b3aaa76abe176a14e5e47911c97bec544387c4aff'
-            '0aff3a85d70ae437dfc634fe40db506bf5701403049284ffbdb931135ae8a483'
-            '016fbf6f742c062cc59360070264546c10385b1e8c37605758f62dcbea8f9bcc'
-            '5f86e542dd1ec92b2fe06ee59061c3e23512df7bafabe82206f2b7d80b81836b'
+            'ff8bf96fae9531cf6231b502e8c2f38843f826a9dc7e0d98a37cb80fddd36cf4'
+            '790eb0fccb4ef29c3795bceb8a62c8f4ecd0bdd6c49b2812352b04cfbc552342'
+            '76d2a88733cebb1f01b766ff2ab91a9e095bae1d2e4cc18c1ffcf21fd095efc4'
             '715cb8862753854b2d9256e0b70003e2d1f57083d83eaeaf5a095fc72b8a4e26'
             '2770cadf8ccf6b31aece6aee8f76dceb71e6e9d01fdf3be74c3743480ce34899'
             'fd0253879cc5e31857f57307e6105e56493358e35d7c4540e0b476be607ab94e')
@@ -289,7 +288,6 @@ build() {
   ${MINGW_PREFIX}/bin/cmake.exe \
     -GNinja \
     -DLLVM_ENABLE_PROJECTS="${_projects}" \
-    -DLLVM_ENABLE_SPHINX=OFF \
     -DLLVM_ENABLE_RTTI=ON \
     -DLLVM_INSTALL_UTILS=ON \
     -DLIBCLANG_BUILD_STATIC=ON \
