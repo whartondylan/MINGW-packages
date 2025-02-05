@@ -1,7 +1,7 @@
-From d7dbb5eba261bdcbad2f865a2c343ffa952ef5fe Mon Sep 17 00:00:00 2001
+From 5498e8cdaf7cead5be748a4a41df520dbef3822f Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Fri, 2 Jun 2017 17:09:43 +0200
-Subject: [PATCH 2/8] RunGrepTest: compare without paying attention to line
+Subject: [PATCH 2/7] RunGrepTest: compare without paying attention to line
  endings
 
 The output of pcre2grep has CR/LF line endings on Windows, but PCRE2's
@@ -13,10 +13,10 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/RunGrepTest b/RunGrepTest
-index d5bd16a..106238d 100755
+index 396884cc..f5641292 100755
 --- a/RunGrepTest
 +++ b/RunGrepTest
-@@ -63,10 +63,11 @@ fi
+@@ -58,10 +58,11 @@ fi
  # that lacks a -u option. Try to deal with this; better do the test for the -b
  # option as well.
  
@@ -33,5 +33,5 @@ index d5bd16a..106238d 100755
  # Add a -a (always treat as text) if available. This was added in an attempt
  # to get more detail from an Alpine Linux test failure on GitHub.
 -- 
-2.39.0.rc0.windows.1
+2.48.1.windows.1
 
