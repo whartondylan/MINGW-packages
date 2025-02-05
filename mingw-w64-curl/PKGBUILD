@@ -5,7 +5,7 @@ pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-winssl")
-pkgver=8.11.1
+pkgver=8.12.0
 pkgrel=1
 pkgdesc="Command line tool and library for transferring data with URLs (mingw-w64)"
 arch=('any')
@@ -37,7 +37,7 @@ source=("https://github.com/curl/curl/releases/download/${_realname}-${pkgver//.
         "0001-Make-cURL-relocatable.patch"
         "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
         "0003-netrc-regression.patch")
-sha256sums=('e9773ad1dfa21aedbfe8e1ef24c9478fa780b1b3d4f763c98dd04629b5e43485'
+sha256sums=('5a85adbe401ed3b998ee1128524e9b045feb39577f3c336f6997e7a4afaafcd7'
             'SKIP'
             '08209cbf1633fa92eae7e5d28f95f8df9d6184cc20fa878c99aec4709bb257fd'
             '965d3921ec4fdeec94a2718bc2c85ce5e1a00ea0e499330a554074a7ae15dfc6'
