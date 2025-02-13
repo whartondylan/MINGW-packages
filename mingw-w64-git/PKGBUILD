@@ -7,8 +7,8 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-html"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-test-artifacts")
-tag=2.47.1.windows.2
-pkgver=2.47.1.2.36a139e995
+tag=2.48.1.windows.1
+pkgver=2.48.1.1.2bd190bcd2
 pkgrel=1
 pkgdesc="The fast distributed version control system (mingw-w64)"
 arch=('any')
