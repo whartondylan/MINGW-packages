@@ -1,7 +1,7 @@
-From d9631144a5a7815a60e84f3c99a529dba63cff5e Mon Sep 17 00:00:00 2001
+From db8d11780deae530299f21acb2becd3b576707c2 Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 7 Dec 2022 11:10:54 +0100
-Subject: [PATCH 5/8] pcre2grep: avoid letting Windows handle command-line
+Subject: [PATCH 4/7] pcre2grep: avoid letting Windows handle command-line
  encoding
 
 PCRE2 internally uses a multi-byte encoding, while Windows uses wide
@@ -17,19 +17,18 @@ This is required for the UTF-8 tests in `RunGrepTests` to pass.
 
 Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
 ---
- src/pcre2grep.c | 26 +++++++++++++++++++++++---
- 1 file changed, 23 insertions(+), 3 deletions(-)
+ src/pcre2grep.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/src/pcre2grep.c b/src/pcre2grep.c
-index b6249c1..f189ee9 100644
+index d56bfb41..6dacdc54 100644
 --- a/src/pcre2grep.c
 +++ b/src/pcre2grep.c
-@@ -2468,9 +2468,29 @@ while (length > 0)
+@@ -2529,8 +2529,28 @@ while (length > 0)
  necessary, otherwise assume fork(). */
  
  #ifdef WIN32
--fflush(stderr);
--fflush(stdout);
+-(void)fflush(stdout);
 -result = _spawnvp(_P_WAIT, argsvector[0], (const char * const *)argsvector);
 +  {
 +    size_t size = 0, count = 1;
@@ -49,8 +48,7 @@ index b6249c1..f189ee9 100644
 +    }
 +    *w0 = NULL;
 +
-+    fflush(stderr);
-+    fflush(stdout);
++    (void)fflush(stdout);
 +    result = _wspawnvp(_P_WAIT, wargv[0], (const wchar_t * const*)wargv);
 +    free(wargv);
 +  }
@@ -58,5 +56,5 @@ index b6249c1..f189ee9 100644
  #elif defined __VMS
    {
 -- 
-2.39.0.rc0.windows.1
+2.48.1.windows.1
 

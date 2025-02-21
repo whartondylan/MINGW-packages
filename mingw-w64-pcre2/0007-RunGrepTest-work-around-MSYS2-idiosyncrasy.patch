@@ -1,7 +1,7 @@
-From c4454f8b50d8474d45a3bae5c0d59515528142f8 Mon Sep 17 00:00:00 2001
+From 46e1a3caff42f1118e2dc31618366d14beb069fb Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 7 Dec 2022 01:52:45 +0100
-Subject: [PATCH 8/8] RunGrepTest: work around MSYS2 idiosyncrasy
+Subject: [PATCH 7/7] RunGrepTest: work around MSYS2 idiosyncrasy
 
 When calling the MSYS2 version of `echo` from a non-MSYS program, the
 command-line is parsed in a non-standard manner. In particular when
@@ -17,27 +17,27 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/RunGrepTest b/RunGrepTest
-index 9258627..0dbbee1 100755
+index 20ad33a5..f32d72c9 100755
 --- a/RunGrepTest
 +++ b/RunGrepTest
-@@ -976,7 +976,7 @@ if $valgrind $vjs $pcre2grep --help | $valgrind $vjs $pcre2grep -q 'callout scri
-   $valgrind $vjs $pcre2grep '(T)(..(.))(?C"echo|Arg1: [$1] [$2] [$3]|Arg2: $|${1}$| ($4) ($14) ($0)")()' $srcdir/testdata/grepinputv >testtrygrep
-   $valgrind $vjs $pcre2grep '(T)(..(.))()()()()()()()(..)(?C"echo|Arg1: [$11] [${11}]")' $srcdir/testdata/grepinputv >>testtrygrep
+@@ -1071,7 +1071,7 @@ if $valgrind $vjs $pcre2grep --help | $valgrind $vjs $pcre2grep -q 'callout scri
    $valgrind $vjs $pcre2grep '(T)(?C"|$0:$1$n")' $srcdir/testdata/grepinputv >>testtrygrep
+   echo "RC=$?" >>testtrygrep
+   echo "--- Test 4 ---" >>testtrygrep
 -  $valgrind $vjs $pcre2grep '(T)(?C"echo|$0:$1$n")' $srcdir/testdata/grepinputv >>testtrygrep
 +  $valgrind $vjs $pcre2grep '(T)(?C"echo|-e|$0:$1\n")' $srcdir/testdata/grepinputv >>testtrygrep
+   echo "RC=$?" >>testtrygrep
+   echo "--- Test 5 ---" >>testtrygrep
    $valgrind $vjs $pcre2grep '(T)(?C"|$1$n")(*F)' $srcdir/testdata/grepinputv >>testtrygrep
-   $valgrind $vjs $pcre2grep -m1 '(T)(?C"|$0:$1:$x{41}$o{101}$n")' $srcdir/testdata/grepinputv >>testtrygrep
- 
-@@ -994,7 +994,7 @@ if $valgrind $vjs $pcre2grep --help | $valgrind $vjs $pcre2grep -q 'callout scri
-   if [ $utf8 -ne 0 ] ; then
-     echo "Testing pcre2grep script callout with UTF-8 features"
-     $valgrind $vjs $pcre2grep -u '(T)(?C"|$0:$x{a6}$n")' $srcdir/testdata/grepinputv >testtrygrep
+@@ -1097,7 +1097,7 @@ if $valgrind $vjs $pcre2grep --help | $valgrind $vjs $pcre2grep -q 'callout scri
+     $valgrind $vjs $pcre2grep -u '(T)(?C"|$0:$x{a6}$n")' $srcdir/testdata/grepinputv >>testtrygrep
+     echo "RC=$?" >>testtrygrep
+     echo "--- Test 2 ---" >>testtrygrep
 -    $valgrind $vjs $pcre2grep -u '(T)(?C"echo|$0:$x{a6}$n")' $srcdir/testdata/grepinputv >>testtrygrep
 +    $valgrind $vjs $pcre2grep -u '(T)(?C"echo|-e|$0:$x{a6}\n")' $srcdir/testdata/grepinputv >>testtrygrep
+     echo "RC=$?" >>testtrygrep
  
      if [ $nonfork = 1 ] ; then
-       $cf $srcdir/testdata/grepoutputCNU testtrygrep
 -- 
-2.39.0.rc0.windows.1
+2.48.1.windows.1
 
