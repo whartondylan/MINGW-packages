@@ -28,10 +28,8 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-llvm"
          "${MINGW_PACKAGE_PREFIX}-compiler-rt"
          $( (( _clangprefix )) && echo "${MINGW_PACKAGE_PREFIX}-gcc-compat" )
          "${MINGW_PACKAGE_PREFIX}-lld")
-_version=19.1.6
-_rc=""
-_tag=llvmorg-${_version}${_rc}
-pkgver=${_version}${_rc/-/}
+_pkgver=20.1.0
+pkgver=${_pkgver/-/}
 pkgrel=2
 pkgdesc="C language family frontend for LLVM (mingw-w64)"
 arch=('any')
@@ -57,14 +55,14 @@ makedepends=($([[ "$_compiler" == "clang" ]] && echo \
                "${MINGW_PACKAGE_PREFIX}-libc++")
              "git"
              )
-_url=https://github.com/llvm/llvm-project/releases/download/${_tag}
-source=("${_url}/llvm-${pkgver}.src.tar.xz"{,.sig}
-        "${_url}/clang-${pkgver}.src.tar.xz"{,.sig}
-        "${_url}/clang-tools-extra-${pkgver}.src.tar.xz"{,.sig}
-        "${_url}/compiler-rt-${pkgver}.src.tar.xz"{,.sig}
-        "${_url}/lld-${pkgver}.src.tar.xz"{,.sig}
-        "${_url}/cmake-${pkgver}.src.tar.xz"{,.sig}
-        "${_url}/third-party-${pkgver}.src.tar.xz"{,.sig}
+_url=https://github.com/llvm/llvm-project/releases/download/llvmorg-${_pkgver}
+source=("${_url}/llvm-${_pkgver}.src.tar.xz"{,.sig}
+        "${_url}/clang-${_pkgver}.src.tar.xz"{,.sig}
+        "${_url}/clang-tools-extra-${_pkgver}.src.tar.xz"{,.sig}
+        "${_url}/compiler-rt-${_pkgver}.src.tar.xz"{,.sig}
+        "${_url}/lld-${_pkgver}.src.tar.xz"{,.sig}
+        "${_url}/cmake-${_pkgver}.src.tar.xz"{,.sig}
+        "${_url}/third-party-${_pkgver}.src.tar.xz"{,.sig}
         # 0001-0099 -> llvm
         "0001-Fix-GetHostTriple-for-mingw-w64-in-msys.patch"
         "0002-Fix-Findzstd-on-MINGW.patch"
@@ -72,37 +70,36 @@ source=("${_url}/llvm-${pkgver}.src.tar.xz"{,.sig}
         "0004-enable-emutls-for-mingw.patch"
         # 0101-0199 -> clang
         "0101-link-pthread-with-mingw.patch"
-        "0102-Rename-flang-new-flang-experimental-exec-to-flang.patch"
         # 0201-0299 -> rt
         # 0301-0399 -> lld
         "0303-ignore-new-bfd-options.patch"
         # 0401-0499 -> clang-tools-extra
+        # 0901-0999 -> whole tree
         )
-sha256sums=('ad1a3b125ff014ded290094088de40efb9193ce81a24278184230b7d401f8a3e'
+sha256sums=('29a42977809cb5e1c076e4495a79dc86b17386e5ab9fa4ca1a580aeb0a2ece5e'
             'SKIP'
-            '6358cbb3e14687ca2f3465c61cffc65589b448aaa912ec2c163ef9fc046e8a89'
+            'fa505976804aad1625406b6df69ab2dd94b9a98a2c3abab10f1e7fc1d53853fe'
             'SKIP'
-            '417a7d0048d8eb62dbaa8461f1fd474eb6493b09e14d050b39cc1f051e8b71d1'
+            '98e504119931480f6d78a8e03164e56b832525726e6fc73d96e5166a71b97aa6'
             'SKIP'
-            '0d4f312e1419152282c267e6b6a1fa5914a7a0c753a5e926bee1c8c28e614ae4'
+            '85798479b6762433a6fc8a87f4cbdb1dc050926220a8240d9e0e126f08e6f25f'
             'SKIP'
-            '44fa50556cefbe3796e8256536267ee2f34ced5f3c1492473bccd75449cadbe6'
+            '0deea791d2eb1558ba0f266bc68ed38ee6b78fbbfa6b75c343405efe38e9ddbf'
             'SKIP'
-            '9c7ec82d9a240dc2287b8de89d6881bb64ceea0dcd6ce133c34ef65bda22d99e'
+            '9fcd319c6bb87344673f262ef5a6a01262fc9a0a741f3477b7e47e238441268d'
             'SKIP'
-            '0e8048333bab2ba3607910e5d074259f08dccf00615778d03a2a55416718eb45'
+            'd647982936703680e9e0e52bbfb2d67fa293db008a23e1e148ea511e917c2208'
             'SKIP'
             'eb03df53671df6627768141b3aaa76abe176a14e5e47911c97bec544387c4aff'
-            'ff8bf96fae9531cf6231b502e8c2f38843f826a9dc7e0d98a37cb80fddd36cf4'
+            '7cdf15c7e9c13ab99c42b4fafb15d871b22558f751729bb7173ce3edeffc8db8'
             '790eb0fccb4ef29c3795bceb8a62c8f4ecd0bdd6c49b2812352b04cfbc552342'
             '76d2a88733cebb1f01b766ff2ab91a9e095bae1d2e4cc18c1ffcf21fd095efc4'
             '715cb8862753854b2d9256e0b70003e2d1f57083d83eaeaf5a095fc72b8a4e26'
-            '2770cadf8ccf6b31aece6aee8f76dceb71e6e9d01fdf3be74c3743480ce34899'
             'fd0253879cc5e31857f57307e6105e56493358e35d7c4540e0b476be607ab94e')
 validpgpkeys=('B6C8F98282B944E3B0D5C2530FC3042E345AD05D'  # Hans Wennborg, Google.
               '474E22316ABF4785A88C6E8EA2C794A986419D8A'  # Tom Stellard
               'D574BD5D1D0E98895E3BF90044F2485E45D59042') # Tobias Hieta
-noextract=(clang-${pkgver}.src.tar.xz)
+noextract=(clang-${_pkgver}.src.tar.xz)
 
 apply_patch_with_msg() {
   for _patch in "$@"
@@ -122,12 +119,12 @@ revert_patch_with_msg() {
 
 prepare() {
   cd "${srcdir}"
-  plain "Extracting clang-${pkgver}.src.tar.xz due to symlink(s) without pre-existing target(s)"
-  tar -xJf "${srcdir}"/clang-${pkgver}.src.tar.xz -C "${srcdir}" || true
+  plain "Extracting clang-${_pkgver}.src.tar.xz due to symlink(s) without pre-existing target(s)"
+  tar -xJf "${srcdir}"/clang-${_pkgver}.src.tar.xz -C "${srcdir}" || true
 
   # Rename Directories
   for pkg in llvm clang clang-tools-extra compiler-rt lld cmake third-party; do
-    mv ${pkg}-$pkgver.src ${pkg}
+    mv ${pkg}-${_pkgver}.src ${pkg}
   done
 
   # Patch llvm
@@ -149,9 +146,6 @@ prepare() {
     apply_patch_with_msg \
       "0101-link-pthread-with-mingw.patch"
   fi
-  # https://reviews.llvm.org/D143592
-  apply_patch_with_msg \
-    "0102-Rename-flang-new-flang-experimental-exec-to-flang.patch"
 
   # Patch lld
   cd "${srcdir}"/lld
@@ -161,6 +155,9 @@ prepare() {
 
   # Patch clang-tools-extra
   cd "${srcdir}"/clang-tools-extra
+
+  # Patch whole tree
+  cd "${srcdir}"
 }
 
 build() {
@@ -382,7 +379,7 @@ package_compiler-rt() {
 
   DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake --install "${srcdir}"/build-${MSYSTEM}/projects/compiler-rt
   mkdir -p "${pkgdir}"${MINGW_PREFIX}/bin/
-  find "${pkgdir}"${MINGW_PREFIX}/lib/clang/${_version%.[0-9].*}/lib/windows/ \
+  find "${pkgdir}"${MINGW_PREFIX}/lib/clang/${pkgver%.[0-9].*}/lib/windows/ \
     -name '*.dll' -exec mv '{}' "${pkgdir}"${MINGW_PREFIX}/bin/ \;
   # remove bin dir we created if it is still empty
   rmdir "${pkgdir}"${MINGW_PREFIX}/bin/ 2>/dev/null || true
