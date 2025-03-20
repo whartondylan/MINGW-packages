@@ -60,7 +60,8 @@ ifeq (,$(SIGNTOOL))
 else
 	@eval $(SIGNTOOL) $(filter %.exe,$(ALL_PROGRAMS)) \
 		contrib/credential/wincred/git-credential-wincred.exe git.exe \
-		cmd/git{,-gui,k}.exe cmd/tig.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
+		cmd/git{,-gui,k}.exe cmd/tig.exe compat-bash.exe git-{bash,cmd,wrapper}.exe \
+		edit-git-bash.exe
 endif
 
 install-mingit-busybox-test-artifacts:
