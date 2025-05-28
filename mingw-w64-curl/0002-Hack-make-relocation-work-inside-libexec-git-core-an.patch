@@ -1,4 +1,4 @@
-From d762df33fbdb126aea628485c95027d79f2cbb68 Mon Sep 17 00:00:00 2001
+From 538ef176222d618321769e714c1d4d81372736db Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 31 Oct 2018 10:52:59 +0100
 Subject: [PATCH 2/2] Hack: make relocation work inside libexec/git-core/ and
@@ -30,7 +30,7 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  1 file changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/lib/url.c b/lib/url.c
-index 944f10e68..8762e597b 100644
+index 6fe831e1e..5a99ede5b 100644
 --- a/lib/url.c
 +++ b/lib/url.c
 @@ -439,10 +439,29 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
