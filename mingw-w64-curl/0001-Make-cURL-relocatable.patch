@@ -1,4 +1,4 @@
-From ff09ed1ebf7621d89007f56d472ec6390d8ed9ed Mon Sep 17 00:00:00 2001
+From 9bc4150738ef5d92b0050f8539758c8f03335442 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 22 Feb 2017 11:03:04 +0100
 Subject: [PATCH 1/2] Make cURL relocatable
@@ -29,10 +29,10 @@ Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
  4 files changed, 44 insertions(+)
 
 diff --git a/configure.ac b/configure.ac
-index 7f5a2bff5..51653a12b 100644
+index aba3d82af..2d30abb2c 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3952,6 +3952,7 @@ dnl default includes
+@@ -4027,6 +4027,7 @@ dnl default includes
  ]
  )
  
@@ -41,10 +41,10 @@ index 7f5a2bff5..51653a12b 100644
  dnl Checks for typedefs, structures, and compiler characteristics.
  AC_C_CONST
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index a8e4da1cf..147500bf6 100644
+index b384e0962..216fec947 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
-@@ -204,6 +204,7 @@ LIB_CFILES =         \
+@@ -225,6 +225,7 @@ LIB_CFILES =         \
    noproxy.c          \
    openldap.c         \
    parsedate.c        \
@@ -52,8 +52,8 @@ index a8e4da1cf..147500bf6 100644
    pingpong.c         \
    pop3.c             \
    progress.c         \
-@@ -343,6 +344,7 @@ LIB_HFILES =         \
-   nonblock.h         \
+@@ -357,6 +358,7 @@ LIB_HFILES =         \
+   netrc.h            \
    noproxy.h          \
    parsedate.h        \
 +  pathtools.h        \
@@ -61,10 +61,10 @@ index a8e4da1cf..147500bf6 100644
    pop3.h             \
    progress.h         \
 diff --git a/lib/curl_config.h.in b/lib/curl_config.h.in
-index b4754f3e2..608903328 100644
+index 87d60a274..990895776 100644
 --- a/lib/curl_config.h.in
 +++ b/lib/curl_config.h.in
-@@ -12,6 +12,9 @@
+@@ -14,6 +14,9 @@
  /* If safe CA bundle search is enabled */
  #undef CURL_CA_SEARCH_SAFE
  
@@ -75,13 +75,13 @@ index b4754f3e2..608903328 100644
  #undef CURL_DEFAULT_SSL_BACKEND
  
 diff --git a/lib/url.c b/lib/url.c
-index 2125a97af..944f10e68 100644
+index dac24b35e..6fe831e1e 100644
 --- a/lib/url.c
 +++ b/lib/url.c
-@@ -120,6 +120,9 @@
- #include "dynbuf.h"
+@@ -121,6 +121,9 @@
+ #include "curlx/dynbuf.h"
  #include "headers.h"
- #include "strparse.h"
+ #include "curlx/strparse.h"
 +#if defined(__MINGW32__)
 +#include "pathtools.h"
 +#endif
