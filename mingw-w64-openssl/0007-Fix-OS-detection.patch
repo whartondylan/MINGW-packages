@@ -1,0 +1,72 @@
+From 5dd71ce1b8d9be30aa8aaed581e6affdcece9eb6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Matthias=20A=C3=9Fhauer?= <mha1993@live.de>
+Date: Tue, 16 Sep 2025 17:29:00 +0200
+Subject: [PATCH 7/8] Fix OS detection
+
+OpenSSL tests assume the perl that runs the tests to be native to the platform
+of the openssl being tested. This isn't the case for our MINGW-Packages.
+
+Teach the affected tests to treat msys perl the same as they would MSWin32 perl.
+---
+ test/recipes/20-test_speed.t      | 4 ++--
+ test/recipes/25-test_verify.t     | 4 ++--
+ test/recipes/70-test_sslrecords.t | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/test/recipes/20-test_speed.t b/test/recipes/20-test_speed.t
+index 3c3c5fa..1c37d5d 100644
+--- a/test/recipes/20-test_speed.t
++++ b/test/recipes/20-test_speed.t
+@@ -29,7 +29,7 @@ ok(run(app(['openssl', 'speed', '-testmode'])),
+ 
+ SKIP: {
+     skip "Multi option is not supported by this OpenSSL build", 1
+-       if $^O =~ /^(VMS|MSWin32)$/;
++       if $^O =~ /^(VMS|MSWin32|msys)$/;
+ 
+     ok(run(app(['openssl', 'speed', '-testmode', '-multi', 2])),
+            "Test the multi option");
+@@ -94,7 +94,7 @@ SKIP: {
+ 
+ SKIP: {
+     skip "Mlock option is not supported by this OpenSSL build", 1
+-       if $^O !~ /^(linux|MSWin32)$/;
++       if $^O =~ /^(linux|MSWin32|msys)$/;
+ 
+        ok(run(app(['openssl', 'speed', '-testmode', '-mlock'])),
+               "Test the mlock option");
+diff --git a/test/recipes/25-test_verify.t b/test/recipes/25-test_verify.t
+index 4e8c24d..31ef083 100644
+--- a/test/recipes/25-test_verify.t
++++ b/test/recipes/25-test_verify.t
+@@ -604,7 +604,7 @@ ok(vfy_root("-CAstore", $rootcert, "-CAfile", $rootcert), "CAfile and existing C
+ ok(!vfy_root("-CAstore", "non-existing", "-CAfile", $rootcert), "CAfile and non-existing CAstore");
+ SKIP: {
+     skip "file names with colons aren't supported on Windows and VMS", 2
+-        if $^O =~ /^(MsWin32|VMS)$/;
++        if $^O =~ /^(MsWin32|VMS|msys)$/;
+     my $foo_file = "foo:cert.pem";
+     copy($rootcert, $foo_file);
+     ok(vfy_root("-CAstore", $foo_file), "CAstore foo:file");
+@@ -621,7 +621,7 @@ if ($^O eq "msys") {
+ # file://authority/C:/what/ever/foo.pem and file:///C:/what/ever/foo.pem
+ # file://C:/what/ever/foo.pem is non-standard and may not be accepted.
+ # See RFC 8089 for details.
+-$abs_cert = "/" . $abs_cert if ($^O eq "MSWin32");
++$abs_cert = "/" . $abs_cert if ($^O eq "MSWin32" or $^O eq "msys");
+ ok(vfy_root("-CAstore", "file://".$abs_cert), "CAstore file:///path");
+ ok(vfy_root("-CAstore", "file://localhost".$abs_cert), "CAstore file://localhost/path");
+ ok(!vfy_root("-CAstore", "file://otherhost".$abs_cert), "CAstore file://otherhost/path");
+diff --git a/test/recipes/70-test_sslrecords.t b/test/recipes/70-test_sslrecords.t
+index 299ecb6..8efbca4 100644
+--- a/test/recipes/70-test_sslrecords.t
++++ b/test/recipes/70-test_sslrecords.t
+@@ -43,7 +43,7 @@ SKIP: {
+ 
+ SKIP: {
+     skip "DTLS 1.2 is disabled", 22 if disabled("dtls1_2");
+-    skip "DTLSProxy does not work on Windows", 22 if $^O =~ /^(MSWin32)$/;
++    skip "DTLSProxy does not work on Windows", 22 if $^O =~ /^(MSWin32|msys)$/;
+     run_tests(1);
+ }
+ 

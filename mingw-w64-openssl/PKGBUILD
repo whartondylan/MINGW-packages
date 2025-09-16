@@ -4,7 +4,7 @@ _realname=openssl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	"${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
-pkgver=3.2.4
+pkgver=3.5.3
 pkgrel=1
 pkgdesc="The Open Source toolkit for Secure Sockets Layer and Transport Layer Security (mingw-w64)"
 arch=('any')
@@ -23,14 +23,22 @@ source=("https://github.com/openssl/openssl/releases/download/openssl-${pkgver}/
         '0002-relocation.patch'
         '0003-test_rand-use-the-better-chomp.patch'
         '0004-mingw32-broken-test.patch'
+        '0005-Fix-Text-comparison.patch'
+        '0006-Mangle-Absolute-path.patch'
+        '0007-Fix-OS-detection.patch'
+        '0008-25-test_verify-adjust-incorrect-skip-number.patch'
         'pathtools.c'
         'pathtools.h')
-sha256sums=('b23ad7fd9f73e43ad1767e636040e88ba7c9e5775bfa5618436a0dd2c17c3716'
+sha256sums=('c9489d2abcf943cdc8329a57092331c598a402938054dc3a22218aea8a8ec3bf'
             'SKIP'
-            '973a72a9a8affbdb0d64496b57f50bf0c0ea6461a3aaf9d814b788439ab0fbfc'
-            '7198466664bdc0e51d46f579ebf56448c64943624e9d53d044c64602b2e6917f'
-            '99b1932c470b5700fec7aa3593c13c6e834bb97d570c58cbf551578774d1b67b'
-            'edf98ffd2ad675d775362e19d7c864d8034a76a06a6c444f3c90bca5695e4791'
+            '52d32c90c8f7461699cf49f4dcd6671a88e6e0555cbba5c8f3b70defc9f27cda'
+            '2e463ee34ebe062d5f5412c4cae452bd0e618d0e463bc11346248655daa47b3b'
+            '70b3fe2764b8495e5fef82c8a5505e8af3e72fcad8ee5ff1f509b0bc24e836b6'
+            '0b510886079895587017cfa5983baa29de827b4b5b857caff39585472bd2017c'
+            '03c15459df1e0c47f40781b15fc5634a7186aea34094e8a9e54b9590aa4db28f'
+            '82cc69123676978c61f155badd4b07bdc6016861a3915aa14ae8df87b16c027f'
+            '94a184b2de982ba46f9c3afcac147f107673b02c308d42dbbf51a5256c3a8405'
+            'd43d60276e711e962cfa508881e4526f6be053000773e8d3db095dd4c44519fc'
             '08209cbf1633fa92eae7e5d28f95f8df9d6184cc20fa878c99aec4709bb257fd'
             '965d3921ec4fdeec94a2718bc2c85ce5e1a00ea0e499330a554074a7ae15dfc6')
 
@@ -60,7 +68,11 @@ prepare() {
   apply_patch_with_msg \
      0001-support-aarch64.patch \
      0002-relocation.patch \
-     0003-test_rand-use-the-better-chomp.patch
+     0003-test_rand-use-the-better-chomp.patch \
+     0005-Fix-Text-comparison.patch \
+     0006-Mangle-Absolute-path.patch \
+     0007-Fix-OS-detection.patch \
+     0008-25-test_verify-adjust-incorrect-skip-number.patch
 
   if [[ "$MSYSTEM" == MINGW32 ]]
   then
