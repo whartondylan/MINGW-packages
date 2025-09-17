@@ -1,7 +1,7 @@
-From 820803594c31daa2c96921f2d7888c88b1edc97e Mon Sep 17 00:00:00 2001
+From 01df6925dc07a92c22ea03207ce9f021fe4531fc Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 25 Oct 2023 17:10:17 +0200
-Subject: [PATCH] test_rand: use the "better chomp"
+Subject: [PATCH 3/4] test_rand: use the "better chomp"
 
 Following in the footsteps of
 https://github.com/openssl/openssl/commit/9ba96fbb2523cb12747c559c704c58bd8f9e7982
@@ -34,6 +34,3 @@ index aa012c1..f2c1374 100644
      ok($success && length($randdata[0]) == 32,
         "rand with dasync: Check rand output is of expected length");
  }
--- 
-2.42.0.windows.2
-
