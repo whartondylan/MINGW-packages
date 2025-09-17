@@ -61,7 +61,7 @@ jobs:
 
           top_dir=$PWD &&
           cd "${{ matrix.directory }}" &&
-          MAKEFLAGS=-j8 makepkg-mingw -s --noconfirm &&
+          MAKEFLAGS=-j8 HARNESS_JOBS=8 makepkg-mingw -s --noconfirm &&
 
           artifacts="$(basename "${{ matrix.directory }}")-artifacts" &&
           mkdir -p "$top_dir/$artifacts" &&
