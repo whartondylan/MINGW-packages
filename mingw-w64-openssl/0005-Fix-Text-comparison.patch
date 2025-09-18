@@ -1,0 +1,120 @@
+From 22b0d356b4b6b874135959981b3363f30089423a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Matthias=20A=C3=9Fhauer?= <mha1993@live.de>
+Date: Tue, 16 Sep 2025 15:23:00 +0200
+Subject: [PATCH 5/8] Fix Text comparison
+
+0615d3a (Use text compare for PEM and text files, 2025-03-19) introduced perls
+compare_text into the tests, but didn't account for a scenario like our
+MINGW-Packages where openssl uses CRLF as an EOL, but the perl running the tests
+expects just LF.
+
+Teach the affected tests to compare while accounting for differences in EOLs.
+---
+ test/recipes/15-test_dsaparam.t      |  3 +--
+ test/recipes/15-test_ml_kem_codecs.t |  2 +-
+ test/recipes/15-test_pkey.t          |  2 +-
+ test/recipes/20-test_dhparam.t       |  1 -
+ test/recipes/25-test_pkcs8.t         |  2 +-
+ util/perl/OpenSSL/Test/Utils.pm      | 10 +++++++++-
+ 6 files changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/test/recipes/15-test_dsaparam.t b/test/recipes/15-test_dsaparam.t
+index 8f7d2af..d6feffb 100644
+--- a/test/recipes/15-test_dsaparam.t
++++ b/test/recipes/15-test_dsaparam.t
+@@ -11,10 +11,9 @@ use warnings;
+ 
+ use File::Spec;
+ use File::Copy;
+-use File::Compare qw/compare_text/;
+ use OpenSSL::Glob;
+ use OpenSSL::Test qw/:DEFAULT data_file/;
+-use OpenSSL::Test::Utils;
++use OpenSSL::Test::Utils qw/compare_text disabled/;
+ 
+ setup("test_dsaparam");
+ 
+diff --git a/test/recipes/15-test_ml_kem_codecs.t b/test/recipes/15-test_ml_kem_codecs.t
+index bebb8b8..71292f1 100644
+--- a/test/recipes/15-test_ml_kem_codecs.t
++++ b/test/recipes/15-test_ml_kem_codecs.t
+@@ -12,7 +12,7 @@ use warnings;
+ 
+ use File::Spec;
+ use File::Copy;
+-use File::Compare qw/compare_text compare/;
++use File::Compare qw/compare/;
+ use IO::File;
+ use OpenSSL::Glob;
+ use OpenSSL::Test qw/:DEFAULT data_file srctop_file bldtop_dir/;
+diff --git a/test/recipes/15-test_pkey.t b/test/recipes/15-test_pkey.t
+index 70bb083..e01ccd6 100644
+--- a/test/recipes/15-test_pkey.t
++++ b/test/recipes/15-test_pkey.t
+@@ -11,8 +11,8 @@ use warnings;
+ 
+ use OpenSSL::Test::Utils;
+ use File::Copy;
+-use File::Compare qw(compare_text);
+ use OpenSSL::Test qw/:DEFAULT srctop_file/;
++use OpenSSL::Test::Utils qw(compare_text);
+ 
+ setup("test_pkey");
+ 
+diff --git a/test/recipes/20-test_dhparam.t b/test/recipes/20-test_dhparam.t
+index f08e8dd..c2b0b43 100644
+--- a/test/recipes/20-test_dhparam.t
++++ b/test/recipes/20-test_dhparam.t
+@@ -11,7 +11,6 @@ use strict;
+ use warnings;
+ 
+ use File::Copy;
+-use File::Compare qw/compare_text/;
+ use OpenSSL::Test qw(:DEFAULT data_file srctop_file);
+ use OpenSSL::Test::Utils;
+ 
+diff --git a/test/recipes/25-test_pkcs8.t b/test/recipes/25-test_pkcs8.t
+index 50cb01a..6d40cfd 100644
+--- a/test/recipes/25-test_pkcs8.t
++++ b/test/recipes/25-test_pkcs8.t
+@@ -11,7 +11,7 @@ use warnings;
+ 
+ use OpenSSL::Test::Utils;
+ use File::Copy;
+-use File::Compare qw(compare_text compare);
++use File::Compare qw(compare);
+ use OpenSSL::Test qw/:DEFAULT srctop_file ok_nofips is_nofips/;
+ 
+ setup("test_pkcs8");
+diff --git a/util/perl/OpenSSL/Test/Utils.pm b/util/perl/OpenSSL/Test/Utils.pm
+index 34eafc4..daeb155 100644
+--- a/util/perl/OpenSSL/Test/Utils.pm
++++ b/util/perl/OpenSSL/Test/Utils.pm
+@@ -11,11 +11,12 @@ use strict;
+ use warnings;
+ 
+ use Exporter;
++use File::Compare qw(compare_text);
+ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+ $VERSION = "0.1";
+ @ISA = qw(Exporter);
+ @EXPORT = qw(alldisabled anydisabled disabled config available_protocols
+-             have_IPv4 have_IPv6);
++             have_IPv4 have_IPv6 compare_text);
+ 
+ =head1 NAME
+ 
+@@ -243,6 +244,13 @@ sub have_IPv6 {
+     return $have_IPv6;
+ }
+ 
++if ($^O eq 'msys') {
++    no warnings 'redefine';
++    sub compare_text {
++        return File::Compare::compare_text($_[0], $_[1], sub {$_[0]=~ s/\r\n/\n/;$_[1]=~ s/\r\n/\n/; $_[0] ne $_[1]});
++    }
++}
++
+ =head1 SEE ALSO
+ 
+ L<OpenSSL::Test>

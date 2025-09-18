@@ -1,0 +1,27 @@
+From 64812fdd1a1e40f7145e447fde5c3ea0ed78cb8e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Matthias=20A=C3=9Fhauer?= <mha1993@live.de>
+Date: Fri, 24 Nov 2023 06:47:04 +0000
+Subject: [PATCH 4/8] mingw32-broken-test
+
+---
+ test/asn1_time_test.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/test/asn1_time_test.c b/test/asn1_time_test.c
+index 32bc4ff..4d1fdbe 100644
+--- a/test/asn1_time_test.c
++++ b/test/asn1_time_test.c
+@@ -68,13 +68,6 @@ static const struct TESTDATA_asn1_to_utc asn1_to_utc[] = {
+         "20210328030000+0200",
+         1616893200,
+     },
+-    {
+-        /*
+-         * Invalid strings should get -1 as a result
+-         */
+-        "INVALID",
+-        -1,
+-    },
+ };
+ 
+ static struct testdata tbl_testdata_pos[] = {

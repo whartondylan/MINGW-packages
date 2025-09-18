@@ -1,0 +1,33 @@
+From 35c8df61f568e41cd41a88a432d96983a52b717e Mon Sep 17 00:00:00 2001
+From: Johannes Schindelin <johannes.schindelin@gmx.de>
+Date: Wed, 17 Sep 2025 23:55:12 +0200
+Subject: [PATCH 8/8] 25-test_verify: adjust incorrect `skip` number
+
+When b3e7dad (Fix test/recipes/25-test_verify.t [3.5], 2025-05-04)
+dropped some test cases, it forgot to adjust the `skip` number
+accordingly.
+
+As a consequence, on Windows (and on VMS) the total number of tests
+mismatches with the claimed total number of tests, and the test fails.
+
+Let's fix that by adjusting the `skip` number as above-mentioned patch
+should have done.
+
+Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
+---
+ test/recipes/25-test_verify.t | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/recipes/25-test_verify.t b/test/recipes/25-test_verify.t
+index 31ef083..2969d69 100644
+--- a/test/recipes/25-test_verify.t
++++ b/test/recipes/25-test_verify.t
+@@ -603,7 +603,7 @@ ok(vfy_root("-CAstore", $rootcert), "CAstore");
+ ok(vfy_root("-CAstore", $rootcert, "-CAfile", $rootcert), "CAfile and existing CAstore");
+ ok(!vfy_root("-CAstore", "non-existing", "-CAfile", $rootcert), "CAfile and non-existing CAstore");
+ SKIP: {
+-    skip "file names with colons aren't supported on Windows and VMS", 2
++    skip "file names with colons aren't supported on Windows and VMS", 1
+         if $^O =~ /^(MsWin32|VMS|msys)$/;
+     my $foo_file = "foo:cert.pem";
+     copy($rootcert, $foo_file);
