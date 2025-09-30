@@ -1,7 +1,7 @@
-From 22b0d356b4b6b874135959981b3363f30089423a Mon Sep 17 00:00:00 2001
+From f208d3920935f0efeac542391305e5baffe47687 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Matthias=20A=C3=9Fhauer?= <mha1993@live.de>
 Date: Tue, 16 Sep 2025 15:23:00 +0200
-Subject: [PATCH 5/8] Fix Text comparison
+Subject: [PATCH 5/7] Fix Text comparison
 
 0615d3a (Use text compare for PEM and text files, 2025-03-19) introduced perls
 compare_text into the tests, but didn't account for a scenario like our

@@ -1,7 +1,7 @@
-From 5dd71ce1b8d9be30aa8aaed581e6affdcece9eb6 Mon Sep 17 00:00:00 2001
+From f4413c73dc50a0b249bc7ca629dbf5906e7a23c1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Matthias=20A=C3=9Fhauer?= <mha1993@live.de>
 Date: Tue, 16 Sep 2025 17:29:00 +0200
-Subject: [PATCH 7/8] Fix OS detection
+Subject: [PATCH 7/7] Fix OS detection
 
 OpenSSL tests assume the perl that runs the tests to be native to the platform
 of the openssl being tested. This isn't the case for our MINGW-Packages.
@@ -36,19 +36,19 @@ index 3c3c5fa..1c37d5d 100644
         ok(run(app(['openssl', 'speed', '-testmode', '-mlock'])),
                "Test the mlock option");
 diff --git a/test/recipes/25-test_verify.t b/test/recipes/25-test_verify.t
-index 4e8c24d..31ef083 100644
+index 786a302..0f9b7b5 100644
 --- a/test/recipes/25-test_verify.t
 +++ b/test/recipes/25-test_verify.t
-@@ -604,7 +604,7 @@ ok(vfy_root("-CAstore", $rootcert, "-CAfile", $rootcert), "CAfile and existing C
- ok(!vfy_root("-CAstore", "non-existing", "-CAfile", $rootcert), "CAfile and non-existing CAstore");
+@@ -605,7 +605,7 @@ ok(!vfy_root("-CAstore", "non-existing", "-CAfile", $rootcert), "CAfile and non-
+ 
  SKIP: {
-     skip "file names with colons aren't supported on Windows and VMS", 2
--        if $^O =~ /^(MsWin32|VMS)$/;
+     skip "file names with colons aren't supported on Windows and VMS", 1
+-        if $^O =~ /^(MSWin32|VMS)$/;
 +        if $^O =~ /^(MsWin32|VMS|msys)$/;
      my $foo_file = "foo:cert.pem";
      copy($rootcert, $foo_file);
      ok(vfy_root("-CAstore", $foo_file), "CAstore foo:file");
-@@ -621,7 +621,7 @@ if ($^O eq "msys") {
+@@ -622,7 +622,7 @@ if ($^O eq "msys") {
  # file://authority/C:/what/ever/foo.pem and file:///C:/what/ever/foo.pem
  # file://C:/what/ever/foo.pem is non-standard and may not be accepted.
  # See RFC 8089 for details.
