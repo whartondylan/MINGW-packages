@@ -1,7 +1,7 @@
-From 820803594c31daa2c96921f2d7888c88b1edc97e Mon Sep 17 00:00:00 2001
+From fbb81a899dabd443737e726fde930906fce5f846 Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 25 Oct 2023 17:10:17 +0200
-Subject: [PATCH] test_rand: use the "better chomp"
+Subject: [PATCH 3/7] test_rand: use the "better chomp"
 
 Following in the footsteps of
 https://github.com/openssl/openssl/commit/9ba96fbb2523cb12747c559c704c58bd8f9e7982
@@ -11,14 +11,14 @@ place, making the test fail in the MINGW build on Windows.
 
 Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
 ---
- test/recipes/05-test_rand.t | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ test/recipes/05-test_rand.t | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/test/recipes/05-test_rand.t b/test/recipes/05-test_rand.t
-index aa012c1..f2c1374 100644
+index 7462630..02b14ee 100644
 --- a/test/recipes/05-test_rand.t
 +++ b/test/recipes/05-test_rand.t
-@@ -28,13 +28,13 @@ SKIP: {
+@@ -36,17 +36,17 @@ SKIP: {
  
      @randdata = run(app(['openssl', 'rand', '-engine', 'ossltest', '-hex', '16' ]),
                      capture => 1, statusvar => \$success);
@@ -27,6 +27,11 @@ index aa012c1..f2c1374 100644
      ok($success && $randdata[0] eq $expected,
         "rand with ossltest: Check rand output is as expected");
  
+     @randdata = run(app(['openssl', 'rand', '-hex', '2K' ]),
+                     capture => 1, statusvar => \$success);
+-    chomp(@randdata);
++    $_ =~ s|\R+$|| for @randdata;
+ 
      @randdata = run(app(['openssl', 'rand', '-engine', 'dasync', '-hex', '16' ]),
                      capture => 1, statusvar => \$success);
 -    chomp(@randdata);
@@ -34,6 +39,3 @@ index aa012c1..f2c1374 100644
      ok($success && length($randdata[0]) == 32,
         "rand with dasync: Check rand output is of expected length");
  }
--- 
-2.42.0.windows.2
-

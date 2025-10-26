@@ -5,8 +5,8 @@ pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-gnutls"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-winssl")
-pkgver=8.15.0
-pkgrel=1
+pkgver=8.16.0
+pkgrel=2
 pkgdesc="Command line tool and library for transferring data with URLs (mingw-w64)"
 arch=('any')
 mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
@@ -35,13 +35,15 @@ source=("https://github.com/curl/curl/releases/download/${_realname}-${pkgver//.
         "pathtools.c"
         "pathtools.h"
         "0001-Make-cURL-relocatable.patch"
-        "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch")
-sha256sums=('699a6d2192322792c88088576cff5fe188452e6ea71e82ca74409f07ecc62563'
+        "0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch"
+        "0003-ip-happy-do-not-set-unnecessary-timeout.patch")
+sha256sums=('9459180ab4933b30d0778ddd71c91fe2911fab731c46e59b3f4c8385b1596c91'
             'SKIP'
             '08209cbf1633fa92eae7e5d28f95f8df9d6184cc20fa878c99aec4709bb257fd'
             '965d3921ec4fdeec94a2718bc2c85ce5e1a00ea0e499330a554074a7ae15dfc6'
             '8aa4eab2f2c38afb0ae7825be5be032194574f08cedd37b57b9ea5a19eb25ad4'
-            'c43eb97757f71a5f2368fa1b132d286e8ceb91060742e643d4dbc06712a57e94')
+            'c43eb97757f71a5f2368fa1b132d286e8ceb91060742e643d4dbc06712a57e94'
+            '90de3265dc33894fe53fb2b0c0ffd25e1fae0330d2a5e00ebafb3cb34c2e7591')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2')  # Daniel Stenberg
 
 if test -z "$WITHOUT_ALTERNATES"
@@ -91,7 +93,8 @@ prepare() {
 
   apply_patch_with_msg \
     0001-Make-cURL-relocatable.patch \
-    0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch
+    0002-Hack-make-relocation-work-inside-libexec-git-core-an.patch \
+    0003-ip-happy-do-not-set-unnecessary-timeout.patch
 
   autoreconf -vfi
 }
