@@ -1,4 +1,4 @@
-From 538ef176222d618321769e714c1d4d81372736db Mon Sep 17 00:00:00 2001
+From 5022c4e5a2bd1483c70f2e8177eb51edd36139eb Mon Sep 17 00:00:00 2001
 From: Johannes Schindelin <johannes.schindelin@gmx.de>
 Date: Wed, 31 Oct 2018 10:52:59 +0100
 Subject: [PATCH 2/2] Hack: make relocation work inside libexec/git-core/ and
@@ -26,14 +26,14 @@ extend the Git for Windows-specific hack with a hard-code `bin/` case.
 
 Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
 ---
- lib/url.c | 21 ++++++++++++++++++++-
+ lib/vtls/vtls.c | 21 ++++++++++++++++++++-
  1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/lib/url.c b/lib/url.c
-index 6fe831e1e..5a99ede5b 100644
---- a/lib/url.c
-+++ b/lib/url.c
-@@ -439,10 +439,29 @@ CURLcode Curl_init_userdefined(struct Curl_easy *data)
+diff --git a/lib/vtls/vtls.c b/lib/vtls/vtls.c
+index bb45551b0..a864fb758 100644
+--- a/lib/vtls/vtls.c
++++ b/lib/vtls/vtls.c
+@@ -343,10 +343,29 @@ CURLcode Curl_ssl_easy_config_complete(struct Curl_easy *data)
      get_dll_path(relocated_bundle, path_max);
      strip_n_suffix_folders(relocated_bundle, 1);
      strncat(relocated_bundle, "/", path_max - 1);
@@ -53,14 +53,14 @@ index 6fe831e1e..5a99ede5b 100644
      free((void*)relative);
      simplify_path(relocated_bundle);
 +    if (access(relocated_bundle, R_OK) != 0 &&
-+	(len = strlen(relocated_bundle)) >= 28 &&
-+	!strcmp(relocated_bundle + len - 28, "/etc/ssl/certs/ca-bundle.crt")) {
++        (len = strlen(relocated_bundle)) >= 28 &&
++        !strcmp(relocated_bundle + len - 28, "/etc/ssl/certs/ca-bundle.crt")) {
 +      /* Try without /etc/ */
 +      memmove(relocated_bundle + len - 28, relocated_bundle + len - 24, 25);
 +      if (access(relocated_bundle, R_OK) != 0)
 +        /* fall back to using /etc/ */
 +        strcat(relocated_bundle + len - 28, "/etc/ssl/certs/ca-bundle.crt");
 +    }
-     result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], relocated_bundle);
- #else
-     result = Curl_setstropt(&set->str[STRING_SSL_CAFILE], CURL_CA_BUNDLE);
+ #endif /* defined(__MINGW32__) */
+     if(!sslc->custom_cafile && !set->str[STRING_SSL_CAFILE]) {
+ #ifdef __MINGW32__
