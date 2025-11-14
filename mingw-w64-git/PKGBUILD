@@ -5,6 +5,7 @@ pkgbase="mingw-w64-${_realname}"
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-html"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
@@ -174,9 +175,6 @@ package_git () {
   install -d "$pkgdir$SHAREDIR/completion/"
   install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
 
-  # subtree, for backwards-compatibility with MSys2's Git package
-  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install
-
   # git-credential-wincred.exe
   make -C contrib/credential/wincred prefix="$pkgdir/$PREFIX" install
 }
@@ -185,9 +183,6 @@ package_git-doc-html () {
   cd "$srcdir"/git
 
   make DESTDIR="$pkgdir" install-html
-
-  # subtree, for backwards-compatibility with MSys2's Git package
-  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-html
 
   # Remove git-bash documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-bash.adoc
@@ -199,15 +194,24 @@ package_git-doc-man () {
 
   make DESTDIR="$pkgdir" install-man
 
-  # subtree, for backwards-compatibility with MSys2's Git package
-  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-man
-
   # Remove git-bash documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-bash.1"
 }
 
-package_git-for-windows-addons () {
+package_git-subtree () {
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}")
+  pkgdesc="Subtree support for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  make -C contrib/subtree prefix="$pkgdir/$MINGW_PREFIX" install
+  make -C contrib/subtree prefix="$pkgdir/$MINGW_PREFIX" install-man
+  make -C contrib/subtree prefix="$pkgdir/$MINGW_PREFIX" install-html
+}
+
+package_git-for-windows-addons () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree")
   pkgdesc="Git for Windows extra executables and wrappers (mingw-w64)"
 
   cd "$srcdir"/git
