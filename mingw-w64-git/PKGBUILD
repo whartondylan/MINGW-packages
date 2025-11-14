@@ -10,6 +10,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email"
 	 "${MINGW_PACKAGE_PREFIX}-gitweb"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-svn"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-archimport"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
@@ -184,6 +185,9 @@ package_git () {
   find "$pkgdir/$MINGW_PREFIX/share/perl5" -type f -path "*/Git/SVN*" -delete
   find "$pkgdir/$MINGW_PREFIX/share/perl5" -type d -empty -delete
 
+  # Remove git-archimport (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-archimport"
+
   # completions
   install -d "$pkgdir$SHAREDIR/completion/"
   install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
@@ -211,6 +215,10 @@ package_git-doc-html () {
   # Remove git-svn documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-svn.adoc
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-svn.html
+
+  # Remove git-archimport documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-archimport.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-archimport.html
 }
 
 package_git-doc-man () {
@@ -230,6 +238,9 @@ package_git-doc-man () {
 
   # Remove git-svn documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-svn.1"
+
+  # Remove git-archimport documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-archimport.1"
 }
 
 package_git-subtree () {
@@ -316,6 +327,24 @@ package_git-svn () {
   install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
   install -m644 Documentation/git-svn.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
   install -m644 Documentation/git-svn.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-archimport () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "perl>=5.14.0")
+  pkgdesc="Import an Arch repository into Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-archimport "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-archimport.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-archimport.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-archimport.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
 }
 
 package_git-for-windows-addons () {
