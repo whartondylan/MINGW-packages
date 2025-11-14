@@ -112,10 +112,6 @@ prepare () {
 }
 
 build() {
-  test -z "$PARALLEL_BUILD" || {
-    echo "WARNING: PARALLEL_BUILD is deprecated. Use MAKEFLAGS=-j15 instead" >&2
-    export MAKEFLAGS="$PARALLEL_BUILD $MAKEFLAGS"
-  }
   cd "$srcdir/git"
 
   if test false != "$(git config core.autocrlf)"
