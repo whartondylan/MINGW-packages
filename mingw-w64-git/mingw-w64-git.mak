@@ -43,6 +43,13 @@ strip-all: strip
 		cmd/git{,-receive-pack,-upload-pack,-gui,k}.exe \
 		cmd/tig.exe compat-bash.exe git-{bash,cmd,wrapper}.exe
 
+ifndef NO_PERL
+install-perl-module:
+	$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$(perllibdir_SQ)'
+	(cd perl/build/lib && $(TAR) cf - .) | \
+	(cd '$(DESTDIR_SQ)$(perllibdir_SQ)' && umask 022 && $(TAR) xof -)
+endif
+
 install-pdbs:
 	$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$(bindir_SQ)'
 	$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$(gitexec_instdir_SQ)'

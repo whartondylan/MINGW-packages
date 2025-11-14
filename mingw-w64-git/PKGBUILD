@@ -9,6 +9,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email"
 	 "${MINGW_PACKAGE_PREFIX}-gitweb"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-svn"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
@@ -60,7 +61,7 @@ sha256sums=('d21ed5eb108646012a7f59c354b3dd45f6b6138de6e2b582906517365962b18f'
             'db754d6fe6722ad54d43df15ee93b1d9cead406158ed84dcbf35e5b4225469ed'
             'cbed8b133eb9eec9972f146be5c3ff49db29b2fff8ab9c87a6d0c646c08a5128'
             '027155aa6ca5f11ad7bcb89550a470935a9f22a9d5b3ab80a9eb209983258c1f'
-            '90c1a02705c8a3214099e37a4ca82025702ee16ab41dcc943b203231dee1b085'
+            '387cbdb711453a7c41830558c351e448952bb7978158c258df093b1742543dfe'
             '7413506c59d25621e475aa45447993748332c72cfbb4cf94cce6bee6f1218a09'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
@@ -177,6 +178,12 @@ package_git () {
   # Remove gitweb (packaged separately)
   rm -rf "$pkgdir/$MINGW_PREFIX/share/gitweb"
 
+  # Remove git-svn (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-svn"
+  # Remove the Git::SVN Perl module (packaged separately in git-svn)
+  find "$pkgdir/$MINGW_PREFIX/share/perl5" -type f -path "*/Git/SVN*" -delete
+  find "$pkgdir/$MINGW_PREFIX/share/perl5" -type d -empty -delete
+
   # completions
   install -d "$pkgdir$SHAREDIR/completion/"
   install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
@@ -200,6 +207,10 @@ package_git-doc-html () {
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.html
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.conf.adoc
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.conf.html
+
+  # Remove git-svn documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-svn.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-svn.html
 }
 
 package_git-doc-man () {
@@ -216,6 +227,9 @@ package_git-doc-man () {
   # Remove gitweb documentation (packages separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/gitweb.1"
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man5/gitweb.conf.5"
+
+  # Remove git-svn documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-svn.1"
 }
 
 package_git-subtree () {
@@ -280,11 +294,36 @@ package_gitweb () {
   install -m644 Documentation/gitweb.conf.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
 }
 
+package_git-svn () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "perl>=5.14.0"
+           "subversion")
+  pkgdesc="Subversion support for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-svn "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+
+  # Install Git::SVN Perl modules only
+  make -j1 DESTDIR="$pkgdir" -f ../mingw-w64-git.mak install-perl-module
+  find "$pkgdir/$MINGW_PREFIX/share/perl5" -type f ! -path "*/Git/SVN*" -delete
+  find "$pkgdir/$MINGW_PREFIX/share/perl5" -type d -empty -delete
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-svn.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-svn.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-svn.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
 package_git-for-windows-addons () {
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
     "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
     "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
-    "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email")
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-svn")
   pkgdesc="Git for Windows extra executables and wrappers (mingw-w64)"
 
   cd "$srcdir"/git
