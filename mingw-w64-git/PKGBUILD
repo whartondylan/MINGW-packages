@@ -6,6 +6,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-html"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
@@ -174,9 +175,6 @@ package_git () {
   # completions
   install -d "$pkgdir$SHAREDIR/completion/"
   install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
-
-  # git-credential-wincred.exe
-  make -C contrib/credential/wincred prefix="$pkgdir/$PREFIX" install
 }
 
 package_git-doc-html () {
@@ -209,9 +207,20 @@ package_git-subtree () {
   make -C contrib/subtree prefix="$pkgdir/$MINGW_PREFIX" install-html
 }
 
+package_git-credential-wincred () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}")
+  pkgdesc="Git credential helper for Windows Credential Manager (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  make -C contrib/credential/wincred prefix="$pkgdir/$MINGW_PREFIX" install
+}
+
 package_git-for-windows-addons () {
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
-    "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree")
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred")
   pkgdesc="Git for Windows extra executables and wrappers (mingw-w64)"
 
   cd "$srcdir"/git
