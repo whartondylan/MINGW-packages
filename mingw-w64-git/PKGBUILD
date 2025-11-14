@@ -104,17 +104,7 @@ pkgver() {
   printf "%s.%s" "${basever}" "$(git rev-parse --short HEAD)"
 }
 
-case "$CARCH" in
-i686)
-  SHAREDIR=/mingw32/share/git
-  ;;
-x86_64)
-  SHAREDIR=/mingw64/share/git
-  ;;
-aarch64)
-  SHAREDIR=/clangarm64/share/git
-  ;;
-esac
+SHAREDIR=$MINGW_PREFIX/share/git
 
 prepare () {
   cd "$srcdir/git" &&
