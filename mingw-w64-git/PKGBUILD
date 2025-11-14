@@ -142,15 +142,7 @@ build() {
   case "${pkgname[@]}" in ''|*html*) targets="$targets html";; esac &&
   case "${pkgname[@]}" in ''|*man*) targets="$targets man";; esac &&
 
-  counter=0 &&
-  while ! make $targets
-  do
-    counter=$(($counter+1))
-    test $counter -lt 5 || {
-      echo "Could not build (tried 5 times)" >&2
-      exit 1
-    }
-  done &&
+  make $targets &&
 
   case "${pkgname[@]}" in *pdb*)
     make -f ../mingw-w64-git.mak STRIP="$STRIP" STRIP_OPTS=$STRIP_OPTS strip-all &&
