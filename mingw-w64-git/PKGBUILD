@@ -148,7 +148,6 @@ build() {
     echo "WARNING: PARALLEL_BUILD is deprecated. Use MAKEFLAGS=-j15 instead" >&2
     export MAKEFLAGS="$PARALLEL_BUILD $MAKEFLAGS"
   }
-  export PYTHON_PATH=/usr/bin/python2
   cd "$srcdir/git"
 
   if test false != "$(git config core.autocrlf)"
@@ -217,7 +216,6 @@ build() {
 }
 
 package_git () {
-  export PYTHON_PATH=/usr/bin/python2
   cd "$srcdir"/git
 
   make -j1 DESTDIR="$pkgdir" install
