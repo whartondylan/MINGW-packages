@@ -10,7 +10,7 @@ pkgver=2.52.0.1
 pkgrel=1
 pkgdesc="The fast distributed version control system (mingw-w64)"
 arch=('any')
-url="https://git-for-windows.github.io/"
+url="https://gitforwindows.org/"
 license=('GPL2')
 
 options=()
