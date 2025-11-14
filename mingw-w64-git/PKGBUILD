@@ -48,7 +48,7 @@ source=("${_realname}"::"git+https://github.com/git-for-windows/git.git#tag=v$ta
 	'start-ssh-pageant.cmd'
 	'git-wrapper.c'
 	'git-bash.rc'
-	'git-bash.txt'
+	'git-bash.adoc'
 	'git-cmd.rc'
 	'git-wrapper.rc'
 	'gitk.rc'
@@ -127,7 +127,7 @@ COMPAT_CFLAGS += $COMPAT_CFLAGS
 LDFLAGS = $LDFLAGS
 EOF
 
-  cp ../git-bash.txt Documentation/
+  cp ../git-bash.adoc Documentation/
 
   # Slightly dirty workaround for missing docbook-xsl-ns
   grep -q http://docbook.sourceforge.net/release/xsl-ns/current /etc/xml/catalog || {
