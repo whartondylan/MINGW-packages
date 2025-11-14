@@ -170,9 +170,8 @@ package_git () {
   make -j1 DESTDIR="$pkgdir" install
 
   # completions
-  PREFIX="$(expr "$(cat < GIT-PREFIX)" : '[^:]*:[^:]*:[^:]*:\([^:]*\):[^:]*')"
-  install -d "$pkgdir/$PREFIX/share/git/completion/"
-  install contrib/completion/* "$pkgdir/$PREFIX/share/git/completion/"
+  install -d "$pkgdir$SHAREDIR/completion/"
+  install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
 
   # subtree, for backwards-compatibility with MSys2's Git package
   make -C contrib/subtree prefix="$pkgdir/$PREFIX" install
