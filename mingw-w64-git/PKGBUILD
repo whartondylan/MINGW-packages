@@ -7,6 +7,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
@@ -162,15 +163,15 @@ package_git () {
            "${MINGW_PACKAGE_PREFIX}-tk"
            "perl-Error"
            "perl>=5.14.0"
-           "perl-Authen-SASL"
            "perl-libwww"
-           "perl-MIME-tools"
-           "perl-Net-SMTP-SSL"
            "perl-TermReadKey")
 
   cd "$srcdir"/git
 
   make -j1 DESTDIR="$pkgdir" install
+
+  # Remove git-send-email (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-send-email"
 
   # completions
   install -d "$pkgdir$SHAREDIR/completion/"
@@ -185,6 +186,10 @@ package_git-doc-html () {
   # Remove git-bash documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-bash.adoc
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-bash.html
+
+  # Remove git-send-email documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-send-email.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-send-email.html
 }
 
 package_git-doc-man () {
@@ -194,6 +199,9 @@ package_git-doc-man () {
 
   # Remove git-bash documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-bash.1"
+
+  # Remove git-send-email documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-send-email.1"
 }
 
 package_git-subtree () {
@@ -217,10 +225,31 @@ package_git-credential-wincred () {
   make -C contrib/credential/wincred prefix="$pkgdir/$MINGW_PREFIX" install
 }
 
+package_git-send-email () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "perl-Authen-SASL"
+           "perl-MIME-tools"
+           "perl-Net-SMTP-SSL")
+  pkgdesc="Send patch emails with git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-send-email "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-send-email.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-send-email.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-send-email.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
 package_git-for-windows-addons () {
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
     "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
-    "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred")
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email")
   pkgdesc="Git for Windows extra executables and wrappers (mingw-w64)"
 
   cd "$srcdir"/git
