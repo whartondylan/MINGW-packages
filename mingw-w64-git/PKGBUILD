@@ -11,6 +11,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-gitweb"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-svn"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-archimport"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-cvs"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
@@ -188,6 +189,12 @@ package_git () {
   # Remove git-archimport (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-archimport"
 
+  # Remove git-cvs* (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/bin/git-cvsserver"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsexportcommit"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsimport"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsserver"
+
   # completions
   install -d "$pkgdir$SHAREDIR/completion/"
   install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
@@ -219,6 +226,16 @@ package_git-doc-html () {
   # Remove git-archimport documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-archimport.adoc
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-archimport.html
+
+  # Remove git-cvs* documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsexportcommit.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsexportcommit.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsimport.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsimport.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsserver.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsserver.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitcvs-migration.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitcvs-migration.html
 }
 
 package_git-doc-man () {
@@ -241,6 +258,12 @@ package_git-doc-man () {
 
   # Remove git-archimport documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-archimport.1"
+
+  # Remove git-cvs* documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsexportcommit.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsimport.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsserver.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man7/gitcvs-migration.7"
 }
 
 package_git-subtree () {
@@ -345,6 +368,40 @@ package_git-archimport () {
   install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
   install -m644 Documentation/git-archimport.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
   install -m644 Documentation/git-archimport.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-cvs () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "perl>=5.14.0"
+           "perl-DBI")
+  pkgdesc="CVS support for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/bin"
+  install -m755 git-cvsserver "$pkgdir/$MINGW_PREFIX/bin/"
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-cvsexportcommit "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+  install -m755 git-cvsimport "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+  ln "$pkgdir/$MINGW_PREFIX/bin/git-cvsserver" "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsserver"
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-cvsexportcommit.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -m644 Documentation/git-cvsimport.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -m644 Documentation/git-cvsserver.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man7"
+  install -m644 Documentation/gitcvs-migration.7 "$pkgdir/$MINGW_PREFIX/share/man/man7/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-cvsexportcommit.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsexportcommit.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsimport.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsimport.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsserver.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsserver.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitcvs-migration.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitcvs-migration.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
 }
 
 package_git-for-windows-addons () {
