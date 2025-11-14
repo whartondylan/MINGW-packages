@@ -114,13 +114,6 @@ prepare () {
 build() {
   cd "$srcdir/git"
 
-  if test false != "$(git config core.autocrlf)"
-  then
-    git config core.autocrlf false
-    rm .git/index
-    git reset --hard
-  fi
-
   # Git wants to decide itself whether to use ANSI stdio emulation or not
   CPPFLAGS="$(echo "$CPPFLAGS" |
 	sed 's/-D__USE_MINGW_ANSI_STDIO\(=[0-9]*\)\?//')"
