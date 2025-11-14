@@ -120,10 +120,10 @@ prepare () {
   cd "$srcdir/git" &&
 
   cat >config.mak <<-EOF
-USE_ASCIIDOCTOR = YesPlease
-COMPAT_CFLAGS += $COMPAT_CFLAGS
-LDFLAGS = $LDFLAGS
-EOF
+	USE_ASCIIDOCTOR = YesPlease
+	COMPAT_CFLAGS += $COMPAT_CFLAGS
+	LDFLAGS = $LDFLAGS
+	EOF
 
   cp ../git-bash.adoc Documentation/
 
