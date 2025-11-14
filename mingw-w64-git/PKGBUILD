@@ -1,5 +1,4 @@
-# Maintainer: Martell Malone <martellmalone@gmail.com>
-# Maintainer: Ray Donnelly <mingw.android@gmail.com>
+# Maintainer: Johannes Schindelin <johannes.schindelin@gmx.de>
 
 _realname=git
 pkgbase="mingw-w64-${_realname}"
