@@ -4,8 +4,7 @@ _realname=git
 pkgbase="mingw-w64-${_realname}"
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-html"
-	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man"
-	 "${MINGW_PACKAGE_PREFIX}-${_realname}-test-artifacts")
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1.2912d8e9b8
 pkgrel=1
@@ -69,7 +68,7 @@ sha256sums=('SKIP'
             'db754d6fe6722ad54d43df15ee93b1d9cead406158ed84dcbf35e5b4225469ed'
             'cbed8b133eb9eec9972f146be5c3ff49db29b2fff8ab9c87a6d0c646c08a5128'
             '027155aa6ca5f11ad7bcb89550a470935a9f22a9d5b3ab80a9eb209983258c1f'
-            '53dd1b5cbb8871fb7f32262a15a62a86bb0a78dfefcff921edab7287bb23889a'
+            '90c1a02705c8a3214099e37a4ca82025702ee16ab41dcc943b203231dee1b085'
             '7413506c59d25621e475aa45447993748332c72cfbb4cf94cce6bee6f1218a09'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
@@ -276,12 +275,6 @@ package_git-doc-man () {
   make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-man
 }
 
-package_git-test-artifacts () {
-  cd "$srcdir"/git
-
-  make -f ../mingw-w64-git.mak DESTDIR="$pkgdir" install-mingit-busybox-test-artifacts
-}
-
 package_git-pdb () {
   cd "$srcdir"/git
 
@@ -300,10 +293,6 @@ package_mingw-w64-i686-git-doc-man () {
   package_git-doc-man
 }
 
-package_mingw-w64-i686-git-test-artifacts () {
-  package_git-test-artifacts
-}
-
 package_mingw-w64-i686-git-pdb () {
   package_git-pdb
 }
@@ -320,10 +309,6 @@ package_mingw-w64-x86_64-git-doc-man () {
   package_git-doc-man
 }
 
-package_mingw-w64-x86_64-git-test-artifacts () {
-  package_git-test-artifacts
-}
-
 package_mingw-w64-x86_64-git-pdb () {
   package_git-pdb
 }
@@ -338,10 +323,6 @@ package_mingw-w64-clang-aarch64-git-doc-html () {
 
 package_mingw-w64-clang-aarch64-git-doc-man () {
   package_git-doc-man
-}
-
-package_mingw-w64-clang-aarch64-git-test-artifacts () {
-  package_git-test-artifacts
 }
 
 package_mingw-w64-clang-aarch64-git-pdb () {
