@@ -4,7 +4,8 @@ _realname=git
 pkgbase="mingw-w64-${_realname}"
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-html"
-	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man")
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
 pkgrel=1
@@ -178,6 +179,38 @@ package_git () {
 
   # git-credential-wincred.exe
   make -C contrib/credential/wincred prefix="$pkgdir/$PREFIX" install
+}
+
+package_git-doc-html () {
+  cd "$srcdir"/git
+
+  make DESTDIR="$pkgdir" install-html
+
+  # subtree, for backwards-compatibility with MSys2's Git package
+  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-html
+
+  # Remove git-bash documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-bash.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-bash.html
+}
+
+package_git-doc-man () {
+  cd "$srcdir"/git
+
+  make DESTDIR="$pkgdir" install-man
+
+  # subtree, for backwards-compatibility with MSys2's Git package
+  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-man
+
+  # Remove git-bash documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-bash.1"
+}
+
+package_git-for-windows-addons () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}")
+  pkgdesc="Git for Windows extra executables and wrappers (mingw-w64)"
+
+  cd "$srcdir"/git
 
   # Git Bash, Git CMD
   install -d -m755 $pkgdir$SHAREDIR
@@ -196,29 +229,18 @@ package_git () {
 	$pkgdir/cmd
 
   # Scalar
-  test ! -x $pkgdir/$PREFIX/bin/scalar.exe ||
+  test ! -x ./scalar.exe ||
   install -m755 cmd/git.exe $pkgdir/cmd/scalar.exe
 
   # Install builtins.txt
   install -m644 builtins.txt $pkgdir$SHAREDIR
-}
 
-package_git-doc-html () {
-  cd "$srcdir"/git
-
-  make DESTDIR="$pkgdir" install-html
-
-  # subtree, for backwards-compatibility with MSys2's Git package
-  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-html
-}
-
-package_git-doc-man () {
-  cd "$srcdir"/git
-
-  make DESTDIR="$pkgdir" install-man
-
-  # subtree, for backwards-compatibility with MSys2's Git package
-  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-man
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-bash.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-bash.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-bash.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
 }
 
 package_git-pdb () {
