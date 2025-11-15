@@ -13,6 +13,8 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-svn"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-archimport"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-cvs"
+	 "${MINGW_PACKAGE_PREFIX}-gitk"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-gui"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
@@ -163,9 +165,7 @@ package_git () {
            "${MINGW_PACKAGE_PREFIX}-ca-certificates"
            "${MINGW_PACKAGE_PREFIX}-expat>=2.0"
            "${MINGW_PACKAGE_PREFIX}-openssl"
-           "${MINGW_PACKAGE_PREFIX}-pcre2"
-           "${MINGW_PACKAGE_PREFIX}-tcl"
-           "${MINGW_PACKAGE_PREFIX}-tk")
+           "${MINGW_PACKAGE_PREFIX}-pcre2")
 
   cd "$srcdir"/git
 
@@ -190,6 +190,18 @@ package_git () {
   rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsexportcommit"
   rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsimport"
   rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsserver"
+
+  # Remove gitk (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/bin/gitk"
+  rm -rf "$pkgdir/$MINGW_PREFIX/share/gitk"
+
+  # Remove git-gui (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-gui"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-gui.tcl"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-gui--askpass"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-gui--askyesno"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-citool"
+  rm -rf "$pkgdir/$MINGW_PREFIX/share/git-gui"
 
   # completions
   install -d "$pkgdir$SHAREDIR/completion/"
@@ -232,6 +244,12 @@ package_git-doc-html () {
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsserver.html
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitcvs-migration.adoc
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitcvs-migration.html
+
+  # Remove gitk and git-gui documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitk.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitk.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-gui.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-gui.html
 }
 
 package_git-doc-man () {
@@ -260,6 +278,10 @@ package_git-doc-man () {
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsimport.1"
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsserver.1"
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man7/gitcvs-migration.7"
+
+  # Remove gitk and git-gui documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/gitk.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-gui.1"
 }
 
 package_git-subtree () {
@@ -417,12 +439,50 @@ package_git-cvs () {
   install -m644 Documentation/gitcvs-migration.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
 }
 
+package_gitk () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "${MINGW_PACKAGE_PREFIX}-tcl"
+           "${MINGW_PACKAGE_PREFIX}-tk")
+  pkgdesc="Git repository browser (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  make -C gitk-git prefix="$pkgdir/$MINGW_PREFIX" install
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/gitk.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/gitk.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitk.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-gui () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "${MINGW_PACKAGE_PREFIX}-tcl"
+           "${MINGW_PACKAGE_PREFIX}-tk")
+  pkgdesc="Git GUI tool (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  make -C git-gui DESTDIR="$pkgdir$MINGW_PREFIX" gitexecdir=/libexec/git-core install
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-gui.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-gui.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-gui.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
 package_git-for-windows-addons () {
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
     "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
     "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
     "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email"
-    "${MINGW_PACKAGE_PREFIX}-${_realname}-svn")
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-svn"
+    "${MINGW_PACKAGE_PREFIX}-gitk"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-gui")
   pkgdesc="Git for Windows extra executables and wrappers (mingw-w64)"
 
   cd "$srcdir"/git
