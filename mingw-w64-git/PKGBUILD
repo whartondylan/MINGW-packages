@@ -13,6 +13,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-svn"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-archimport"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-cvs"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-p4"
 	 "${MINGW_PACKAGE_PREFIX}-gitk"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-gui"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
@@ -203,6 +204,9 @@ package_git () {
   rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-citool"
   rm -rf "$pkgdir/$MINGW_PREFIX/share/git-gui"
 
+  # Remove git-p4 (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-p4"
+
   # completions
   install -d "$pkgdir$SHAREDIR/completion/"
   install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
@@ -245,6 +249,10 @@ package_git-doc-html () {
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitcvs-migration.adoc
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitcvs-migration.html
 
+  # Remove git-p4 documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-p4.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-p4.html
+
   # Remove gitk and git-gui documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitk.adoc
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitk.html
@@ -278,6 +286,9 @@ package_git-doc-man () {
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsimport.1"
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsserver.1"
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man7/gitcvs-migration.7"
+
+  # Remove git-p4 documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-p4.1"
 
   # Remove gitk and git-gui documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/gitk.1"
@@ -473,6 +484,24 @@ package_git-gui () {
   install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
   install -m644 Documentation/git-gui.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
   install -m644 Documentation/git-gui.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-p4 () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "python")
+  pkgdesc="Perforce support for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-p4 "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-p4.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-p4.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-p4.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
 }
 
 package_git-for-windows-addons () {
