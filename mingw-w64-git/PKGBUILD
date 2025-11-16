@@ -8,6 +8,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email"
+	 "${MINGW_PACKAGE_PREFIX}-gitweb"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
 pkgver=2.52.0.1
@@ -173,6 +174,9 @@ package_git () {
   # Remove git-send-email (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-send-email"
 
+  # Remove gitweb (packaged separately)
+  rm -rf "$pkgdir/$MINGW_PREFIX/share/gitweb"
+
   # completions
   install -d "$pkgdir$SHAREDIR/completion/"
   install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
@@ -190,6 +194,12 @@ package_git-doc-html () {
   # Remove git-send-email documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-send-email.adoc
   rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-send-email.html
+
+  # Remove gitweb documentation (packages separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.conf.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.conf.html
 }
 
 package_git-doc-man () {
@@ -202,6 +212,10 @@ package_git-doc-man () {
 
   # Remove git-send-email documentation (packaged separately)
   rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-send-email.1"
+
+  # Remove gitweb documentation (packages separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/gitweb.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man5/gitweb.conf.5"
 }
 
 package_git-subtree () {
@@ -243,6 +257,27 @@ package_git-send-email () {
   install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
   install -m644 Documentation/git-send-email.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
   install -m644 Documentation/git-send-email.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_gitweb () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "perl")
+  pkgdesc="Git web interface (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  make DESTDIR="$pkgdir" install-gitweb
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/gitweb.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man5"
+  install -m644 Documentation/gitweb.conf.5 "$pkgdir/$MINGW_PREFIX/share/man/man5/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/gitweb.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitweb.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitweb.conf.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitweb.conf.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
 }
 
 package_git-for-windows-addons () {
