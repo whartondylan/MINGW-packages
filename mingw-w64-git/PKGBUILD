@@ -1,44 +1,35 @@
-# Maintainer: Martell Malone <martellmalone@gmail.com>
-# Maintainer: Ray Donnelly <mingw.android@gmail.com>
+# Maintainer: Johannes Schindelin <johannes.schindelin@gmx.de>
 
 _realname=git
 pkgbase="mingw-w64-${_realname}"
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-html"
 	 "${MINGW_PACKAGE_PREFIX}-${_realname}-doc-man"
-	 "${MINGW_PACKAGE_PREFIX}-${_realname}-test-artifacts")
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-perl"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email"
+	 "${MINGW_PACKAGE_PREFIX}-gitweb"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-svn"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-archimport"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-cvs"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-p4"
+	 "${MINGW_PACKAGE_PREFIX}-gitk"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-gui"
+	 "${MINGW_PACKAGE_PREFIX}-${_realname}-for-windows-addons")
 tag=2.52.0.windows.1
-pkgver=2.52.0.1.2912d8e9b8
+pkgver=2.52.0.1
 pkgrel=1
 pkgdesc="The fast distributed version control system (mingw-w64)"
 arch=('any')
-url="https://git-for-windows.github.io/"
+url="https://gitforwindows.org/"
 license=('GPL2')
 
 options=()
 makedepends=('python' 'less' 'openssh' 'patch' 'make' 'tar' 'diffutils'
-	'ca-certificates' 'xmlto' "${MINGW_PACKAGE_PREFIX}-asciidoctor")
+	'ca-certificates' 'xmlto' 'docbook-xsl-ns'
+	"${MINGW_PACKAGE_PREFIX}-asciidoctor")
 install=git.install
-
-case "$(printf "%s\n%s\n" "$pkgver" "2.18.0" | sort -V)" in
-2.18.0*) pcre="${MINGW_PACKAGE_PREFIX}-pcre2";;
-*) pcre="${MINGW_PACKAGE_PREFIX}-pcre";;
-esac
-
-depends=("${MINGW_PACKAGE_PREFIX}-curl"
-         "${MINGW_PACKAGE_PREFIX}-ca-certificates"
-         "${MINGW_PACKAGE_PREFIX}-expat>=2.0"
-         "${MINGW_PACKAGE_PREFIX}-openssl"
-         "$pcre"
-         "${MINGW_PACKAGE_PREFIX}-tcl"
-         "${MINGW_PACKAGE_PREFIX}-tk"
-         "perl-Error"
-         "perl>=5.14.0"
-         "perl-Authen-SASL"
-         "perl-libwww"
-         "perl-MIME-tools"
-         "perl-Net-SMTP-SSL"
-         "perl-TermReadKey")
 
 optdepends=("mintty")
 
@@ -58,7 +49,13 @@ source=("${_realname}"::"git+https://github.com/git-for-windows/git.git#tag=v$ta
 	'cv2pdb-strip'
 	'edit-git-bash.c')
 
-sha256sums=('SKIP'
+# Need to disable autoCRLF to ensure a stable checksum; `git archive` (which
+# is used by `calc_checksum_git()` in `/usr/share/makepkg/source/git.sh`) would
+# otherwise produce different line endings depending on the autoCRLF setting,
+# resulting in different sha256sums.
+export GIT_CONFIG_PARAMETERS="${GIT_CONFIG_PARAMETERS:+$GIT_CONFIG_PARAMETERS }'core.autocrlf=false' 'core.eol=lf'"
+
+sha256sums=('d21ed5eb108646012a7f59c354b3dd45f6b6138de6e2b582906517365962b18f'
             'a9dcba5aebc93ae7aacdee03275780fc6c0f15e88fda30c93041e75851e75090'
             'f16b345aba17acd124ab5940635dfa2d87445df73eedbeb80e0285f29c85415a'
             '80b0b11efe5a2f9b4cd92f28c260d0b3aad8b809c34ed95237c59b73e08ade0b'
@@ -70,7 +67,7 @@ sha256sums=('SKIP'
             'db754d6fe6722ad54d43df15ee93b1d9cead406158ed84dcbf35e5b4225469ed'
             'cbed8b133eb9eec9972f146be5c3ff49db29b2fff8ab9c87a6d0c646c08a5128'
             '027155aa6ca5f11ad7bcb89550a470935a9f22a9d5b3ab80a9eb209983258c1f'
-            '53dd1b5cbb8871fb7f32262a15a62a86bb0a78dfefcff921edab7287bb23889a'
+            '387cbdb711453a7c41830558c351e448952bb7978158c258df093b1742543dfe'
             '7413506c59d25621e475aa45447993748332c72cfbb4cf94cce6bee6f1218a09'
             '6d83e1cb1acdb6eb1f2d5cb9299298e57680f5ca43d43c3e67c9da17f21b9b01')
 
@@ -79,86 +76,40 @@ STRIP=
 STRIP_OPTS=
 LDFLAGS=
 
-if [[ "$MSYSTEM" == CLANG* && -z "$WITHOUT_PDBS" ]]
+if test -n "$WITHOUT_PDBS"
+then
+  options+=('strip')
+elif [[ "$MSYSTEM" == CLANG* ]]
 then
   pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
   options+=('!strip')
   STRIP=llvm-strip
   STRIP_OPTS=--strip-debug
   LDFLAGS="-Wl,-pdb=" # Ensures that Clang generates PDB files
-elif test -z "$WITHOUT_PDBS"
-then
+else
   pkgname+=("${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
   makedepends+=("${MINGW_PACKAGE_PREFIX}-cv2pdb")
   options+=('!strip')
   COMPAT_CFLAGS="-gdwarf-4 -gstrict-dwarf" # cv2pdb cannot really handle DWARF5 yet
   STRIP="${BASH_SOURCE%/*}/src/cv2pdb-strip"
-else
-  options+=('strip')
 fi
 
-pkgver() {
-  cd "$srcdir/git"
-  basever=${tag%.windows.*}
-  test "$tag" = "$basever" ||
-  basever="$basever.${tag##*.windows.}"
-  basever="${basever/-/.}"
-  printf "%s.%s" "${basever}" "$(git rev-parse --short HEAD)"
-}
-
-case "$CARCH" in
-i686)
-  SHAREDIR=/mingw32/share/git
-  ;;
-x86_64)
-  SHAREDIR=/mingw64/share/git
-  ;;
-aarch64)
-  SHAREDIR=/clangarm64/share/git
-  ;;
-esac
+SHAREDIR=$MINGW_PREFIX/share/git
 
 prepare () {
   cd "$srcdir/git" &&
 
   cat >config.mak <<-EOF
-USE_ASCIIDOCTOR = YesPlease
-COMPAT_CFLAGS += $COMPAT_CFLAGS
-LDFLAGS = $LDFLAGS
-EOF
+	USE_ASCIIDOCTOR = YesPlease
+	COMPAT_CFLAGS += $COMPAT_CFLAGS
+	LDFLAGS = $LDFLAGS
+	EOF
 
   cp ../git-bash.adoc Documentation/
-
-  # Slightly dirty workaround for missing docbook-xsl-ns
-  grep -q http://docbook.sourceforge.net/release/xsl-ns/current /etc/xml/catalog || {
-    (cd /usr/share/xml/ &&
-     test -d docbook-xsl-ns-1.78.1 ||
-     curl -L https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/1.78.1/docbook-xsl-ns-1.78.1.tar.bz2/download |
-     tar xjf -)
-    for rewrite in System URI
-    do
-      xmlcatalog --noout --add "rewrite$rewrite" \
-        http://docbook.sourceforge.net/release/xsl-ns/current \
-        /usr/share/xml/docbook-xsl-ns-1.78.1 \
-        /etc/xml/catalog
-    done
-  }
 }
 
 build() {
-  test -z "$PARALLEL_BUILD" || {
-    echo "WARNING: PARALLEL_BUILD is deprecated. Use MAKEFLAGS=-j15 instead" >&2
-    export MAKEFLAGS="$PARALLEL_BUILD $MAKEFLAGS"
-  }
-  export PYTHON_PATH=/usr/bin/python2
   cd "$srcdir/git"
-
-  if test false != "$(git config core.autocrlf)"
-  then
-    git config core.autocrlf false
-    rm .git/index
-    git reset --hard
-  fi
 
   # Git wants to decide itself whether to use ANSI stdio emulation or not
   CPPFLAGS="$(echo "$CPPFLAGS" |
@@ -188,15 +139,7 @@ build() {
   case "${pkgname[@]}" in ''|*html*) targets="$targets html";; esac &&
   case "${pkgname[@]}" in ''|*man*) targets="$targets man";; esac &&
 
-  counter=0 &&
-  while ! make $targets
-  do
-    counter=$(($counter+1))
-    test $counter -lt 5 || {
-      echo "Could not build (tried 5 times)" >&2
-      exit 1
-    }
-  done &&
+  make $targets &&
 
   case "${pkgname[@]}" in *pdb*)
     make -f ../mingw-w64-git.mak STRIP="$STRIP" STRIP_OPTS=$STRIP_OPTS strip-all &&
@@ -219,21 +162,359 @@ build() {
 }
 
 package_git () {
-  export PYTHON_PATH=/usr/bin/python2
+  depends=("${MINGW_PACKAGE_PREFIX}-curl"
+           "${MINGW_PACKAGE_PREFIX}-ca-certificates"
+           "${MINGW_PACKAGE_PREFIX}-expat>=2.0"
+           "${MINGW_PACKAGE_PREFIX}-openssl"
+           "${MINGW_PACKAGE_PREFIX}-pcre2")
+
   cd "$srcdir"/git
 
   make -j1 DESTDIR="$pkgdir" install
 
+  # Remove git-send-email (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-send-email"
+
+  # Remove gitweb (packaged separately)
+  rm -rf "$pkgdir/$MINGW_PREFIX/share/gitweb"
+
+  # Remove git-svn (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-svn"
+  # Remove Git.pm and other Perl modules (packaged separately in git-perl & git-svn)
+  rm -rf "$pkgdir/$MINGW_PREFIX"/share/perl5
+
+  # Remove git-archimport (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-archimport"
+
+  # Remove git-cvs* (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/bin/git-cvsserver"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsexportcommit"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsimport"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsserver"
+
+  # Remove gitk (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/bin/gitk"
+  rm -rf "$pkgdir/$MINGW_PREFIX/share/gitk"
+
+  # Remove git-gui (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-gui"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-gui.tcl"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-gui--askpass"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-gui--askyesno"
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-citool"
+  rm -rf "$pkgdir/$MINGW_PREFIX/share/git-gui"
+
+  # Remove git-p4 (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-p4"
+
   # completions
-  PREFIX="$(expr "$(cat < GIT-PREFIX)" : '[^:]*:[^:]*:[^:]*:\([^:]*\):[^:]*')"
-  install -d "$pkgdir/$PREFIX/share/git/completion/"
-  install contrib/completion/* "$pkgdir/$PREFIX/share/git/completion/"
+  install -d "$pkgdir$SHAREDIR/completion/"
+  install contrib/completion/* "$pkgdir$SHAREDIR/completion/"
+}
 
-  # subtree, for backwards-compatibility with MSys2's Git package
-  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install
+package_git-doc-html () {
+  cd "$srcdir"/git
 
-  # git-credential-wincred.exe
-  make -C contrib/credential/wincred prefix="$pkgdir/$PREFIX" install
+  make DESTDIR="$pkgdir" install-html
+
+  # Remove git-bash documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-bash.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-bash.html
+
+  # Remove git-send-email documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-send-email.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-send-email.html
+
+  # Remove gitweb documentation (packages separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.conf.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitweb.conf.html
+
+  # Remove git-svn documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-svn.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-svn.html
+
+  # Remove git-archimport documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-archimport.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-archimport.html
+
+  # Remove git-cvs* documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsexportcommit.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsexportcommit.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsimport.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsimport.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsserver.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-cvsserver.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitcvs-migration.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitcvs-migration.html
+
+  # Remove git-p4 documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-p4.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-p4.html
+
+  # Remove gitk and git-gui documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitk.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"gitk.html
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-gui.adoc
+  rm -f "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"git-gui.html
+}
+
+package_git-doc-man () {
+  cd "$srcdir"/git
+
+  make DESTDIR="$pkgdir" install-man
+
+  # Remove git-bash documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-bash.1"
+
+  # Remove git-send-email documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-send-email.1"
+
+  # Remove gitweb documentation (packages separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/gitweb.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man5/gitweb.conf.5"
+
+  # Remove git-svn documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-svn.1"
+
+  # Remove git-archimport documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-archimport.1"
+
+  # Remove git-cvs* documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsexportcommit.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsimport.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-cvsserver.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man7/gitcvs-migration.7"
+
+  # Remove git-p4 documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-p4.1"
+
+  # Remove gitk and git-gui documentation (packaged separately)
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/gitk.1"
+  rm -f "$pkgdir/$MINGW_PREFIX/share/man/man1/git-gui.1"
+}
+
+package_git-subtree () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}")
+  pkgdesc="Subtree support for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  make -C contrib/subtree prefix="$pkgdir/$MINGW_PREFIX" install
+  make -C contrib/subtree prefix="$pkgdir/$MINGW_PREFIX" install-man
+  make -C contrib/subtree prefix="$pkgdir/$MINGW_PREFIX" install-html
+}
+
+package_git-credential-wincred () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}")
+  pkgdesc="Git credential helper for Windows Credential Manager (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  make -C contrib/credential/wincred prefix="$pkgdir/$MINGW_PREFIX" install
+}
+
+package_git-perl () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "perl>=5.14.0"
+           "perl-Error"
+           "perl-libwww"
+           "perl-TermReadKey")
+  pkgdesc="Perl module for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  # Install Git.pm and related Perl modules (excluding Git::SVN)
+  make -j1 -f ../mingw-w64-git.mak DESTDIR="$pkgdir" install-perl-module
+  find "$pkgdir/$MINGW_PREFIX/share/perl5" -type f -path "*/Git/SVN*" -delete
+  find "$pkgdir/$MINGW_PREFIX/share/perl5" -type d -empty -delete
+}
+
+package_git-send-email () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "${MINGW_PACKAGE_PREFIX}-${_realname}-perl=${pkgver}"
+           "perl-Authen-SASL"
+           "perl-MIME-tools"
+           "perl-Net-SMTP-SSL")
+  pkgdesc="Send patch emails with git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-send-email "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-send-email.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-send-email.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-send-email.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_gitweb () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "perl")
+  pkgdesc="Git web interface (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  make DESTDIR="$pkgdir" install-gitweb
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/gitweb.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man5"
+  install -m644 Documentation/gitweb.conf.5 "$pkgdir/$MINGW_PREFIX/share/man/man5/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/gitweb.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitweb.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitweb.conf.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitweb.conf.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-svn () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "${MINGW_PACKAGE_PREFIX}-${_realname}-perl=${pkgver}"
+           "subversion")
+  pkgdesc="Subversion support for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-svn "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+
+  # Install Git::SVN Perl modules only
+  make -j1 DESTDIR="$pkgdir" -f ../mingw-w64-git.mak install-perl-module
+  find "$pkgdir/$MINGW_PREFIX/share/perl5" -type f ! -path "*/Git/SVN*" -delete
+  find "$pkgdir/$MINGW_PREFIX/share/perl5" -type d -empty -delete
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-svn.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-svn.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-svn.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-archimport () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "${MINGW_PACKAGE_PREFIX}-${_realname}-perl=${pkgver}")
+  pkgdesc="Import an Arch repository into Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-archimport "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-archimport.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-archimport.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-archimport.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-cvs () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "${MINGW_PACKAGE_PREFIX}-${_realname}-perl=${pkgver}"
+           "perl-DBI")
+  pkgdesc="CVS support for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/bin"
+  install -m755 git-cvsserver "$pkgdir/$MINGW_PREFIX/bin/"
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-cvsexportcommit "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+  install -m755 git-cvsimport "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+  ln "$pkgdir/$MINGW_PREFIX/bin/git-cvsserver" "$pkgdir/$MINGW_PREFIX/libexec/git-core/git-cvsserver"
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-cvsexportcommit.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -m644 Documentation/git-cvsimport.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -m644 Documentation/git-cvsserver.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man7"
+  install -m644 Documentation/gitcvs-migration.7 "$pkgdir/$MINGW_PREFIX/share/man/man7/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-cvsexportcommit.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsexportcommit.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsimport.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsimport.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsserver.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-cvsserver.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitcvs-migration.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitcvs-migration.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_gitk () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "${MINGW_PACKAGE_PREFIX}-tcl"
+           "${MINGW_PACKAGE_PREFIX}-tk")
+  pkgdesc="Git repository browser (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  make -C gitk-git prefix="$pkgdir/$MINGW_PREFIX" install
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/gitk.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/gitk.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/gitk.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-gui () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "${MINGW_PACKAGE_PREFIX}-tcl"
+           "${MINGW_PACKAGE_PREFIX}-tk")
+  pkgdesc="Git GUI tool (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  make -C git-gui DESTDIR="$pkgdir$MINGW_PREFIX" gitexecdir=/libexec/git-core install
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-gui.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-gui.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-gui.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-p4 () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+           "python")
+  pkgdesc="Perforce support for Git (mingw-w64)"
+
+  cd "$srcdir"/git
+
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/libexec/git-core"
+  install -m755 git-p4 "$pkgdir/$MINGW_PREFIX/libexec/git-core/"
+
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-p4.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-p4.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-p4.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+}
+
+package_git-for-windows-addons () {
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}=${pkgver}"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-subtree"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-credential-wincred"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-send-email"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-svn"
+    "${MINGW_PACKAGE_PREFIX}-gitk"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-gui")
+  pkgdesc="Git for Windows extra executables and wrappers (mingw-w64)"
+
+  cd "$srcdir"/git
 
   # Git Bash, Git CMD
   install -d -m755 $pkgdir$SHAREDIR
@@ -252,35 +533,18 @@ package_git () {
 	$pkgdir/cmd
 
   # Scalar
-  test ! -x $pkgdir/$PREFIX/bin/scalar.exe ||
+  test ! -x ./scalar.exe ||
   install -m755 cmd/git.exe $pkgdir/cmd/scalar.exe
 
   # Install builtins.txt
   install -m644 builtins.txt $pkgdir$SHAREDIR
-}
 
-package_git-doc-html () {
-  cd "$srcdir"/git
-
-  make DESTDIR="$pkgdir" install-html
-
-  # subtree, for backwards-compatibility with MSys2's Git package
-  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-html
-}
-
-package_git-doc-man () {
-  cd "$srcdir"/git
-
-  make DESTDIR="$pkgdir" install-man
-
-  # subtree, for backwards-compatibility with MSys2's Git package
-  make -C contrib/subtree prefix="$pkgdir/$PREFIX" install-man
-}
-
-package_git-test-artifacts () {
-  cd "$srcdir"/git
-
-  make -f ../mingw-w64-git.mak DESTDIR="$pkgdir" install-mingit-busybox-test-artifacts
+  # Install documentation
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/man/man1"
+  install -m644 Documentation/git-bash.1 "$pkgdir/$MINGW_PREFIX/share/man/man1/"
+  install -d -m755 "$pkgdir/$MINGW_PREFIX/share/doc/git-doc"
+  install -m644 Documentation/git-bash.adoc "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
+  install -m644 Documentation/git-bash.html "$pkgdir/$MINGW_PREFIX/share/doc/git-doc/"
 }
 
 package_git-pdb () {
@@ -289,62 +553,13 @@ package_git-pdb () {
   make -f ../mingw-w64-git.mak DESTDIR="$pkgdir" install-pdbs
 }
 
-package_mingw-w64-i686-git () {
-  package_git
-}
+# template start; name=mingw-w64-splitpkg-wrappers; version=1.0;
+# vim: set ft=bash :
 
-package_mingw-w64-i686-git-doc-html () {
-  package_git-doc-html
-}
-
-package_mingw-w64-i686-git-doc-man () {
-  package_git-doc-man
-}
-
-package_mingw-w64-i686-git-test-artifacts () {
-  package_git-test-artifacts
-}
-
-package_mingw-w64-i686-git-pdb () {
-  package_git-pdb
-}
-
-package_mingw-w64-x86_64-git () {
-  package_git
-}
-
-package_mingw-w64-x86_64-git-doc-html () {
-  package_git-doc-html
-}
-
-package_mingw-w64-x86_64-git-doc-man () {
-  package_git-doc-man
-}
-
-package_mingw-w64-x86_64-git-test-artifacts () {
-  package_git-test-artifacts
-}
-
-package_mingw-w64-x86_64-git-pdb () {
-  package_git-pdb
-}
-
-package_mingw-w64-clang-aarch64-git () {
-  package_git
-}
-
-package_mingw-w64-clang-aarch64-git-doc-html () {
-  package_git-doc-html
-}
-
-package_mingw-w64-clang-aarch64-git-doc-man () {
-  package_git-doc-man
-}
-
-package_mingw-w64-clang-aarch64-git-test-artifacts () {
-  package_git-test-artifacts
-}
-
-package_mingw-w64-clang-aarch64-git-pdb () {
-  package_git-pdb
-}
+# generate wrappers
+for _name in "${pkgname[@]}"; do
+  _short="package_${_name#${MINGW_PACKAGE_PREFIX}-}"
+  _func="$(declare -f "${_short}")"
+  eval "${_func/#${_short}/package_${_name}}"
+done
+# template end;
