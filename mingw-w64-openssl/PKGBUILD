@@ -4,7 +4,7 @@ _realname=openssl
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 	"${MINGW_PACKAGE_PREFIX}-${_realname}-pdb")
-pkgver=3.2.4
+pkgver=3.5.4
 pkgrel=1
 pkgdesc="The Open Source toolkit for Secure Sockets Layer and Transport Layer Security (mingw-w64)"
 arch=('any')
@@ -19,18 +19,24 @@ if [[ "$MSYSTEM" != CLANG* ]]; then
 fi
 options=('!strip' '!buildflags')
 source=("https://github.com/openssl/openssl/releases/download/openssl-${pkgver}/openssl-${pkgver}.tar.gz"{,.asc}
-        '001-support-aarch64.patch'
-        '002-relocation.patch'
-        '003-mingw32-broken-test.patch'
-        '0001-test_rand-use-the-better-chomp.patch'
+        '0001-support-aarch64.patch'
+        '0002-relocation.patch'
+        '0003-test_rand-use-the-better-chomp.patch'
+        '0004-mingw32-broken-test.patch'
+        '0005-Fix-Text-comparison.patch'
+        '0006-Mangle-Absolute-path.patch'
+        '0007-Fix-OS-detection.patch'
         'pathtools.c'
         'pathtools.h')
-sha256sums=('b23ad7fd9f73e43ad1767e636040e88ba7c9e5775bfa5618436a0dd2c17c3716'
+sha256sums=('967311f84955316969bdb1d8d4b983718ef42338639c621ec4c34fddef355e99'
             'SKIP'
-            '21b96771b401442570e885c2d5689a359a91e86dcbf5511db3667202b6c1fa8a'
-            '8a2d91826bd1a8fd6d3a981d2a71cfb3170060f64a053eafd8e3b32f6a30ac3b'
-            'f80607b2d59b97648952fb3b8de0e3423f023d67331e0e02696e27fbcf84774c'
-            '56fcd20131ae0c563db18ae00c6ba3b95cd9cb1e9934548079284ba3f52ad250'
+            'baaaab0e91caf5690d4a264146cff2030bb5852ad14712d7f89e7e072533ae11'
+            'a45ab8e18db920e8c559d80598664cfb52d2f4e09653f4caaa0f4de0055982cf'
+            'c41bc19de1448b08b61ee47b55620e7629e9189a9a7f4e2fac42e8a9e5823d30'
+            '0862c9751775f1c75d0495538951343ff83c83a5344e61e091dd3e964a630640'
+            '52a4c65eb0af1a8319e2ece6e714ae6130f27bd46ba8d40966428694d64728ed'
+            'eca965cb6761cfa294857fd85eef4aa27fdc7e322ebcd88a1b67c4c668be7121'
+            'a00fe4dbc0c5848ccb1b205e3aae2dccd5246745e517e74349dfdb3b25968047'
             '08209cbf1633fa92eae7e5d28f95f8df9d6184cc20fa878c99aec4709bb257fd'
             '965d3921ec4fdeec94a2718bc2c85ce5e1a00ea0e499330a554074a7ae15dfc6')
 
@@ -58,16 +64,19 @@ prepare() {
   cd ${srcdir}/${_realname}-${pkgver}
 
   apply_patch_with_msg \
-     001-support-aarch64.patch \
-     002-relocation.patch \
-     0001-test_rand-use-the-better-chomp.patch
+     0001-support-aarch64.patch \
+     0002-relocation.patch \
+     0003-test_rand-use-the-better-chomp.patch \
+     0005-Fix-Text-comparison.patch \
+     0006-Mangle-Absolute-path.patch \
+     0007-Fix-OS-detection.patch
 
   if [[ "$MSYSTEM" == MINGW32 ]]
   then
     # MINGW32 gmtime() doesn't handle negative values particularly well, which breaks a test that expects a
     # negative value after converting an invalid ASN1 string to time_t but can't compare the expected result
     # with the actual result
-    apply_patch_with_msg 003-mingw32-broken-test.patch
+    apply_patch_with_msg 0004-mingw32-broken-test.patch
   fi
 
   test ! -d "${startdir}/../mingw-w64-pathtools" || {
@@ -142,7 +151,7 @@ build() {
 check() {
   cd "${srcdir}/build-${MSYSTEM}"
 
-  make VERBOSE=1 TESTS=-test_symbol_presence test
+  make VERBOSE_FAILURE=1 TESTS=-test_symbol_presence test
 }
 
 _package() {
